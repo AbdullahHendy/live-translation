@@ -1,13 +1,9 @@
-from thread_manager import ThreadManager
+from pipeline_manager import PipelineManager
 
 def main():
-    thread_manager = ThreadManager()
-    
-    # Start the threads
-    thread_manager.start_threads()
-
-    # Run the thread manager
-    thread_manager.run()
+    # Create and run the pipeline manager
+    pipeline_manager = PipelineManager()
+    pipeline_manager.run()
 
 if __name__ == "__main__":
     main()
