@@ -46,11 +46,12 @@ Before running the project, you need to install the following system dependencie
 
 ## Usage
 
-1. Run the application:
+1. **Run the application**:
    ```bash
    python main.py
+   ```
 2. The program will continuously listen for speech, transcribe the audio, and print the translated text to the console.
-3. To stop the program, press Ctrl+C.
+3. To stop the program, press **Ctrl+C**.
 
 ## Configuration
 
@@ -71,14 +72,29 @@ For translation settings, you can modify:
 - **TRANS_MODEL_NAME**: The name of the translation model (default: `"facebook/m2m100_418M"`).
 - **DEVICE**: The device to run the models on (default: `"cpu"`).
 
+## Tested Environment
+
+This project was tested and developed on the following system configuration:
+
+- **Architecture**: x86_64 (64-bit)
+- **Operating System**: Ubuntu 24.10 (Oracular Oriole)
+- **Kernel Version**: 6.11.0-18-generic
+- **Python Version**: 3.12.7
+- **Processor**: 13th Gen Intel(R) Core(TM) i9-13900HX
+- **GPU**: GeForce RTX 4070 Max-Q / Mobile [^1]
+- **RAM**: 16GB DDR5
+- **Dependencies**: All required dependencies are listed in `requirements.txt` and [Prerequisites](#prerequisites)
+
+[^1]: CUDA not utilized, as the `DEVICE` configuration is set to `"cpu"`. Additional Nvidia drivers, CUDA, cuDNN installation needed if option `"cuda"` were to be used.
+
 ## Improvements
 
 Here are some planned enhancements and areas for future improvement:
 
 - **Block Diagram**: Include a block diagram to visually represent the flow and architecture of the system, making it easier to understand the overall design.
 - **Better Error Handling**: Improve error handling across various components (audio, transcription, translation) to ensure the system is robust and can handle unexpected scenarios gracefully.
-- **Performance Optimization**: Investigate performance bottlenecks, particularly with audio capture and processing. This includes checking sleep durations and optimizing thread management to minimize lag.
-- **Threading Design Check**: Review and optimize the threading design to ensure thread safety and prevent issues like race conditions or deadlocks. Consider adopting a more modular approach to task delegation.
+- **Performance Optimization**: Investigate performance bottlenecks including checking sleep durations and optimizing concurrency management to minimize lag.
+- **Concurrency Design Check**: Review and optimize the threading design to ensure thread safety and prevent issues like race conditions or deadlocks, etc., revisit the current design of ***AudioRecorder*** being a thread while ***Transcriber*** and ***Translator*** being processes.
 - **Missed Translation Context**: Address potential issues with missing context during translation. Consider implementing context management to ensure translations are coherent and make use of preceding information.
 - **Code Formatting**: Ensure consistent code formatting across the entire project using tools like `black` or `autopep8` to follow PEP-8 standards and make the code more readable.
 - **Unit Testing**: Add unit tests for various components, including the audio capture, transcription, and translation modules, to improve test coverage and ensure system stability.
