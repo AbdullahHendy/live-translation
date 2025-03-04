@@ -4,7 +4,7 @@ import queue
 import multiprocessing as mp
 import threading
 from transformers import M2M100ForConditionalGeneration, M2M100Tokenizer
-from config import TRANS_MODEL_NAME, DEVICE, SRC_LANG, TARGET_LANG
+import config
 
 class Translator(mp.Process):
     """
@@ -12,18 +12,23 @@ class Translator(mp.Process):
     the M2M-100 model, and prints the translation.
     """
     def __init__(self, transcription_queue: mp.Queue, 
-                 stop_event: threading.Event):
+                 stop_event: threading.Event, 
+                 cfg: config.Config
+                ):
+        """Initialize the Translator."""
         super().__init__()
         self.transcription_queue = transcription_queue
         self.stop_event = stop_event
+        self.cfg = cfg
         print("🔄 Translator: Loading M2M-100 translation model...")
-        self.tokenizer = M2M100Tokenizer.from_pretrained(TRANS_MODEL_NAME)
+        self.tokenizer = M2M100Tokenizer.from_pretrained(
+            self.cfg.TRANS_MODEL
+        )
 
-    
     def run(self):
         self.model = M2M100ForConditionalGeneration.from_pretrained(
-            TRANS_MODEL_NAME
-        ).to(DEVICE)
+            self.cfg.TRANS_MODEL
+        ).to(self.cfg.DEVICE)
 
         print("🌍 Translator: Ready to translate text...")
 
@@ -37,7 +42,11 @@ class Translator(mp.Process):
                     continue
 
                 try:
-                    translation = self.translate(text, SRC_LANG, TARGET_LANG)
+                    translation = self.translate(
+                        text, 
+                        self.cfg.SRC_LANG, 
+                        self.cfg.TARGET_LANG
+                    )
                     print(f"🌍 Translator: {translation}")
                 except Exception as e:
                     print(f"🚨 Translator Error: {e}")
@@ -50,7 +59,12 @@ class Translator(mp.Process):
         if not text.strip():
             return ""
         self.tokenizer.src_lang = src_lang
-        inputs = self.tokenizer(text, return_tensors="pt").to(DEVICE)
+        
+        inputs = self.tokenizer(
+            text, 
+            return_tensors="pt"
+        ).to(self.cfg.DEVICE)
+
         translated_tokens = self.model.generate(
             **inputs, forced_bos_token_id=self.tokenizer.get_lang_id(tgt_lang)
         )

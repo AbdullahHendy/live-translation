@@ -44,33 +44,37 @@ Before running the project, you need to install the following system dependencie
     pip install -r requirements.txt    
     ```
 
-## Usage
+## Usage & Configuration
 
-1. **Run the application**:
+1. **Run the application** with:
    ```bash
-   python main.py
+   python live_translation.py [OPTIONS]
    ```
+    **OPTIONS**:
+    ```bash
+    usage: live_translation.py [-h] [--silence_threshold SILENCE_THRESHOLD] [--vad_aggressiveness {0,1,2,3}] [--device {cpu,cuda}]
+                  [--whisper_model {tiny,base,small,medium,large,large-v2}] [--trans_model_name {facebook/m2m100_418M,facebook/m2m100_1.2B}]
+                  [--src_lang SRC_LANG] [--tgt_lang TGT_LANG]
+
+    Audio Processing Pipeline - Configure runtime settings.
+
+    options:
+      -h, --help            show this help message and exit
+      --silence_threshold SILENCE_THRESHOLD
+                            Number of consecutive 30ms silent chunks before detecting SILENCE. SILENCE triggers sending a 'FULL' audio buffer for transcription/translation. Default is 10.
+      --vad_aggressiveness {0,1,2,3}
+                            Voice Activity Detection (VAD) aggressiveness level (0-3). Higher values are more aggressive. Default is 3.
+      --device {cpu,cuda}   Device for processing ('cpu', 'cuda'). Default is 'cpu'.
+      --whisper_model {tiny,base,small,medium,large,large-v2}
+                            Whisper model size ('tiny', 'base', 'small', 'medium', 'large', 'large-v2'). Default is 'base'.
+      --trans_model_name {facebook/m2m100_418M,facebook/m2m100_1.2B}
+                            Translation model name ('facebook/m2m100_418M', 'facebook/m2m100_1.2B'). Default is 'facebook/m2m100_418M'.
+      --src_lang SRC_LANG   Source/Input language for transcription (e.g., 'en', 'fr'). Default is 'en'.
+      --tgt_lang TGT_LANG   Target language for translation (e.g., 'es', 'de'). Default is 'es'.
+    ```
+
 2. The program will continuously listen for speech, transcribe the audio, and print the translated text to the console.
 3. To stop the program, press **Ctrl+C**.
-
-## Configuration
-
-The configuration settings can be found in the `config.py` file. You can modify the following parameters:
-
-- **CHUNK_SIZE**: The size of the audio chunks to process.
-  - **Note**: For Voice Activity Detection (VAD) to work, the `CHUNK_SIZE` must be one of `160`, `320`, or `480` for a `16000` sample rate. For more information, refer to the [py-webrtcvad GitHub repository](https://github.com/wiseman/py-webrtcvad).
-- **SAMPLE_RATE**: The sample rate of the audio (default: `16000`).
-- **CHANNELS**: The number of audio channels (default: `1` for mono).
-- **SILENCE_THRESHOLD**: The number of consecutive silent chunks before a transcription is triggered (default: `10`).
-- **VAD_AGGRESSIVENESS**: The aggressiveness of the voice activity detection (default: `3`).
-
-For translation settings, you can modify:
-
-- **WHISPER_MODEL**: The path or name of the Whisper model to use for transcription (default: `"base"`).
-- **SRC_LANG**: The source language for transcription (default: `"en"`).
-- **TARGET_LANG**: The target language for translation (default: `"es"`).
-- **TRANS_MODEL_NAME**: The name of the translation model (default: `"facebook/m2m100_418M"`).
-- **DEVICE**: The device to run the models on (default: `"cpu"`).
 
 ## Tested Environment
 
@@ -89,8 +93,6 @@ This project was tested and developed on the following system configuration:
 
 ## Improvements
 
-Here are some planned enhancements and areas for future improvement:
-
 - **Block Diagram**: Include a block diagram to visually represent the flow and architecture of the system, making it easier to understand the overall design.
 - **Better Error Handling**: Improve error handling across various components (audio, transcription, translation) to ensure the system is robust and can handle unexpected scenarios gracefully.
 - **Performance Optimization**: Investigate performance bottlenecks including checking sleep durations and optimizing concurrency management to minimize lag.
@@ -98,6 +100,5 @@ Here are some planned enhancements and areas for future improvement:
 - **Missed Translation Context**: Address potential issues with missing context during translation. Consider implementing context management to ensure translations are coherent and make use of preceding information.
 - **Code Formatting**: Ensure consistent code formatting across the entire project using tools like `black` or `autopep8` to follow PEP-8 standards and make the code more readable.
 - **Unit Testing**: Add unit tests for various components, including the audio capture, transcription, and translation modules, to improve test coverage and ensure system stability.
-- **Runtime Flags for Config**: Refactor the current configuration system. Instead of hardcoding options in a config file, move them to runtime flags for greater flexibility. This will allow users to specify parameters dynamically when running the program.
 - **Logging**: Integrate detailed logging to track system activity, errors, and performance metrics. This will help with debugging, monitoring, and maintaining the application in production environments.
 

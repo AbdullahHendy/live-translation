@@ -1,13 +1,18 @@
+# pipeline_manager.py
+
 import multiprocessing as mp
 import signal
 import time
 from audio.recorder import AudioRecorder
 from transcription.transcriber import Transcriber
 from translation.translator import Translator
+import config
 
 class PipelineManager:
-    def __init__(self):
-        """Initialize queues, stop event, thread, and processes."""
+    def __init__(self, config: config.Config):
+        """Initialize config, queues, stop event, thread, and processes."""
+        self.config = config
+
         self.manager = mp.Manager()
         self.stop_event = self.manager.Event()
 
@@ -19,18 +24,21 @@ class PipelineManager:
         # Thread
         self.recorder = AudioRecorder(
             self.audio_queue, 
-            self.stop_event
+            self.stop_event,
+            self.config
         )
         # Processes
         self.transcriber = Transcriber(
             self.audio_queue, 
             self.transcription_queue, 
-            self.stop_event
+            self.stop_event,
+            self.config
         )
 
         self.translator = Translator(
             self.transcription_queue, 
-            self.stop_event
+            self.stop_event,
+            self.config
         )
 
         # List of pipeline components
