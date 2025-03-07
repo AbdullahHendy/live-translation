@@ -1,3 +1,5 @@
+# args.py
+
 import argparse
 
 
@@ -72,5 +74,41 @@ def get_args():
             "Default is 'es'."
         ),
     )
+
+    # Output Settings
+    parser.add_argument(
+        "--output",
+        type=str,
+        choices=["print", "file", "websocket"],
+        help=(
+            "Output method for transcriptions ('print', 'file', 'websocket'). "
+            "  - 'print': Prints transcriptions and translations to the console. "
+            "  - 'file': Saves structured JSON data in transcripts/transcriptions.json. "
+            "  - 'websocket': Sends structured JSON data over WebSocket. "
+            "JSON format for 'file' and 'websocket':"
+            "{\n"
+            '    "timestamp": "2025-03-06T12:34:56.789Z",'
+            '    "transcription": "Hello world",'
+            '    "translation": "Hola mundo"'
+            "}.\n"
+            "Default is 'print'."
+        ),
+    )
+
+    parser.add_argument(
+        "--ws_port",
+        type=int,
+        help=(
+            "WebSocket port for sending transcriptions. "
+            "Requied if --output is 'websocket'. "
+        ),
+    )
+
+    args = parser.parse_args()
+
+    # Validate WebSocket port if provided if output is 'websocket'
+    if args.output == "websocket" and args.ws_port is None:
+        raise ValueError(
+            "WebSocket port is required for 'websocket' output mode.")
 
     return parser.parse_args()

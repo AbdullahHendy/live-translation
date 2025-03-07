@@ -8,6 +8,7 @@ This project provides a real-time speech-to-text translation solution. It captur
 - Speech-to-text transcription using the Whisper model
 - Translation of transcriptions from a source language to a target language
 - Multithreaded design for efficient processing
+- Different output modes: stdout, JSON file, websocket server
 
 ## Prerequisites
 
@@ -52,9 +53,8 @@ Before running the project, you need to install the following system dependencie
    ```
     **OPTIONS**:
     ```bash
-    usage: live_translation.py [-h] [--silence_threshold SILENCE_THRESHOLD] [--vad_aggressiveness {0,1,2,3}] [--device {cpu,cuda}]
-                  [--whisper_model {tiny,base,small,medium,large,large-v2}] [--trans_model_name {facebook/m2m100_418M,facebook/m2m100_1.2B}]
-                  [--src_lang SRC_LANG] [--tgt_lang TGT_LANG]
+    usage: live_translation.py [-h] [--silence_threshold SILENCE_THRESHOLD] [--vad_aggressiveness {0,1,2,3}] [--device {cpu,cuda}] [--whisper_model {tiny,base,small,medium,large,large-v2}] [--trans_model_name {facebook/m2m100_418M,facebook/m2m100_1.2B}]
+                              [--src_lang SRC_LANG] [--tgt_lang TGT_LANG] [--output {print,file,websocket}] [--ws_port WS_PORT]
 
     Audio Processing Pipeline - Configure runtime settings.
 
@@ -71,9 +71,61 @@ Before running the project, you need to install the following system dependencie
                             Translation model name ('facebook/m2m100_418M', 'facebook/m2m100_1.2B'). Default is 'facebook/m2m100_418M'.
       --src_lang SRC_LANG   Source/Input language for transcription (e.g., 'en', 'fr'). Default is 'en'.
       --tgt_lang TGT_LANG   Target language for translation (e.g., 'es', 'de'). Default is 'es'.
+      --output {print,file,websocket}
+                            Output method for transcriptions ('print', 'file', 'websocket'). - 'print': Prints transcriptions and translations to the console. - 'file': Saves structured JSON data in transcripts/transcriptions.json. - 'websocket': Sends
+                            structured JSON data over WebSocket. JSON format for 'file' and 'websocket':{ "timestamp": "2025-03-06T12:34:56.789Z", "transcription": "Hello world", "translation": "Hola mundo" }. Default is 'print'.
+      --ws_port WS_PORT     WebSocket port for sending transcriptions. Requied if --output is 'websocket'.
     ```
 
-2. The program will continuously listen for speech, transcribe the audio, and print the translated text to the console.
+2. The program will continuously listen for speech, transcribe the audio, and send the output using the selected mode.
+    > **NOTE**: The output including timestamp, ***src_lang*** transcription, and ***tgt_lang*** translation is sent out after the translation stage.
+    >
+    > **NOTE**: One can safely ignore the following warning:
+    >
+    > ALSA lib pcm_dsnoop.c:567:(snd_pcm_dsnoop_open) unable to open slave
+    > ALSA lib pcm_dmix.c:1000:(snd_pcm_dmix_open) unable to open slave
+    > ALSA lib pcm.c:2722:(snd_pcm_open_noupdate) Unknown PCM cards.pcm.rear
+    > ALSA lib pcm.c:2722:(snd_pcm_open_noupdate) Unknown PCM cards.pcm.center_lfe
+    > ALSA lib pcm.c:2722:(snd_pcm_open_noupdate) Unknown PCM cards.pcm.side
+    > ALSA lib pcm_dmix.c:1000:(snd_pcm_dmix_open) unable to open slave
+    > Cannot connect to server socket err = No such file or directory
+    > Cannot connect to server request channel
+    > jack server is not running or cannot be started
+    > JackShmReadWritePtr::~JackShmReadWritePtr - Init not done for -1, skipping unlock
+    > JackShmReadWritePtr::~JackShmReadWritePtr - Init not done for -1, skipping unlock
+    >
+    
+    - in case of websockets, one can connect to the server using: 
+      - curl, wscat, etc..
+      ```bash
+      curl --include --no-buffer ws://localhost:<PORT_NUM>
+      ```
+      ```bash
+      wscat -c ws://localhost:<PORT_NUM>
+      ```
+      - more structured client code
+      ```python
+      import asyncio
+      import websockets
+
+      PORT_NUMBER = 4567
+
+      async def connect():
+          async with websockets.connect(f"ws://localhost:{PORT_NUMBER}") as ws:
+              print("Connected to WebSocket server!")
+              try:
+                  while True:
+                      print(f"Received: {await ws.recv()}")
+              except websockets.exceptions.ConnectionClosed:
+                  print("Connection closed!")
+              except asyncio.CancelledError:
+                  print("Stopped!")
+
+      async def main():
+          await connect()
+
+      asyncio.run(main())
+      ```
 3. To stop the program, press **Ctrl+C**.
 
 ## Tested Environment
@@ -99,6 +151,6 @@ This project was tested and developed on the following system configuration:
 - **Concurrency Design Check**: Review and optimize the threading design to ensure thread safety and prevent issues like race conditions or deadlocks, etc., revisit the current design of ***AudioRecorder*** being a thread while ***Transcriber*** and ***Translator*** being processes.
 - **Missed Translation Context**: Address potential issues with missing context during translation. Consider implementing context management to ensure translations are coherent and make use of preceding information.
 - **Code Formatting**: Ensure consistent code formatting across the entire project using tools like `black` or `autopep8` to follow PEP-8 standards and make the code more readable.
-- **Unit Testing**: Add unit tests for various components, including the audio capture, transcription, and translation modules, to improve test coverage and ensure system stability.
-- **Logging**: Integrate detailed logging to track system activity, errors, and performance metrics. This will help with debugging, monitoring, and maintaining the application in production environments.
+- **Unit Testing**: Add unit tests for various components, including the audio capture, transcription, and translation modules with proper coverage.
+- **Logging**: Integrate detailed logging to track system activity, errors, and performance metrics using a more formal logging framework.
 

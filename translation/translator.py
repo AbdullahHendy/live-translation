@@ -5,6 +5,8 @@ import multiprocessing as mp
 import threading
 from transformers import M2M100ForConditionalGeneration, M2M100Tokenizer
 import config
+from output_manager import OutputManager
+
 
 class Translator(mp.Process):
     """
@@ -13,13 +15,15 @@ class Translator(mp.Process):
     """
     def __init__(self, transcription_queue: mp.Queue, 
                  stop_event: threading.Event, 
-                 cfg: config.Config
+                 cfg: config.Config, 
+                 output_manager: OutputManager
                 ):
         """Initialize the Translator."""
         super().__init__()
         self.transcription_queue = transcription_queue
         self.stop_event = stop_event
         self.cfg = cfg
+        self.output_manager = output_manager
         print("🔄 Translator: Loading M2M-100 translation model...")
         self.tokenizer = M2M100Tokenizer.from_pretrained(
             self.cfg.TRANS_MODEL
@@ -47,7 +51,7 @@ class Translator(mp.Process):
                         self.cfg.SRC_LANG, 
                         self.cfg.TARGET_LANG
                     )
-                    print(f"🌍 Translator: {translation}")
+                    self.output_manager.write(text, translation)
                 except Exception as e:
                     print(f"🚨 Translator Error: {e}")
         except Exception as e:

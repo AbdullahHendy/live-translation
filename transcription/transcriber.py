@@ -7,6 +7,7 @@ import numpy as np
 from faster_whisper import WhisperModel
 import config
 
+
 class Transcriber(mp.Process):
     """
     Transcriber retrieves audio segments from an audio queue, 
@@ -51,7 +52,6 @@ class Transcriber(mp.Process):
                     
                     transcription = " ".join(seg.text for seg in segments)
                     if transcription.strip():
-                        print(f"📝 Transcriber: {transcription}")
                         self.transcription_queue.put(transcription)
                 except Exception as e:
                     print(f"🚨 Transcriber Error: {e}")

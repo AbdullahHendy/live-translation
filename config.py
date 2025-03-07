@@ -2,6 +2,7 @@
 
 import os
 
+
 class Config:
     """Configuration class for the application."""
 
@@ -32,6 +33,10 @@ class Config:
         self.SRC_LANG = os.getenv("SRC_LANG", "en")
         self.TARGET_LANG = os.getenv("TARGET_LANG", "es")
 
+        # Output mode (print, file, or websocket)
+        self.OUTPUT_MODE = os.getenv("OUTPUT_MODE", "print")
+        self.WS_PORT = os.getenv("WS_PORT")
+
         # Apply CLI overrides if provided
         if args:
             self._apply_cli_args(args)
@@ -52,3 +57,8 @@ class Config:
             self.SRC_LANG = args.src_lang
         if args.tgt_lang is not None:
             self.TARGET_LANG = args.tgt_lang
+        if args.output is not None:
+            self.OUTPUT_MODE = args.output
+        if args.ws_port is not None:
+            self.WS_PORT = args.ws_port
+            

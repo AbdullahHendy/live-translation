@@ -6,11 +6,15 @@ import time
 from audio.recorder import AudioRecorder
 from transcription.transcriber import Transcriber
 from translation.translator import Translator
+from output_manager import OutputManager
 import config
+
 
 class PipelineManager:
     def __init__(self, config: config.Config):
-        """Initialize config, queues, stop event, thread, and processes."""
+        """
+        Initialize config, queues, stop event, thread, and processes.
+        """
         self.config = config
 
         self.manager = mp.Manager()
@@ -20,7 +24,11 @@ class PipelineManager:
         self.audio_queue = mp.Queue()
         self.transcription_queue = mp.Queue()
 
-        # Create component instances
+        # Create OutputManager
+        self.output_manager = OutputManager(
+            self.config
+            )
+
         # Thread
         self.recorder = AudioRecorder(
             self.audio_queue, 
@@ -38,7 +46,8 @@ class PipelineManager:
         self.translator = Translator(
             self.transcription_queue, 
             self.stop_event,
-            self.config
+            self.config,
+            self.output_manager
         )
 
         # List of pipeline components
@@ -76,6 +85,8 @@ class PipelineManager:
                     "Terminating."
                 )                
                 process.terminate()
+        
+        self.output_manager.close()
 
         print("✅ All processes stopped.")
 
