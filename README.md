@@ -146,6 +146,7 @@ This project was tested and developed on the following system configuration:
 ## Improvements
 
 - **Block Diagram**: Include a block diagram to visually represent the flow and architecture of the system, making it easier to understand the overall design.
+- **Better VAD**: Experiment with other VAD providers, [***silero***](https://github.com/snakers4/silero-vad) looks very promising.
 - **Better Error Handling**: Improve error handling across various components (audio, transcription, translation) to ensure the system is robust and can handle unexpected scenarios gracefully.
 - **Performance Optimization**: Investigate performance bottlenecks including checking sleep durations and optimizing concurrency management to minimize lag.
 - **Concurrency Design Check**: Review and optimize the threading design to ensure thread safety and prevent issues like race conditions or deadlocks, etc., revisit the current design of ***AudioRecorder*** being a thread while ***Transcriber*** and ***Translator*** being processes.
