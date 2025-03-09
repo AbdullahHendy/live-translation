@@ -13,14 +13,14 @@ class Config:
         """
 
         # Audio Settings, not all are modifiable for now
-        self.CHUNK_SIZE = 480  # 30 ms of audio at 16 kHz
+        self.CHUNK_SIZE = 512  # 32 ms of audio at 16 kHz
         self.SAMPLE_RATE = 16000  # 16 kHz
         self.CHANNELS = 1  # Mono
 
-        # Number of consecutive (480/16000)s silence chunks to trigger SILENCE
-        self.SILENCE_THRESHOLD = int(os.getenv("SILENCE_THRESHOLD", 10)) 
-        # VAD Aggressiveness (0-3) 
-        self.VAD_AGGRESSIVENESS = int(os.getenv("VAD_AGGRESSIVENESS", 3))
+        # Number of consecutive (512/16000)s silence chunks to trigger SILENCE
+        self.SILENCE_THRESHOLD = int(os.getenv("SILENCE_THRESHOLD", 5)) 
+        # VAD Aggressiveness (0-9) 
+        self.VAD_AGGRESSIVENESS = int(os.getenv("VAD_AGGRESSIVENESS", 8))
 
         # Model Settings (Whisper and Translation)
         self.DEVICE = os.getenv("DEVICE", "cpu")  # "cuda" or "cpu"

@@ -6,7 +6,7 @@ import multiprocessing as mp
 import threading
 import numpy as np
 import pyaudio
-import webrtcvad
+from audio.vad import VoiceActivityDetector
 import config
 
 
@@ -25,7 +25,7 @@ class AudioRecorder(threading.Thread):
         self.audio_queue = audio_queue
         self.stop_event = stop_event
         self.cfg = cfg
-        self.vad = webrtcvad.Vad(self.cfg.VAD_AGGRESSIVENESS)
+        self.vad = VoiceActivityDetector(self.cfg.VAD_AGGRESSIVENESS)
         self.pyaudio_instance = pyaudio.PyAudio()
         self.stream = self.pyaudio_instance.open(
             format=pyaudio.paInt16,
@@ -53,14 +53,14 @@ class AudioRecorder(threading.Thread):
                     continue
 
                 audio_data = np.frombuffer(data, dtype=np.int16)
+                audio_data_f32 = self.int2float(audio_data)
                 
                 # Check if current audio chunk contains speech
-                if self.vad.is_speech(audio_data.tobytes(), 
-                                      self.cfg.SAMPLE_RATE):
+                if self.vad.is_speech(audio_data_f32, self.cfg.SAMPLE_RATE):
                     # Reset silence counter if there's speech
                     silence_count = 0  
                     # Append audio data to the buffer
-                    audio_buffer.append(audio_data)  
+                    audio_buffer.append(audio_data_f32)  
                 else:
                     silence_count += 1
                     # Once there is enough consecutive non-speech frames, 
@@ -68,10 +68,7 @@ class AudioRecorder(threading.Thread):
                     if (silence_count >= self.cfg.SILENCE_THRESHOLD and 
                         audio_buffer):
                         # Concatenate and normalize the audio buffer
-                        audio_segment = (
-                            np.concatenate(audio_buffer).astype(np.float32) /
-                            np.iinfo(np.int16).max
-                        )
+                        audio_segment = np.concatenate(audio_buffer)
 
                         self.audio_queue.put(audio_segment)
                         # Reset audio buffer and silence counter
@@ -96,3 +93,14 @@ class AudioRecorder(threading.Thread):
             self.pyaudio_instance.terminate()
         except Exception as e:
             print(f"🚨 Recorder Cleanup Error: {e}")
+
+    @staticmethod
+    def int2float(sound: np.ndarray):
+        """Convert int16 audio to float32 for Silero VAD."""
+        sound = sound.astype('float32')
+        max_val = np.abs(sound).max()
+        # if there is any audio in the segment, normalize it
+        if max_val > 0:
+            sound *= 1 / np.iinfo(np.int16).max
+        return sound
+    

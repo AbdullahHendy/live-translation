@@ -16,18 +16,20 @@ def get_args():
         "--silence_threshold",
         type=int,
         help=(
-            "Number of consecutive 30ms silent chunks before detecting "
-            "SILENCE. SILENCE triggers sending a 'FULL' audio buffer for "
-            "transcription/translation. Default is 10."
+            "Number of consecutive 32ms silent chunks to detect SILENCE. "
+            "SILENCE triggers sending a 'FULL' audio buffer for "
+            "transcription/translation. Default is 5."
         ),
     )
     parser.add_argument(
         "--vad_aggressiveness",
         type=int,
-        choices=[0, 1, 2, 3],
+        choices=range(10),
         help=(
-            "Voice Activity Detection (VAD) aggressiveness level (0-3). "
-            "Higher values are more aggressive. Default is 3."
+            "Voice Activity Detection (VAD) aggressiveness level (0-9). "
+            "Higher values are more aggressive. "
+            "Higher mean VAD has to be more confident to detect speech. "
+            "Default is 8."
         ),
     )
 
