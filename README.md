@@ -4,7 +4,7 @@ This project provides a real-time speech-to-text translation solution. It captur
 
 ## Features
 
-- Real-time speech capture using WebRTC VAD (Voice Activity Detection)
+- Real-time speech capture using Silero VAD (Voice Activity Detection)
 - Speech-to-text transcription using the Whisper model
 - Translation of transcriptions from a source language to a target language
 - Multithreaded design for efficient processing
@@ -53,28 +53,31 @@ Before running the project, you need to install the following system dependencie
    ```
     **OPTIONS**:
     ```bash
-    usage: live_translation.py [-h] [--silence_threshold SILENCE_THRESHOLD] [--vad_aggressiveness {0,1,2,3}] [--device {cpu,cuda}] [--whisper_model {tiny,base,small,medium,large,large-v2}] [--trans_model_name {facebook/m2m100_418M,facebook/m2m100_1.2B}]
-                              [--src_lang SRC_LANG] [--tgt_lang TGT_LANG] [--output {print,file,websocket}] [--ws_port WS_PORT]
+    usage: live_translation.py [-h] [--silence_threshold SILENCE_THRESHOLD] [--vad_aggressiveness {0,1,2,3,4,5,6,7,8,9}] [--max_buffer_duration {}] [--device {cpu,cuda}] [--whisper_model {tiny,base,small,medium,large,large-v2}]
+                            [--trans_model_name {facebook/m2m100_418M,facebook/m2m100_1.2B}] [--src_lang SRC_LANG] [--tgt_lang TGT_LANG] [--output {print,file,websocket}] [--ws_port WS_PORT] [--transcribe_only]
 
     Audio Processing Pipeline - Configure runtime settings.
 
     options:
-      -h, --help            show this help message and exit
-      --silence_threshold SILENCE_THRESHOLD
-                            Number of consecutive 30ms silent chunks before detecting SILENCE. SILENCE triggers sending a 'FULL' audio buffer for transcription/translation. Default is 10.
-      --vad_aggressiveness {0,1,2,3}
-                            Voice Activity Detection (VAD) aggressiveness level (0-3). Higher values are more aggressive. Default is 3.
-      --device {cpu,cuda}   Device for processing ('cpu', 'cuda'). Default is 'cpu'.
-      --whisper_model {tiny,base,small,medium,large,large-v2}
+    -h, --help            show this help message and exit
+    --silence_threshold SILENCE_THRESHOLD
+                            Number of consecutive 32ms silent chunks to detect SILENCE. SILENCE triggers sending a 'FULL' audio buffer for transcription/translation. Default is 65 (~ 2s).
+    --vad_aggressiveness {0,1,2,3,4,5,6,7,8,9}
+                            Voice Activity Detection (VAD) aggressiveness level (0-9). Higher values are more aggressive. Higher mean VAD has to be more confident to detect speech. Default is 8.
+    --max_buffer_duration {}
+                            Maximum audio buffer duration in seconds before trimming to half. Default is 15 seconds.
+    --device {cpu,cuda}   Device for processing ('cpu', 'cuda'). Default is 'cpu'.
+    --whisper_model {tiny,base,small,medium,large,large-v2}
                             Whisper model size ('tiny', 'base', 'small', 'medium', 'large', 'large-v2'). Default is 'base'.
-      --trans_model_name {facebook/m2m100_418M,facebook/m2m100_1.2B}
+    --trans_model_name {facebook/m2m100_418M,facebook/m2m100_1.2B}
                             Translation model name ('facebook/m2m100_418M', 'facebook/m2m100_1.2B'). Default is 'facebook/m2m100_418M'.
-      --src_lang SRC_LANG   Source/Input language for transcription (e.g., 'en', 'fr'). Default is 'en'.
-      --tgt_lang TGT_LANG   Target language for translation (e.g., 'es', 'de'). Default is 'es'.
-      --output {print,file,websocket}
+    --src_lang SRC_LANG   Source/Input language for transcription (e.g., 'en', 'fr'). Default is 'en'.
+    --tgt_lang TGT_LANG   Target language for translation (e.g., 'es', 'de'). Default is 'es'.
+    --output {print,file,websocket}
                             Output method for transcriptions ('print', 'file', 'websocket'). - 'print': Prints transcriptions and translations to the console. - 'file': Saves structured JSON data in transcripts/transcriptions.json. - 'websocket': Sends
-                            structured JSON data over WebSocket. JSON format for 'file' and 'websocket':{ "timestamp": "2025-03-06T12:34:56.789Z", "transcription": "Hello world", "translation": "Hola mundo" }. Default is 'print'.
-      --ws_port WS_PORT     WebSocket port for sending transcriptions. Requied if --output is 'websocket'.
+                            structured JSON data over WebSocket. JSON format for 'file' and 'websocket':{ "timestamp": "2025-03-06T12:34:56.789Z", "transcription": "Hello world", "translation": "Hola mundo"}. Default is 'print'.
+    --ws_port WS_PORT     WebSocket port for sending transcriptions. Requied if --output is 'websocket'.
+    --transcribe_only     Transcribe only mode. No translations are performed.
     ```
 
 2. The program will continuously listen for speech, transcribe the audio, and send the output using the selected mode.
@@ -148,7 +151,7 @@ This project was tested and developed on the following system configuration:
 - **Block Diagram**: Include a block diagram to visually represent the flow and architecture of the system, making it easier to understand the overall design.
 - **Better Error Handling**: Improve error handling across various components (audio, transcription, translation) to ensure the system is robust and can handle unexpected scenarios gracefully.
 - **Performance Optimization**: Investigate performance bottlenecks including checking sleep durations and optimizing concurrency management to minimize lag.
-- **Concurrency Design Check**: Review and optimize the threading design to ensure thread safety and prevent issues like race conditions or deadlocks, etc., revisit the current design of ***AudioRecorder*** being a thread while ***Transcriber*** and ***Translator*** being processes.
+- **Concurrency Design Check**: Review and optimize the threading design to ensure thread safety and prevent issues like race conditions or deadlocks, etc., revisit the current design of ***AudioRecorder*** being a thread while ***AudioProcessor***, ***Transcriber***, and ***Translator*** being processes.
 - **Missed Translation Context**: Address potential issues with missing context during translation. Consider implementing context management to ensure translations are coherent and make use of preceding information.
 - **Code Formatting**: Ensure consistent code formatting across the entire project using tools like `black` or `autopep8` to follow PEP-8 standards and make the code more readable.
 - **Unit Testing**: Add unit tests for various components, including the audio capture, transcription, and translation modules with proper coverage.

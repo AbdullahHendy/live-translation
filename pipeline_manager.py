@@ -4,6 +4,7 @@ import multiprocessing as mp
 import signal
 import time
 from audio.recorder import AudioRecorder
+from audio.processor import AudioProcessor
 from transcription.transcriber import Transcriber
 from translation.translator import Translator
 from output_manager import OutputManager
@@ -21,7 +22,8 @@ class PipelineManager:
         self.stop_event = self.manager.Event()
 
         # Queues for inter-process communication
-        self.audio_queue = mp.Queue()
+        self.raw_audio_queue = mp.Queue()
+        self.processed_audio_queue = mp.Queue()
         self.transcription_queue = mp.Queue()
 
         # Create OutputManager
@@ -30,17 +32,25 @@ class PipelineManager:
             )
 
         # Thread
-        self.recorder = AudioRecorder(
-            self.audio_queue, 
+        self.audio_recorder = AudioRecorder(
+            self.raw_audio_queue, 
             self.stop_event,
             self.config
         )
         # Processes
-        self.transcriber = Transcriber(
-            self.audio_queue, 
-            self.transcription_queue, 
+        self.audio_processor = AudioProcessor(
+            self.raw_audio_queue, 
+            self.processed_audio_queue, 
             self.stop_event,
             self.config
+        )
+
+        self.transcriber = Transcriber(
+            self.processed_audio_queue, 
+            self.transcription_queue, 
+            self.stop_event,
+            self.config, 
+            self.output_manager
         )
 
         self.translator = Translator(
@@ -51,7 +61,10 @@ class PipelineManager:
         )
 
         # List of pipeline components
-        self.components = [self.recorder, self.transcriber, self.translator]
+        self.threads = [self.audio_recorder]
+        self.processes = [self.audio_processor, 
+                          self.transcriber, 
+                          self.translator]
 
     def signal_handler(self, sig, frame):
         """Handle Ctrl+C to gracefully stop all processes."""
@@ -62,23 +75,32 @@ class PipelineManager:
         print("🚀 Starting the pipeline...")
 
         # Register all components as daemon processes
-        for component in self.components:
-            component.daemon = True
+        for thread in self.threads:
+            thread.daemon = True
+        
+        for process in self.processes:
+            process.daemon = True
         
         # Start all components
-        for component in self.components:
-            component.start()
+        for thread in self.threads:
+            thread.start()
+        
+        for process in self.processes:
+            process.start()
 
     def stop_pipeline(self):
         """Gracefully stop all components."""
         print("\n🛑 Stopping the pipeline...")
 
         # Allow all components to finish processing
-        for component in self.components:
-            component.join(timeout=5)
+        for thread in self.threads:
+            thread.join(timeout=5)
+
+        for process in self.processes:
+            process.join(timeout=5)
 
         # Forcefully terminate any stuck processes
-        for process in [self.transcriber, self.translator]:
+        for process in self.processes:
             if process.is_alive():
                 print(
                     f"🚨 {process.__class__.__name__} did not stop gracefully."

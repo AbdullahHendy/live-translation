@@ -18,9 +18,11 @@ class Config:
         self.CHANNELS = 1  # Mono
 
         # Number of consecutive (512/16000)s silence chunks to trigger SILENCE
-        self.SILENCE_THRESHOLD = int(os.getenv("SILENCE_THRESHOLD", 5)) 
+        self.SILENCE_THRESHOLD = int(os.getenv("SILENCE_THRESHOLD", 65)) 
         # VAD Aggressiveness (0-9) 
         self.VAD_AGGRESSIVENESS = int(os.getenv("VAD_AGGRESSIVENESS", 8))
+        # Max audio buffer size (in seconds) before trimming to half
+        self.MAX_BUFFER_DURATION = int(os.getenv("MAX_BUFFER_DURATION", 15))
 
         # Model Settings (Whisper and Translation)
         self.DEVICE = os.getenv("DEVICE", "cpu")  # "cuda" or "cpu"
@@ -33,9 +35,10 @@ class Config:
         self.SRC_LANG = os.getenv("SRC_LANG", "en")
         self.TARGET_LANG = os.getenv("TARGET_LANG", "es")
 
-        # Output mode (print, file, or websocket)
+        # Output mode (print, file, or websocket) and settings
         self.OUTPUT_MODE = os.getenv("OUTPUT_MODE", "print")
         self.WS_PORT = os.getenv("WS_PORT")
+        self.TRANSCRIBE_ONLY = os.getenv("TRANSCRIBE_ONLY", False)
 
         # Apply CLI overrides if provided
         if args:
@@ -61,4 +64,6 @@ class Config:
             self.OUTPUT_MODE = args.output
         if args.ws_port is not None:
             self.WS_PORT = args.ws_port
+        if args.transcribe_only is not None:
+            self.TRANSCRIBE_ONLY = args.transcribe_only
             

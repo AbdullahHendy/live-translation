@@ -30,7 +30,7 @@ class OutputManager:
             self.ws_server = WebSocketServer(self.ws_port)
             self.ws_server.start()
 
-    def write(self, transcription, translation):
+    def write(self, transcription, translation=""):
         """Write transcriptions and translations based on output mode."""
         timestamp = datetime.now(timezone.utc).isoformat()
         entry = {

@@ -51,7 +51,8 @@ class Translator(mp.Process):
                         self.cfg.SRC_LANG, 
                         self.cfg.TARGET_LANG
                     )
-                    self.output_manager.write(text, translation)
+                    if not self.cfg.TRANSCRIBE_ONLY:
+                        self.output_manager.write(text, translation)
                 except Exception as e:
                     print(f"🚨 Translator Error: {e}")
         except Exception as e:

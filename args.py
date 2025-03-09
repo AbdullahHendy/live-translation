@@ -18,7 +18,7 @@ def get_args():
         help=(
             "Number of consecutive 32ms silent chunks to detect SILENCE. "
             "SILENCE triggers sending a 'FULL' audio buffer for "
-            "transcription/translation. Default is 5."
+            "transcription/translation. Default is 65 (~ 2s)."
         ),
     )
     parser.add_argument(
@@ -30,6 +30,16 @@ def get_args():
             "Higher values are more aggressive. "
             "Higher mean VAD has to be more confident to detect speech. "
             "Default is 8."
+        ),
+    )
+
+    parser.add_argument(
+        "--max_buffer_duration",
+        type=int,
+        choices=range(5, 0),
+        help=(
+            "Maximum audio buffer duration in seconds before trimming to half. "
+            "Default is 15 seconds."
         ),
     )
 
@@ -103,6 +113,14 @@ def get_args():
         help=(
             "WebSocket port for sending transcriptions. "
             "Requied if --output is 'websocket'. "
+        ),
+    )
+
+    parser.add_argument(
+        "--transcribe_only",
+        action="store_true",
+        help=(
+            "Transcribe only mode. No translations are performed. "
         ),
     )
 

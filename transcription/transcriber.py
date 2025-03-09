@@ -6,6 +6,7 @@ import threading
 import numpy as np
 from faster_whisper import WhisperModel
 import config
+from output_manager import OutputManager
 
 
 class Transcriber(mp.Process):
@@ -14,18 +15,20 @@ class Transcriber(mp.Process):
     transcribes them using a Whisper model, and pushes the resulting text into 
     a transcription queue.
     """
-    def __init__(self, audio_queue: mp.Queue, 
+    def __init__(self, processed_audio_queue: mp.Queue, 
                  transcription_queue: mp.Queue, 
                  stop_event: threading.Event, 
-                 cfg: config.Config
+                 cfg: config.Config, 
+                 output_manager: OutputManager
                 ):
         """Initialize the Transcriber. """
 
         super().__init__()
-        self.audio_queue = audio_queue
+        self.audio_queue = processed_audio_queue
         self.transcription_queue = transcription_queue
         self.stop_event = stop_event
         self.cfg = cfg
+        self.output_manager = output_manager
     
     def run(self):
         """Load the Whisper model and transcribe audio segments."""
@@ -52,7 +55,10 @@ class Transcriber(mp.Process):
                     
                     transcription = " ".join(seg.text for seg in segments)
                     if transcription.strip():
-                        self.transcription_queue.put(transcription)
+                        if self.cfg.TRANSCRIBE_ONLY:
+                            self.output_manager.write(transcription)
+                        else:
+                            self.transcription_queue.put(transcription)
                 except Exception as e:
                     print(f"🚨 Transcriber Error: {e}")
         except Exception as e:
