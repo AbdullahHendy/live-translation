@@ -53,7 +53,7 @@ Before running the project, you need to install the following system dependencie
    ```
     **OPTIONS**:
     ```bash
-    usage: live_translation.py [-h] [--silence_threshold SILENCE_THRESHOLD] [--vad_aggressiveness {0,1,2,3,4,5,6,7,8,9}] [--max_buffer_duration {}] [--device {cpu,cuda}] [--whisper_model {tiny,base,small,medium,large,large-v2}]
+    usage: live_translation.py [-h] [--silence_threshold SILENCE_THRESHOLD] [--vad_aggressiveness {0,1,2,3,4,5,6,7,8,9}] [--max_buffer_duration {5,6,7,8,9,10,11,12,13,14,15,16,17,18,19}] [--device {cpu,cuda}] [--whisper_model {tiny,base,small,medium,large,large-v2}]
                             [--trans_model_name {facebook/m2m100_418M,facebook/m2m100_1.2B}] [--src_lang SRC_LANG] [--tgt_lang TGT_LANG] [--output {print,file,websocket}] [--ws_port WS_PORT] [--transcribe_only]
 
     Audio Processing Pipeline - Configure runtime settings.
@@ -61,22 +61,42 @@ Before running the project, you need to install the following system dependencie
     options:
     -h, --help            show this help message and exit
     --silence_threshold SILENCE_THRESHOLD
-                            Number of consecutive 32ms silent chunks to detect SILENCE. SILENCE triggers sending a 'FULL' audio buffer for transcription/translation. Default is 65 (~ 2s).
+                            Number of consecutive 32ms silent chunks to detect SILENCE.
+                            SILENCE triggers sending a 'FULL' audio buffer for transcription/translation.
+                            Default is 65 (~ 2s).
     --vad_aggressiveness {0,1,2,3,4,5,6,7,8,9}
-                            Voice Activity Detection (VAD) aggressiveness level (0-9). Higher values are more aggressive. Higher mean VAD has to be more confident to detect speech. Default is 8.
-    --max_buffer_duration {}
-                            Maximum audio buffer duration in seconds before trimming to half. Default is 15 seconds.
-    --device {cpu,cuda}   Device for processing ('cpu', 'cuda'). Default is 'cpu'.
+                            Voice Activity Detection (VAD) aggressiveness level (0-9).
+                            Higher values mean VAD has to be more confident to detect speech.
+                            Default is 8.
+    --max_buffer_duration {5,6,7,8,9,10,11,12,13,14,15,16,17,18,19}
+                            Max audio buffer duration in seconds before trimming to half.
+                            Default is 15 seconds.
+    --device {cpu,cuda}   Device for processing ('cpu', 'cuda').
+                            Default is 'cpu'.
     --whisper_model {tiny,base,small,medium,large,large-v2}
-                            Whisper model size ('tiny', 'base', 'small', 'medium', 'large', 'large-v2'). Default is 'base'.
+                            Whisper model size ('tiny', 'base', 'small', 'medium', 'large', 'large-v2').
+                            Default is 'base'.
     --trans_model_name {facebook/m2m100_418M,facebook/m2m100_1.2B}
-                            Translation model name ('facebook/m2m100_418M', 'facebook/m2m100_1.2B'). Default is 'facebook/m2m100_418M'.
-    --src_lang SRC_LANG   Source/Input language for transcription (e.g., 'en', 'fr'). Default is 'en'.
-    --tgt_lang TGT_LANG   Target language for translation (e.g., 'es', 'de'). Default is 'es'.
+                            Translation model name ('facebook/m2m100_418M', 'facebook/m2m100_1.2B'). 
+                            Default is 'facebook/m2m100_418M'.
+    --src_lang SRC_LANG   Source/Input language for transcription (e.g., 'en', 'fr').
+                            Default is 'en'.
+    --tgt_lang TGT_LANG   Target language for translation (e.g., 'es', 'de').
+                            Default is 'es'.
     --output {print,file,websocket}
-                            Output method for transcriptions ('print', 'file', 'websocket'). - 'print': Prints transcriptions and translations to the console. - 'file': Saves structured JSON data in transcripts/transcriptions.json. - 'websocket': Sends
-                            structured JSON data over WebSocket. JSON format for 'file' and 'websocket':{ "timestamp": "2025-03-06T12:34:56.789Z", "transcription": "Hello world", "translation": "Hola mundo"}. Default is 'print'.
-    --ws_port WS_PORT     WebSocket port for sending transcriptions. Requied if --output is 'websocket'.
+                            Output method ('print', 'file', 'websocket').
+                            - 'print': Prints transcriptions and translations to stdout.
+                            - 'file': Saves structured JSON data (see below) in transcripts/transcriptions.json.
+                            - 'websocket': Sends structured JSON data (see below) over WebSocket.
+                            JSON format for 'file' and 'websocket':
+                            {
+                                "timestamp": "2025-03-06T12:34:56.789Z",
+                                "transcription": "Hello world",
+                                "translation": "Hola mundo"
+                            }.
+                            Default is 'print'.
+    --ws_port WS_PORT     WebSocket port for sending transcriptions.
+                            Required if --output is 'websocket'.
     --transcribe_only     Transcribe only mode. No translations are performed.
     ```
 

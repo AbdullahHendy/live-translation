@@ -26,7 +26,7 @@ class VoiceActivityDetector:
         """
         # validate audio segment type float32
         if audio.dtype != np.float32:
-            raise ValueError("Audio segment must be of type float32")
+            raise ValueError("🚨 Audio segment must be of type float32")
         
         confidence = self.model(torch.from_numpy(audio), sample_rate).item()
         return confidence > self.aggressiveness

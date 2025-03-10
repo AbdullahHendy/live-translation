@@ -56,7 +56,7 @@ class Translator(mp.Process):
                 except Exception as e:
                     print(f"🚨 Translator Error: {e}")
         except Exception as e:
-            print(f"❌ Critical Translator Error: {e}")
+            print(f"🚨 Critical Translator Error: {e}")
         finally:
             print("🌍 Translator: Stopped.")
     

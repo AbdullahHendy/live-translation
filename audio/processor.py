@@ -33,20 +33,25 @@ class AudioProcessor(mp.Process):
         """
         Continuously process raw audio from the queue.
         
-        **ALGORITHM:**
-        1. **Receive raw audio chunks from `audio_queue`** (sent by `AudioRecorder`).
-        2. **Apply Voice Activity Detection (VAD)** to check if speech is present.
-        3. **If speech is detected:**
+        ALGORITHM:
+        1. Receive raw audio chunks from sent by `AudioRecorder`.
+        2. Apply VAD to check if speech is present.
+        3. If speech is detected:
             - Reset `silence_count` (since we are in active speech).
-            - Append the new chunk to `self.audio_buffer` (for context accumulation).
-            - Check if we have at least `ENQUEUE_THRESHOLD` seconds of **new** speech:
-                - If yes, concatenate the buffer and send it to `processed_queue` for transcription.
+            - Append the new chunk to `audio_buffer` (context accumulation).
+            - Check if we have at least `ENQUEUE_THRESHOLD` seconds of 
+            new speech:
+                - If yes, concatenate the buffer and send it to 
+                `processed_queue` for transcription.
                 - Update `last_sent_len` to track how much has been sent.
-            - If the **total buffer duration** exceeds `MAX_BUFFER_DURATION`:
-                - Trim the buffer by removing `TRIM_FACTOR` (default: 50%).
-                - Update `audio_buffer_start_len` to track the new starting position.
-                - Adjust `last_sent_len` to ensure proper tracking after trimming.
-        4. **If silence is detected:**
+            - If the total `audio_buffer` duration exceeds 
+            `MAX_BUFFER_DURATION`:
+                - Trim the buffer by removing `TRIM_FACTOR`.
+                - Update `audio_buffer_start_len` to track the new 
+                starting position.
+                - Adjust `last_sent_len` to ensure proper tracking after 
+                trimming.
+        4. If silence is detected:
             - Increment `silence_count` to track consecutive silent chunks.
             - If silence persists beyond `SILENCE_THRESHOLD`:
                 - Reset the buffer (since speech has clearly stopped).

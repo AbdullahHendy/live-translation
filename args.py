@@ -8,7 +8,8 @@ def get_args():
     parser = argparse.ArgumentParser(
         description=(
             "Audio Processing Pipeline - Configure runtime settings."
-        )
+        ), 
+        formatter_class=argparse.RawTextHelpFormatter
     )
 
     # Audio Settings
@@ -16,19 +17,21 @@ def get_args():
         "--silence_threshold",
         type=int,
         help=(
-            "Number of consecutive 32ms silent chunks to detect SILENCE. "
+            "Number of consecutive 32ms silent chunks to detect SILENCE.\n"
             "SILENCE triggers sending a 'FULL' audio buffer for "
-            "transcription/translation. Default is 65 (~ 2s)."
+            "transcription/translation.\n"
+            "Default is 65 (~ 2s)."
         ),
     )
+
     parser.add_argument(
         "--vad_aggressiveness",
         type=int,
         choices=range(10),
         help=(
-            "Voice Activity Detection (VAD) aggressiveness level (0-9). "
-            "Higher values are more aggressive. "
-            "Higher mean VAD has to be more confident to detect speech. "
+            "Voice Activity Detection (VAD) aggressiveness level (0-9).\n"
+            "Higher values mean VAD has to be more confident to "
+            "detect speech.\n"
             "Default is 8."
         ),
     )
@@ -36,9 +39,9 @@ def get_args():
     parser.add_argument(
         "--max_buffer_duration",
         type=int,
-        choices=range(5, 0),
+        choices=range(5, 20),
         help=(
-            "Maximum audio buffer duration in seconds before trimming to half. "
+            "Max audio buffer duration in seconds before trimming to half.\n"
             "Default is 15 seconds."
         ),
     )
@@ -48,24 +51,29 @@ def get_args():
         "--device",
         type=str,
         choices=["cpu", "cuda"],
-        help="Device for processing ('cpu', 'cuda'). Default is 'cpu'.",
+        help="Device for processing ('cpu', 'cuda').\n"
+        "Default is 'cpu'.",
     )
+    
     parser.add_argument(
         "--whisper_model",
         type=str,
         choices=["tiny", "base", "small", "medium", "large", "large-v2"],
         help=(
             "Whisper model size ('tiny', 'base', 'small', 'medium', "
-            "'large', 'large-v2'). Default is 'base'."
+            "'large', 'large-v2').\n"
+            "Default is 'base'."
         ),
     )
+
     parser.add_argument(
         "--trans_model_name",
         type=str,
         choices=["facebook/m2m100_418M", "facebook/m2m100_1.2B"],
         help=(
             "Translation model name ('facebook/m2m100_418M', "
-            "'facebook/m2m100_1.2B'). Default is 'facebook/m2m100_418M'."
+            "'facebook/m2m100_1.2B'). \n"
+            "Default is 'facebook/m2m100_418M'."
         ),
     )
 
@@ -74,15 +82,16 @@ def get_args():
         "--src_lang",
         type=str,
         help=(
-            "Source/Input language for transcription (e.g., 'en', 'fr'). "
+            "Source/Input language for transcription (e.g., 'en', 'fr').\n"
             "Default is 'en'."
         ),
     )
+    
     parser.add_argument(
         "--tgt_lang",
         type=str,
         help=(
-            "Target language for translation (e.g., 'es', 'de'). "
+            "Target language for translation (e.g., 'es', 'de').\n"
             "Default is 'es'."
         ),
     )
@@ -93,15 +102,17 @@ def get_args():
         type=str,
         choices=["print", "file", "websocket"],
         help=(
-            "Output method for transcriptions ('print', 'file', 'websocket'). "
-            "  - 'print': Prints transcriptions and translations to the console. "
-            "  - 'file': Saves structured JSON data in transcripts/transcriptions.json. "
-            "  - 'websocket': Sends structured JSON data over WebSocket. "
-            "JSON format for 'file' and 'websocket':"
+            "Output method ('print', 'file', 'websocket').\n"
+            "  - 'print': Prints transcriptions and translations to stdout.\n"
+            "  - 'file': Saves structured JSON data (see below) "
+            "in transcripts/transcriptions.json.\n"
+            "  - 'websocket': Sends structured JSON data (see below)"
+            " over WebSocket.\n"
+            "JSON format for 'file' and 'websocket':\n"
             "{\n"
-            '    "timestamp": "2025-03-06T12:34:56.789Z",'
-            '    "transcription": "Hello world",'
-            '    "translation": "Hola mundo"'
+            '    "timestamp": "2025-03-06T12:34:56.789Z",\n'
+            '    "transcription": "Hello world",\n'
+            '    "translation": "Hola mundo"\n'
             "}.\n"
             "Default is 'print'."
         ),
@@ -111,8 +122,8 @@ def get_args():
         "--ws_port",
         type=int,
         help=(
-            "WebSocket port for sending transcriptions. "
-            "Requied if --output is 'websocket'. "
+            "WebSocket port for sending transcriptions.\n"
+            "Required if --output is 'websocket'."
         ),
     )
 
@@ -120,15 +131,16 @@ def get_args():
         "--transcribe_only",
         action="store_true",
         help=(
-            "Transcribe only mode. No translations are performed. "
+            "Transcribe only mode. No translations are performed."
         ),
     )
 
     args = parser.parse_args()
 
-    # Validate WebSocket port if provided if output is 'websocket'
+    # Validate WebSocket port if provided and output is 'websocket'
     if args.output == "websocket" and args.ws_port is None:
         raise ValueError(
-            "WebSocket port is required for 'websocket' output mode.")
+            "🚨 WebSocket port is required for 'websocket' output mode."
+        )
 
     return parser.parse_args()
