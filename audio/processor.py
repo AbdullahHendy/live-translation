@@ -13,9 +13,6 @@ class AudioProcessor(mp.Process):
     sends cleaned audio to another queue for transcription.
     """
     
-    ENQUEUE_THRESHOLD = 1  # seconds
-    TRIM_FACTOR = 0.5
-
     def __init__(self, audio_queue: mp.Queue, 
                  processed_queue: mp.Queue, 
                  stop_event: threading.Event, 
@@ -93,7 +90,7 @@ class AudioProcessor(mp.Process):
                     # TODO: Investigate the situation where the last chunk in a
                     #       speech is less than ENQUEUE_THRESHOLD and thus not
                     #       enqueued.
-                    if new_duration >= AudioProcessor.ENQUEUE_THRESHOLD:
+                    if new_duration >= self.cfg.ENQUEUE_THRESHOLD:
                         audio_segment = np.concatenate(self.audio_buffer)
                         self.processed_queue.put(audio_segment) 
                         last_sent_len = len(self.audio_buffer)
@@ -105,7 +102,7 @@ class AudioProcessor(mp.Process):
                     )
                     if total_duration > self.cfg.MAX_BUFFER_DURATION:
                         trim_size = int(len(self.audio_buffer) 
-                                        * AudioProcessor.TRIM_FACTOR)
+                                        * self.cfg.TRIM_FACTOR)
                         self.audio_buffer = self.audio_buffer[trim_size:]
                         audio_buffer_start_len = len(self.audio_buffer)
                         last_sent_len = max(0, last_sent_len - trim_size)

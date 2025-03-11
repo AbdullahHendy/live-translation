@@ -16,13 +16,20 @@ class Config:
         self.CHUNK_SIZE = 512  # 32 ms of audio at 16 kHz
         self.SAMPLE_RATE = 16000  # 16 kHz
         self.CHANNELS = 1  # Mono
+        # Audio Processing Settings, not modifiable for now
+        # Audio lentgh in seconds to trigger ENQUEUE that is 
+        # (send for transcription/translation)
+        self.ENQUEUE_THRESHOLD = 1  # seconds
+        # Trim audio buffer by this percentage when it 
+        # exceeds MAX_BUFFER_DURATION
+        self.TRIM_FACTOR = 0.75
 
         # Number of consecutive (512/16000)s silence chunks to trigger SILENCE
         self.SILENCE_THRESHOLD = int(os.getenv("SILENCE_THRESHOLD", 65)) 
         # VAD Aggressiveness (0-9) 
         self.VAD_AGGRESSIVENESS = int(os.getenv("VAD_AGGRESSIVENESS", 8))
-        # Max audio buffer size (in seconds) before trimming to half
-        self.MAX_BUFFER_DURATION = int(os.getenv("MAX_BUFFER_DURATION", 15))
+        # Max audio buffer size (in seconds) before trimming TRIM_FACTOR of it
+        self.MAX_BUFFER_DURATION = int(os.getenv("MAX_BUFFER_DURATION", 5))
 
         # Model Settings (Whisper and Translation)
         self.DEVICE = os.getenv("DEVICE", "cpu")  # "cuda" or "cpu"
@@ -50,6 +57,8 @@ class Config:
             self.SILENCE_THRESHOLD = args.silence_threshold
         if args.vad_aggressiveness is not None:
             self.VAD_AGGRESSIVENESS = args.vad_aggressiveness
+        if args.max_buffer_duration is not None:
+            self.MAX_BUFFER_DURATION = args.max_buffer_duration
         if args.device is not None:
             self.DEVICE = args.device
         if args.whisper_model is not None:
