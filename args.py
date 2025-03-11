@@ -1,6 +1,7 @@
 # args.py
 
 import argparse
+import torch
 
 
 def get_args():
@@ -141,6 +142,13 @@ def get_args():
     if args.output == "websocket" and args.ws_port is None:
         raise ValueError(
             "🚨 WebSocket port is required for 'websocket' output mode."
+        )
+    
+    # Validate device cuda availability if device is 'cuda'
+    if args.device == "cuda" and not torch.cuda.is_available():
+        raise ValueError(
+            "🚨 'cuda' device is not available. Please use 'cpu' or "
+            "make sure the enviroment has CUDA support."
         )
 
     return parser.parse_args()
