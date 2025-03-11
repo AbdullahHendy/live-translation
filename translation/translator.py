@@ -1,5 +1,6 @@
 # translation/translator.py
 
+import torch
 import queue
 import multiprocessing as mp
 import threading
@@ -70,9 +71,11 @@ class Translator(mp.Process):
             return_tensors="pt"
         ).to(self.cfg.DEVICE)
 
-        translated_tokens = self.model.generate(
-            **inputs, forced_bos_token_id=self.tokenizer.get_lang_id(tgt_lang)
-        )
+        with torch.inference_mode():
+            translated_tokens = self.model.generate(
+                **inputs, 
+                forced_bos_token_id=self.tokenizer.get_lang_id(tgt_lang)
+            )
         translated_text = self.tokenizer.decode(
             translated_tokens[0], skip_special_tokens=True
         )
