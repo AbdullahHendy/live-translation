@@ -37,7 +37,7 @@ class Transcriber(mp.Process):
         self.whisper_model = WhisperModel(self.cfg.WHISPER_MODEL, 
                                           device=self.cfg.DEVICE)
         print("📝 Transcriber: Ready to transcribe audio...")
-
+        self.stop_event = self.stop_event
         try:
             while not (self.stop_event.is_set() and self.audio_queue.empty()):
                 # Get audio segment from the queue
@@ -63,5 +63,15 @@ class Transcriber(mp.Process):
                     print(f"🚨 Transcriber Error: {e}")
         except Exception as e:
             print(f"❌ Critical Transcriber Error: {e}")
+        except KeyboardInterrupt:
+            pass
         finally:
+            self._cleanup()
             print("📝 Transcriber: Stopped.")
+
+    def _cleanup(self):
+        """Clean up the Whisper model."""
+        try:
+            self.transcription_queue.close()
+        except Exception as e:
+            print(f"🚨 Transcriber Cleanup Error: {e}")

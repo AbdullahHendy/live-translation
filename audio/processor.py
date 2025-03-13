@@ -23,7 +23,7 @@ class AudioProcessor(mp.Process):
         self.processed_queue = processed_queue
         self.stop_event = stop_event
         self.cfg = cfg
-        self.vad = VoiceActivityDetector(self.cfg.VAD_AGGRESSIVENESS)
+        self.vad = None
         self.audio_buffer = []
 
     def run(self):
@@ -54,12 +54,13 @@ class AudioProcessor(mp.Process):
                 - Reset the buffer (since speech has clearly stopped).
                 - Reset `last_sent_len` and `silence_count`.
         """
+        self.vad = VoiceActivityDetector(self.cfg.VAD_AGGRESSIVENESS)
         silence_count = 0  # Track consecutive silence
         last_sent_len = 0  # Track last enqueue position
         # Track the buffer start length to calculate buffer duration from
         audio_buffer_start_len = 0
 
-        print("🔄 AudioProcessor: Running...")
+        print("🔄 AudioProcessor: Ready to process audio...")
 
         try:
             while not self.stop_event.is_set():
@@ -117,9 +118,19 @@ class AudioProcessor(mp.Process):
                         silence_count = 0
 
                 time.sleep(0.01) 
-
+        except KeyboardInterrupt:
+            pass
         finally:
+            self._cleanup()
             print("🔄 AudioProcessor: Stopped.")
+
+    def _cleanup(self):
+        """Clean up the processor."""
+        try:
+            self.processed_queue.close()
+        except Exception as e:
+            print(f"🚨 AudioProcessor Cleanup Error: {e}")
+
 
     def buffer_duration_s(self, curr_length, start_length):
         """Calculate buffer duration in seconds since buffer's start_length."""

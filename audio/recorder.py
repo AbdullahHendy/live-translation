@@ -56,5 +56,6 @@ class AudioRecorder(threading.Thread):
                 self.stream.stop_stream()
             self.stream.close()
             self.pyaudio_instance.terminate()
+            self.audio_queue.close()
         except Exception as e:
             print(f"🚨 Recorder Cleanup Error: {e}")

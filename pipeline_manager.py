@@ -1,5 +1,6 @@
 # pipeline_manager.py
 
+import os
 import multiprocessing as mp
 import signal
 import time
@@ -18,9 +19,12 @@ class PipelineManager:
         """
         self.config = config
 
-        self.manager = mp.Manager()
+        # Multiprocessing context and manager
+        ctx = mp.get_context()
+        self.manager = ctx.Manager()
         self.stop_event = self.manager.Event()
-
+        self.parent_pid = os.getpid()
+        
         # Queues for inter-process communication
         self.raw_audio_queue = mp.Queue()
         self.processed_audio_queue = mp.Queue()
@@ -67,7 +71,11 @@ class PipelineManager:
                           self.translator]
 
     def signal_handler(self, sig, frame):
-        """Handle Ctrl+C to gracefully stop all processes."""
+        """Handle Ctrl+C: Parent process only should handles it."""
+        if os.getpid() != self.parent_pid:
+            return  # Ignore SIGINT in child processes
+
+        print("\n🛑 Stopping the pipeline...")
         self.stop_event.set()
 
     def start_pipeline(self):
@@ -90,7 +98,6 @@ class PipelineManager:
 
     def stop_pipeline(self):
         """Gracefully stop all components."""
-        print("\n🛑 Stopping the pipeline...")
 
         # Allow all components to finish processing
         for thread in self.threads:
@@ -122,9 +129,5 @@ class PipelineManager:
 
             while not self.stop_event.is_set():
                 time.sleep(0.1)
-
-        except KeyboardInterrupt:
-            print("\n🔴 KeyboardInterrupt detected.")
-            self.stop_event.set()
         finally:
             self.stop_pipeline()

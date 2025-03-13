@@ -58,7 +58,10 @@ class Translator(mp.Process):
                     print(f"🚨 Translator Error: {e}")
         except Exception as e:
             print(f"🚨 Critical Translator Error: {e}")
+        except KeyboardInterrupt:
+            pass
         finally:
+            self._cleanup()
             print("🌍 Translator: Stopped.")
     
     def translate(self, text: str, src_lang: str, tgt_lang: str) -> str:
@@ -80,3 +83,7 @@ class Translator(mp.Process):
             translated_tokens[0], skip_special_tokens=True
         )
         return translated_text
+
+    def _cleanup(self):
+        """Clean up the translation model."""
+        pass
