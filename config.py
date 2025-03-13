@@ -29,7 +29,7 @@ class Config:
         # VAD Aggressiveness (0-9) 
         self.VAD_AGGRESSIVENESS = int(os.getenv("VAD_AGGRESSIVENESS", 8))
         # Max audio buffer size (in seconds) before trimming TRIM_FACTOR of it
-        self.MAX_BUFFER_DURATION = int(os.getenv("MAX_BUFFER_DURATION", 5))
+        self.MAX_BUFFER_DURATION = int(os.getenv("MAX_BUFFER_DURATION", 7))
 
         # Model Settings (Whisper and Translation)
         self.DEVICE = os.getenv("DEVICE", "cpu")  # "cuda" or "cpu"

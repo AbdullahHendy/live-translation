@@ -40,10 +40,10 @@ def get_args():
     parser.add_argument(
         "--max_buffer_duration",
         type=int,
-        choices=range(5, 10),
+        choices=range(5, 11),
         help=(
             "Max audio buffer duration in seconds before cutting 75%% of it.\n"
-            "Default is 5 seconds."
+            "Default is 7 seconds."
         ),
     )
 

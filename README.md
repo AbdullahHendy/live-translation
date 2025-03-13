@@ -53,7 +53,7 @@ Before running the project, you need to install the following system dependencie
    ```
     **OPTIONS**:
     ```bash
-    usage: live_translation.py [-h] [--silence_threshold SILENCE_THRESHOLD] [--vad_aggressiveness {0,1,2,3,4,5,6,7,8,9}] [--max_buffer_duration {5,6,7,8,9,10,11,12,13,14,15,16,17,18,19}] [--device {cpu,cuda}] [--whisper_model {tiny,base,small,medium,large,large-v2}]
+    usage: live_translation.py [-h] [--silence_threshold SILENCE_THRESHOLD] [--vad_aggressiveness {0,1,2,3,4,5,6,7,8,9}] [--max_buffer_duration {5,6,7,8,9,10}] [--device {cpu,cuda}] [--whisper_model {tiny,base,small,medium,large,large-v2}]
                             [--trans_model_name {facebook/m2m100_418M,facebook/m2m100_1.2B}] [--src_lang SRC_LANG] [--tgt_lang TGT_LANG] [--output {print,file,websocket}] [--ws_port WS_PORT] [--transcribe_only]
 
     Audio Processing Pipeline - Configure runtime settings.
@@ -68,9 +68,9 @@ Before running the project, you need to install the following system dependencie
                             Voice Activity Detection (VAD) aggressiveness level (0-9).
                             Higher values mean VAD has to be more confident to detect speech.
                             Default is 8.
-    --max_buffer_duration {5,6,7,8,9,10,11,12,13,14,15,16,17,18,19}
-                            Max audio buffer duration in seconds before trimming to half.
-                            Default is 15 seconds.
+    --max_buffer_duration {5,6,7,8,9,10}
+                            Max audio buffer duration in seconds before cutting 75% of it.
+                            Default is 7 seconds.
     --device {cpu,cuda}   Device for processing ('cpu', 'cuda').
                             Default is 'cpu'.
     --whisper_model {tiny,base,small,medium,large,large-v2}
