@@ -2,6 +2,7 @@
 
 import queue
 import multiprocessing as mp
+import torch
 import threading
 import numpy as np
 from faster_whisper import WhisperModel
@@ -35,6 +36,7 @@ class Transcriber(mp.Process):
 
         print("🔄 Transcriber: Loading Whisper model...")
         self.whisper_model = WhisperModel(self.cfg.WHISPER_MODEL, 
+                                          compute_type="float32",
                                           device=self.cfg.DEVICE)
         print("📝 Transcriber: Ready to transcribe audio...")
         self.stop_event = self.stop_event
