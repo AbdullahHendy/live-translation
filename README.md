@@ -15,14 +15,10 @@ This project provides a real-time speech-to-text translation solution. It captur
 Before running the project, you need to install the following system dependencies:
 
 - **PortAudio** (for audio input handling)
-    - On Ubuntu/Debian-based systems, you can install it with:
-      ```bash
-      sudo apt-get install portaudio19-dev
-      ```
 - **FFmpeg** (for audio and video processing)
     - On Ubuntu/Debian-based systems, you can install it with:
       ```bash
-      sudo apt-get install ffmpeg
+      sudo apt-get install portaudio19-dev ffmpeg
       ```
 
 ## Installation
@@ -47,7 +43,7 @@ Before running the project, you need to install the following system dependencie
 
 ## Usage & Configuration
 
-1. **Run the application** with:
+1. **Run the application** (inside the virtual environment) with:
    ```bash
    python live_translation.py [OPTIONS]
    ```
