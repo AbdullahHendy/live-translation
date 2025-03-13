@@ -1,14 +1,14 @@
 # Real-time Speech-to-Text Translation
 
-This project provides a real-time speech-to-text translation solution. It captures audio from the microphone, transcribes it into text, and translates it to a target language. It uses the **Whisper** model for transcription and **M2M-100** for translation.
+This project provides a real-time speech-to-text translation solution. It captures audio from the microphone, processes it, transcribes it into text, and translates it to a target language. It uses the **Silero** model for processing (Voice Activity Detection), **Whisper** model for transcription and **Opus-MT** for translation. The output can be through ***stdout***, a ***JSON file***, or ***websockets***. 
 
 ## Features
 
-- Real-time speech capture using Silero VAD (Voice Activity Detection)
+- Real-time speech capture and processing using **Silero** VAD (Voice Activity Detection)
 - Speech-to-text transcription using the Whisper model
 - Translation of transcriptions from a source language to a target language
 - Multithreaded design for efficient processing
-- Different output modes: stdout, JSON file, websocket server
+- Different output modes: stdout, **JSON** file, websocket server
 
 ## Prerequisites
 
