@@ -35,8 +35,9 @@ class Config:
         self.DEVICE = os.getenv("DEVICE", "cpu")  # "cuda" or "cpu"
         # Whisper model name (tiny, base, small, medium, large, or large-v2)
         self.WHISPER_MODEL = os.getenv("WHISPER_MODEL", "base")
-        # Translation model name (facebook/m2m100_418M, facebook/m2m100_1.2B)
-        self.TRANS_MODEL = os.getenv("TRANS_MODEL", "facebook/m2m100_418M")
+        # Translation model name 
+        # (Helsinki-NLP/opus-mt, Helsinki-NLP/opus-mt-tc-big)
+        self.TRANS_MODEL = os.getenv("TRANS_MODEL", "Helsinki-NLP/opus-mt")
 
         # Language Settings (Source and Target)
         self.SRC_LANG = os.getenv("SRC_LANG", "en")

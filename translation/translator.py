@@ -4,7 +4,7 @@ import torch
 import queue
 import multiprocessing as mp
 import threading
-from transformers import M2M100ForConditionalGeneration, M2M100Tokenizer
+from transformers import MarianMTModel, MarianTokenizer
 import config
 from output_manager import OutputManager
 
@@ -25,14 +25,22 @@ class Translator(mp.Process):
         self.stop_event = stop_event
         self.cfg = cfg
         self.output_manager = output_manager
-        print("🔄 Translator: Loading M2M-100 translation model...")
-        self.tokenizer = M2M100Tokenizer.from_pretrained(
-            self.cfg.TRANS_MODEL
+
+        self.model_name = (
+            f"{self.cfg.TRANS_MODEL}-"
+            f"{self.cfg.SRC_LANG}-"
+            f"{self.cfg.TARGET_LANG}"
         )
 
+        print(f"🔄 Translator: Loading {self.model_name} translation model...")
+        self.tokenizer = MarianTokenizer.from_pretrained(
+            self.model_name
+        )
+    
     def run(self):
-        self.model = M2M100ForConditionalGeneration.from_pretrained(
-            self.cfg.TRANS_MODEL
+        self.model = MarianMTModel.from_pretrained(
+            self.model_name,
+            torch_dtype=torch.float32
         ).to(self.cfg.DEVICE)
 
         print("🌍 Translator: Ready to translate text...")
@@ -47,11 +55,7 @@ class Translator(mp.Process):
                     continue
 
                 try:
-                    translation = self.translate(
-                        text, 
-                        self.cfg.SRC_LANG, 
-                        self.cfg.TARGET_LANG
-                    )
+                    translation = self.translate(text)
                     if not self.cfg.TRANSCRIBE_ONLY:
                         self.output_manager.write(text, translation)
                 except Exception as e:
@@ -64,10 +68,9 @@ class Translator(mp.Process):
             self._cleanup()
             print("🌍 Translator: Stopped.")
     
-    def translate(self, text: str, src_lang: str, tgt_lang: str) -> str:
+    def translate(self, text: str) -> str:
         if not text.strip():
             return ""
-        self.tokenizer.src_lang = src_lang
         
         inputs = self.tokenizer(
             text, 
@@ -77,7 +80,6 @@ class Translator(mp.Process):
         with torch.inference_mode():
             translated_tokens = self.model.generate(
                 **inputs, 
-                forced_bos_token_id=self.tokenizer.get_lang_id(tgt_lang)
             )
         translated_text = self.tokenizer.decode(
             translated_tokens[0], skip_special_tokens=True

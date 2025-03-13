@@ -70,11 +70,12 @@ def get_args():
     parser.add_argument(
         "--trans_model_name",
         type=str,
-        choices=["facebook/m2m100_418M", "facebook/m2m100_1.2B"],
+        choices=["Helsinki-NLP/opus-mt", "Helsinki-NLP/opus-mt-tc-big"],
         help=(
-            "Translation model name ('facebook/m2m100_418M', "
-            "'facebook/m2m100_1.2B'). \n"
-            "Default is 'facebook/m2m100_418M'."
+            "Translation model name ('Helsinki-NLP/opus-mt', "
+            "'Helsinki-NLP/opus-mt-tc-big'). \n"
+            "NOTE: Don't include source and target languages here.\n"
+            "Default is 'Helsinki-NLP/opus-mt'."
         ),
     )
 

@@ -54,7 +54,7 @@ Before running the project, you need to install the following system dependencie
     **OPTIONS**:
     ```bash
     usage: live_translation.py [-h] [--silence_threshold SILENCE_THRESHOLD] [--vad_aggressiveness {0,1,2,3,4,5,6,7,8,9}] [--max_buffer_duration {5,6,7,8,9,10}] [--device {cpu,cuda}] [--whisper_model {tiny,base,small,medium,large,large-v2}]
-                            [--trans_model_name {facebook/m2m100_418M,facebook/m2m100_1.2B}] [--src_lang SRC_LANG] [--tgt_lang TGT_LANG] [--output {print,file,websocket}] [--ws_port WS_PORT] [--transcribe_only]
+                            [--trans_model_name {Helsinki-NLP/opus-mt,Helsinki-NLP/opus-mt-tc-big}] [--src_lang SRC_LANG] [--tgt_lang TGT_LANG] [--output {print,file,websocket}] [--ws_port WS_PORT] [--transcribe_only]
 
     Audio Processing Pipeline - Configure runtime settings.
 
@@ -76,9 +76,10 @@ Before running the project, you need to install the following system dependencie
     --whisper_model {tiny,base,small,medium,large,large-v2}
                             Whisper model size ('tiny', 'base', 'small', 'medium', 'large', 'large-v2').
                             Default is 'base'.
-    --trans_model_name {facebook/m2m100_418M,facebook/m2m100_1.2B}
-                            Translation model name ('facebook/m2m100_418M', 'facebook/m2m100_1.2B'). 
-                            Default is 'facebook/m2m100_418M'.
+    --trans_model_name {Helsinki-NLP/opus-mt,Helsinki-NLP/opus-mt-tc-big}
+                            Translation model name ('Helsinki-NLP/opus-mt', 'Helsinki-NLP/opus-mt-tc-big'). 
+                            NOTE: Don't include source and target languages here.
+                            Default is 'Helsinki-NLP/opus-mt'.
     --src_lang SRC_LANG   Source/Input language for transcription (e.g., 'en', 'fr').
                             Default is 'en'.
     --tgt_lang TGT_LANG   Target language for translation (e.g., 'es', 'de').
