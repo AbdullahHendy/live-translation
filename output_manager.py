@@ -15,7 +15,7 @@ class OutputManager:
 
     def __init__(self, cfg: config.Config):
         """Initialize OutputManager."""
-        self.mode = cfg.OUTPUT_MODE
+        self.mode = cfg.OUTPUT
         self.file_path = None
         self.file = None
         self.ws_server = None

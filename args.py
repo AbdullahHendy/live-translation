@@ -17,6 +17,7 @@ def get_args():
     parser.add_argument(
         "--silence_threshold",
         type=int,
+        default=65,
         help=(
             "Number of consecutive 32ms silent chunks to detect SILENCE.\n"
             "SILENCE triggers sending a 'FULL' audio buffer for "
@@ -29,6 +30,7 @@ def get_args():
         "--vad_aggressiveness",
         type=int,
         choices=range(10),
+        default=8,
         help=(
             "Voice Activity Detection (VAD) aggressiveness level (0-9).\n"
             "Higher values mean VAD has to be more confident to "
@@ -41,6 +43,7 @@ def get_args():
         "--max_buffer_duration",
         type=int,
         choices=range(5, 11),
+        default=7,
         help=(
             "Max audio buffer duration in seconds before cutting 75%% of it.\n"
             "Default is 7 seconds."
@@ -52,6 +55,7 @@ def get_args():
         "--device",
         type=str,
         choices=["cpu", "cuda"],
+        default="cpu",
         help="Device for processing ('cpu', 'cuda').\n"
         "Default is 'cpu'.",
     )
@@ -60,6 +64,7 @@ def get_args():
         "--whisper_model",
         type=str,
         choices=["tiny", "base", "small", "medium", "large", "large-v2"],
+        default="base",
         help=(
             "Whisper model size ('tiny', 'base', 'small', 'medium', "
             "'large', 'large-v2').\n"
@@ -71,6 +76,7 @@ def get_args():
         "--trans_model_name",
         type=str,
         choices=["Helsinki-NLP/opus-mt", "Helsinki-NLP/opus-mt-tc-big"],
+        default="Helsinki-NLP/opus-mt",
         help=(
             "Translation model name ('Helsinki-NLP/opus-mt', "
             "'Helsinki-NLP/opus-mt-tc-big'). \n"
@@ -83,6 +89,7 @@ def get_args():
     parser.add_argument(
         "--src_lang",
         type=str,
+        default="en",
         help=(
             "Source/Input language for transcription (e.g., 'en', 'fr').\n"
             "Default is 'en'."
@@ -92,6 +99,7 @@ def get_args():
     parser.add_argument(
         "--tgt_lang",
         type=str,
+        default="es",
         help=(
             "Target language for translation (e.g., 'es', 'de').\n"
             "Default is 'es'."
@@ -103,6 +111,7 @@ def get_args():
         "--output",
         type=str,
         choices=["print", "file", "websocket"],
+        default="print",
         help=(
             "Output method ('print', 'file', 'websocket').\n"
             "  - 'print': Prints transcriptions and translations to stdout.\n"
@@ -136,20 +145,5 @@ def get_args():
             "Transcribe only mode. No translations are performed."
         ),
     )
-
-    args = parser.parse_args()
-
-    # Validate WebSocket port if provided and output is 'websocket'
-    if args.output == "websocket" and args.ws_port is None:
-        raise ValueError(
-            "🚨 WebSocket port is required for 'websocket' output mode."
-        )
-    
-    # Validate device cuda availability if device is 'cuda'
-    if args.device == "cuda" and not torch.cuda.is_available():
-        raise ValueError(
-            "🚨 'cuda' device is not available. Please use 'cpu' or "
-            "make sure the enviroment has CUDA support."
-        )
 
     return parser.parse_args()

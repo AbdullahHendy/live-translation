@@ -1,15 +1,15 @@
 # config.py
 
-import os
-
+import torch
+import huggingface_hub as hf_hub
+import huggingface_hub.errors as hf_errors
 
 class Config:
     """Configuration class for the application."""
 
-    def __init__(self, args: object = None):
+    def __init__(self, args):
         """
-        Initialize the configuration with default values. Also allow for 
-        dynamic configuration using command-line arguments. 
+        Initialize the configuration using parsed CLI arguments.
         """
 
         # Audio Settings, not all are modifiable for now
@@ -24,56 +24,48 @@ class Config:
         # exceeds MAX_BUFFER_DURATION
         self.TRIM_FACTOR = 0.75
 
-        # Number of consecutive (512/16000)s silence chunks to trigger SILENCE
-        self.SILENCE_THRESHOLD = int(os.getenv("SILENCE_THRESHOLD", 65)) 
-        # VAD Aggressiveness (0-9) 
-        self.VAD_AGGRESSIVENESS = int(os.getenv("VAD_AGGRESSIVENESS", 8))
-        # Max audio buffer size (in seconds) before trimming TRIM_FACTOR of it
-        self.MAX_BUFFER_DURATION = int(os.getenv("MAX_BUFFER_DURATION", 7))
+        self.args = args
+        self._validate_args()
 
-        # Model Settings (Whisper and Translation)
-        self.DEVICE = os.getenv("DEVICE", "cpu")  # "cuda" or "cpu"
-        # Whisper model name (tiny, base, small, medium, large, or large-v2)
-        self.WHISPER_MODEL = os.getenv("WHISPER_MODEL", "base")
-        # Translation model name 
-        # (Helsinki-NLP/opus-mt, Helsinki-NLP/opus-mt-tc-big)
-        self.TRANS_MODEL = os.getenv("TRANS_MODEL", "Helsinki-NLP/opus-mt")
+    def _validate_args(self):
+        """Validate CLI arguments before applying them."""
 
-        # Language Settings (Source and Target)
-        self.SRC_LANG = os.getenv("SRC_LANG", "en")
-        self.TARGET_LANG = os.getenv("TARGET_LANG", "es")
+        # Validate WebSocket port
+        if self.args.output == "websocket" and self.args.ws_port is None:
+            raise ValueError(
+                "🚨 WebSocket port is required for 'websocket' output mode."
+            )
 
-        # Output mode (print, file, or websocket) and settings
-        self.OUTPUT_MODE = os.getenv("OUTPUT_MODE", "print")
-        self.WS_PORT = os.getenv("WS_PORT")
-        self.TRANSCRIBE_ONLY = os.getenv("TRANSCRIBE_ONLY", False)
+        # Validate CUDA availability
+        if self.args.device == "cuda" and not torch.cuda.is_available():
+            raise ValueError(
+                "🚨 'cuda' device is not available. "
+                "Please use 'cpu' or check CUDA installation.")
 
-        # Apply CLI overrides if provided
-        if args:
-            self._apply_cli_args(args)
+        # Validate OpusMT translation model and language pair
+        model_name = (
+            f"{self.args.trans_model_name}-"
+            f"{self.args.src_lang}-"
+            f"{self.args.tgt_lang}"
+        )
+        try:
+            hf_hub.model_info(model_name)  # Check if the model exists
+        except hf_errors.RepositoryNotFoundError:
+            raise ValueError(
+                f"\n🚨 The language pair "
+                f"'{self.args.src_lang}-{self.args.tgt_lang}' "
+                "is most likely supported by OpusMT.\n"
+                "Check if the language combination exists "
+                "on Hugging Face (Helsinki-NLP models)."
+            )
+        except Exception as e:
+            raise ValueError(
+                f"🚨 Error in tranlation model."
+            )
 
-    def _apply_cli_args(self, args):
-        """Override modifiable settings using command-line arguments."""
-        if args.silence_threshold is not None:
-            self.SILENCE_THRESHOLD = args.silence_threshold
-        if args.vad_aggressiveness is not None:
-            self.VAD_AGGRESSIVENESS = args.vad_aggressiveness
-        if args.max_buffer_duration is not None:
-            self.MAX_BUFFER_DURATION = args.max_buffer_duration
-        if args.device is not None:
-            self.DEVICE = args.device
-        if args.whisper_model is not None:
-            self.WHISPER_MODEL = args.whisper_model
-        if args.trans_model_name is not None:
-            self.TRANS_MODEL_NAME = args.trans_model_name
-        if args.src_lang is not None:
-            self.SRC_LANG = args.src_lang
-        if args.tgt_lang is not None:
-            self.TARGET_LANG = args.tgt_lang
-        if args.output is not None:
-            self.OUTPUT_MODE = args.output
-        if args.ws_port is not None:
-            self.WS_PORT = args.ws_port
-        if args.transcribe_only is not None:
-            self.TRANSCRIBE_ONLY = args.transcribe_only
-            
+    def __getattr__(self, name):
+        """Allow access to both lowercase and uppercase attributes."""
+        lower_name = name.lower()  # Convert to lowercase
+        if hasattr(self.args, lower_name):
+            return getattr(self.args, lower_name) 
+        raise AttributeError(f"Config has no attribute '{name}'")

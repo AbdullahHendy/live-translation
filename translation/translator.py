@@ -27,9 +27,9 @@ class Translator(mp.Process):
         self.output_manager = output_manager
 
         self.model_name = (
-            f"{self.cfg.TRANS_MODEL}-"
+            f"{self.cfg.TRANS_MODEL_NAME}-"
             f"{self.cfg.SRC_LANG}-"
-            f"{self.cfg.TARGET_LANG}"
+            f"{self.cfg.TGT_LANG}"
         )
 
         print(f"🔄 Translator: Loading {self.model_name} translation model...")
