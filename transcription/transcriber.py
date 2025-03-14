@@ -51,9 +51,10 @@ class Transcriber(mp.Process):
                 try:
                     # Normalize and transcribe the audio segment
                     audio_segment = audio_segment.astype(np.float32)
-                    segments, _ = self.whisper_model.transcribe(
-                        audio_segment, language=self.cfg.SRC_LANG
-                    )
+                    with torch.inference_mode():
+                        segments, _ = self.whisper_model.transcribe(
+                            audio_segment, language=self.cfg.SRC_LANG
+                        )
                     
                     transcription = " ".join(seg.text for seg in segments)
                     if transcription.strip():
