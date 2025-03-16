@@ -4,7 +4,7 @@ import json
 import os
 from datetime import datetime, timezone
 import config
-from ws_server import WebSocketServer
+from _ws import WebSocketServer
 
 
 class OutputManager:

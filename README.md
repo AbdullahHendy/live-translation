@@ -45,12 +45,12 @@ Before running the project, you need to install the following system dependencie
 
 1. **Run the application** (inside the virtual environment) with:
    ```bash
-   python live_translation.py [OPTIONS]
+   python live_translation/cli.py [OPTIONS]
    ```
     **OPTIONS**:
     ```bash
-    usage: live_translation.py [-h] [--silence_threshold SILENCE_THRESHOLD] [--vad_aggressiveness {0,1,2,3,4,5,6,7,8,9}] [--max_buffer_duration {5,6,7,8,9,10}] [--device {cpu,cuda}] [--whisper_model {tiny,base,small,medium,large,large-v2}]
-                            [--trans_model_name {Helsinki-NLP/opus-mt,Helsinki-NLP/opus-mt-tc-big}] [--src_lang SRC_LANG] [--tgt_lang TGT_LANG] [--output {print,file,websocket}] [--ws_port WS_PORT] [--transcribe_only]
+    usage: cli.py [-h] [--silence_threshold SILENCE_THRESHOLD] [--vad_aggressiveness {0,1,2,3,4,5,6,7,8,9}] [--max_buffer_duration {5,6,7,8,9,10}] [--device {cpu,cuda}] [--whisper_model {tiny,base,small,medium,large,large-v2}]
+                [--trans_model {Helsinki-NLP/opus-mt,Helsinki-NLP/opus-mt-tc-big}] [--src_lang SRC_LANG] [--tgt_lang TGT_LANG] [--output {print,file,websocket}] [--ws_port WS_PORT] [--transcribe_only]
 
     Audio Processing Pipeline - Configure runtime settings.
 
@@ -58,22 +58,23 @@ Before running the project, you need to install the following system dependencie
     -h, --help            show this help message and exit
     --silence_threshold SILENCE_THRESHOLD
                             Number of consecutive 32ms silent chunks to detect SILENCE.
-                            SILENCE triggers sending a 'FULL' audio buffer for transcription/translation.
+                            SILENCE clears the audio buffer for transcription/translation.
+                            NOTE: Minimum value is 16.
                             Default is 65 (~ 2s).
     --vad_aggressiveness {0,1,2,3,4,5,6,7,8,9}
                             Voice Activity Detection (VAD) aggressiveness level (0-9).
-                            Higher values mean VAD has to be more confident to detect speech.
+                            Higher values mean VAD has to be more confident to detect speech vs silence.
                             Default is 8.
     --max_buffer_duration {5,6,7,8,9,10}
-                            Max audio buffer duration in seconds before cutting 75% of it.
+                            Max audio buffer duration in seconds before trimming it.
                             Default is 7 seconds.
     --device {cpu,cuda}   Device for processing ('cpu', 'cuda').
                             Default is 'cpu'.
     --whisper_model {tiny,base,small,medium,large,large-v2}
                             Whisper model size ('tiny', 'base', 'small', 'medium', 'large', 'large-v2').
                             Default is 'base'.
-    --trans_model_name {Helsinki-NLP/opus-mt,Helsinki-NLP/opus-mt-tc-big}
-                            Translation model name ('Helsinki-NLP/opus-mt', 'Helsinki-NLP/opus-mt-tc-big'). 
+    --trans_model {Helsinki-NLP/opus-mt,Helsinki-NLP/opus-mt-tc-big}
+                            Translation model ('Helsinki-NLP/opus-mt', 'Helsinki-NLP/opus-mt-tc-big'). 
                             NOTE: Don't include source and target languages here.
                             Default is 'Helsinki-NLP/opus-mt'.
     --src_lang SRC_LANG   Source/Input language for transcription (e.g., 'en', 'fr').
@@ -95,7 +96,6 @@ Before running the project, you need to install the following system dependencie
     --ws_port WS_PORT     WebSocket port for sending transcriptions.
                             Required if --output is 'websocket'.
     --transcribe_only     Transcribe only mode. No translations are performed.
-    ```
 
 2. The program will continuously listen for speech, transcribe the audio, and send the output using the selected mode.
     > **NOTE**: The output including timestamp, ***src_lang*** transcription, and ***tgt_lang*** translation is sent out after the translation stage.

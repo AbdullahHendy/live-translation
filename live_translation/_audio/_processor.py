@@ -4,7 +4,7 @@ import multiprocessing as mp
 import threading
 import numpy as np
 import time
-from audio.vad import VoiceActivityDetector
+from _audio._vad import VoiceActivityDetector
 import config
 
 class AudioProcessor(mp.Process):

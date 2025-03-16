@@ -4,11 +4,11 @@ import os
 import multiprocessing as mp
 import signal
 import time
-from audio.recorder import AudioRecorder
-from audio.processor import AudioProcessor
-from transcription.transcriber import Transcriber
-from translation.translator import Translator
-from output_manager import OutputManager
+from _audio._recorder import AudioRecorder
+from _audio._processor import AudioProcessor
+from _transcription._transcriber import Transcriber
+from _translation._translator import Translator
+from _output import OutputManager
 import config
 
 
@@ -122,7 +122,8 @@ class PipelineManager:
     def run(self):
         """Run the pipeline manager and handle shutdown signals."""
         # Register signal handler
-        signal.signal(signal.SIGINT, self.signal_handler)
+        if os.getpid() == self.parent_pid:  # ✅ Ensure signal is set in main process only
+            signal.signal(signal.SIGINT, self.signal_handler)
 
         try:
             self.start_pipeline()

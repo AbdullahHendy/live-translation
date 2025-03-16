@@ -6,7 +6,7 @@ import multiprocessing as mp
 import threading
 from transformers import MarianMTModel, MarianTokenizer
 import config
-from output_manager import OutputManager
+from _output import OutputManager
 
 
 class Translator(mp.Process):
@@ -27,7 +27,7 @@ class Translator(mp.Process):
         self.output_manager = output_manager
 
         self.model_name = (
-            f"{self.cfg.TRANS_MODEL_NAME}-"
+            f"{self.cfg.TRANS_MODEL}-"
             f"{self.cfg.SRC_LANG}-"
             f"{self.cfg.TGT_LANG}"
         )

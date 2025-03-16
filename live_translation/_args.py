@@ -1,7 +1,6 @@
 # args.py
 
 import argparse
-import torch
 
 
 def get_args():
@@ -20,8 +19,8 @@ def get_args():
         default=65,
         help=(
             "Number of consecutive 32ms silent chunks to detect SILENCE.\n"
-            "SILENCE triggers sending a 'FULL' audio buffer for "
-            "transcription/translation.\n"
+            "SILENCE clears the audio buffer for transcription/translation.\n"
+            "NOTE: Minimum value is 16.\n"
             "Default is 65 (~ 2s)."
         ),
     )
@@ -34,7 +33,7 @@ def get_args():
         help=(
             "Voice Activity Detection (VAD) aggressiveness level (0-9).\n"
             "Higher values mean VAD has to be more confident to "
-            "detect speech.\n"
+            "detect speech vs silence.\n"
             "Default is 8."
         ),
     )
@@ -45,7 +44,7 @@ def get_args():
         choices=range(5, 11),
         default=7,
         help=(
-            "Max audio buffer duration in seconds before cutting 75%% of it.\n"
+            "Max audio buffer duration in seconds before trimming it.\n"
             "Default is 7 seconds."
         ),
     )
@@ -73,12 +72,12 @@ def get_args():
     )
 
     parser.add_argument(
-        "--trans_model_name",
+        "--trans_model",
         type=str,
         choices=["Helsinki-NLP/opus-mt", "Helsinki-NLP/opus-mt-tc-big"],
         default="Helsinki-NLP/opus-mt",
         help=(
-            "Translation model name ('Helsinki-NLP/opus-mt', "
+            "Translation model ('Helsinki-NLP/opus-mt', "
             "'Helsinki-NLP/opus-mt-tc-big'). \n"
             "NOTE: Don't include source and target languages here.\n"
             "Default is 'Helsinki-NLP/opus-mt'."
