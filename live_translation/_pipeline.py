@@ -121,7 +121,7 @@ class PipelineManager:
     def run(self):
         """Run the pipeline manager and handle shutdown signals."""
         # Register signal handler
-        if os.getpid() == self.parent_pid:  # ✅ Ensure signal is set in main process only
+        if os.getpid() == self.parent_pid:
             signal.signal(signal.SIGINT, self.signal_handler)
 
         try:
