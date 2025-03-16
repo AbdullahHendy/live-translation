@@ -1,8 +1,8 @@
 # live_translation.py
 
-from config import Config
+from .config import Config
 import multiprocessing as mp
-from _pipeline import PipelineManager
+from ._pipeline import PipelineManager
 
 
 class LiveTranslationApp:

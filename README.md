@@ -45,7 +45,7 @@ Before running the project, you need to install the following system dependencie
 
 1. **Run the application** (inside the virtual environment) with:
    ```bash
-   python live_translation/cli.py [OPTIONS]
+   python -m live_translation.cli [OPTIONS]
    ```
     **OPTIONS**:
     ```bash

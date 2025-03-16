@@ -3,8 +3,8 @@
 import json
 import os
 from datetime import datetime, timezone
-import config
-from _ws import WebSocketServer
+from . import config
+from ._ws import WebSocketServer
 
 
 class OutputManager:

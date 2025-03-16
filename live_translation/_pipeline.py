@@ -4,13 +4,12 @@ import os
 import multiprocessing as mp
 import signal
 import time
-from _audio._recorder import AudioRecorder
-from _audio._processor import AudioProcessor
-from _transcription._transcriber import Transcriber
-from _translation._translator import Translator
-from _output import OutputManager
-import config
-
+from ._audio._recorder import AudioRecorder
+from ._audio._processor import AudioProcessor
+from ._transcription._transcriber import Transcriber
+from ._translation._translator import Translator
+from ._output import OutputManager
+from . import config
 
 class PipelineManager:
     def __init__(self, config: config.Config):

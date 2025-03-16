@@ -1,8 +1,8 @@
 # cli.py
 
-from app import LiveTranslationApp
-from config import Config
-from _args import get_args
+from .app import LiveTranslationApp
+from .config import Config
+from ._args import get_args
 
 def main():
     """CLI entry point."""

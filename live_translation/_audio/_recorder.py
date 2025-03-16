@@ -4,7 +4,7 @@ import multiprocessing as mp
 import threading
 import numpy as np
 import pyaudio
-import config
+from .. import config
 
 class AudioRecorder(threading.Thread):
     """
