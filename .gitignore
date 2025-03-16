@@ -174,4 +174,4 @@ cython_debug/
 .pypirc
 
 # Transcripts
-live_translation/transcripts/*
+transcripts/*
