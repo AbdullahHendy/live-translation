@@ -1,4 +1,4 @@
-# transcription/transcriber.py
+# transcription/_transcriber.py
 
 import queue
 import multiprocessing as mp

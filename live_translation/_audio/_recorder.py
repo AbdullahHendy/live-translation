@@ -1,4 +1,4 @@
-# audio/recorder.py
+# audio/_recorder.py
 
 import multiprocessing as mp
 import threading

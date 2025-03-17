@@ -1,4 +1,4 @@
-# pipeline_manager.py
+# _pipeline.py
 
 import os
 import multiprocessing as mp

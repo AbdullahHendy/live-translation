@@ -1,4 +1,4 @@
-# translation/translator.py
+# translation/_translator.py
 
 import torch
 import queue

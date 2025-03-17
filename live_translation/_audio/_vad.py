@@ -1,4 +1,4 @@
-# audio/vad.py
+# audio/_vad.py
 
 import torch
 import numpy as np

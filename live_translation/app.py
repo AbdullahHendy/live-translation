@@ -1,4 +1,4 @@
-# live_translation.py
+# app.py
 
 from .config import Config
 import multiprocessing as mp

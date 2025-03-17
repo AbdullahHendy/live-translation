@@ -1,4 +1,4 @@
-# output_manager.py
+# _output.py
 
 import json
 import os
