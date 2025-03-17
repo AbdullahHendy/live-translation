@@ -10,26 +10,26 @@ class WebSocketServer:
 
     def __init__(self, port: int):
         """Initialize WebSocket Server."""
-        self.port = port
-        self.process = None
-        self.queue = multiprocessing.Queue()
+        self._port = port
+        self._process = None
+        self._queue = multiprocessing.Queue()
 
     def start(self):
         """Start WebSocket server in a separate process."""
-        self.process = multiprocessing.Process(
-            target=self._run_server, args=(self.queue, self.port)
+        self._process = multiprocessing.Process(
+            target=self._run_server, args=(self._queue, self._port)
         )
-        self.process.start()
+        self._process.start()
 
     def send(self, message):
         """Enqueue a message to be sent to all clients."""
-        self.queue.put(message)
+        self._queue.put(message)
 
     def stop(self):
         """Stop WebSocket server process."""
-        if self.process and self.process.is_alive():
-            self.process.terminate()
-            self.process.join()
+        if self._process and self._process.is_alive():
+            self._process.terminate()
+            self._process.join()
             print("🛑 WebSocket server stopped.")
 
     @staticmethod

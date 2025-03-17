@@ -26,8 +26,3 @@ class LiveTranslationApp:
         print(f"🚀 Starting live-translation with config: {self.cfg.__dict__}")
         self.pipeline_manager.run()
 
-    # Might be useless in this app's context, but maybe a good to have
-    def stop(self):
-        """Stops the translation pipeline gracefully."""
-        print("🛑 Stopping live-translation...")
-        self.pipeline_manager.stop_pipeline()

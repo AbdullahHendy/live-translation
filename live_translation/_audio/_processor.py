@@ -9,7 +9,7 @@ from .. import config
 
 class AudioProcessor(mp.Process):
     """
-    Processes raw audio from the queue, applies VAD, buffers, and 
+    Processes raw audio from the queue, applies _VAD, buffers, and 
     sends cleaned audio to another queue for transcription.
     """
     
@@ -19,12 +19,12 @@ class AudioProcessor(mp.Process):
                  cfg: config.Config
                 ):
         super().__init__()
-        self.audio_queue = audio_queue
-        self.processed_queue = processed_queue
-        self.stop_event = stop_event
-        self.cfg = cfg
-        self.vad = None
-        self.audio_buffer = []
+        self._audio_queue = audio_queue
+        self._processed_queue = processed_queue
+        self._stop_event = stop_event
+        self._cfg = cfg
+        self._vad = None
+        self._audio_buffer = []
 
     def run(self):
         """
@@ -54,36 +54,36 @@ class AudioProcessor(mp.Process):
                 - Reset the buffer (since speech has clearly stopped).
                 - Reset `last_sent_len` and `silence_count`.
         """
-        self.vad = VoiceActivityDetector(self.cfg.VAD_AGGRESSIVENESS)
+        self._vad = VoiceActivityDetector(self._cfg.VAD_AGGRESSIVENESS)
         silence_count = 0  # Track consecutive silence
         last_sent_len = 0  # Track last enqueue position
         # Track the buffer start length to calculate buffer duration from
-        audio_buffer_start_len = 0
+        _audio_buffer_start_len = 0
 
         print("🔄 AudioProcessor: Ready to process audio...")
 
         try:
-            while not self.stop_event.is_set():
+            while not self._stop_event.is_set():
                 try:
-                    audio_data = self.audio_queue.get(timeout=0.5)
+                    audio_data = self._audio_queue.get(timeout=0.5)
                 except:
                     continue  # Skip if queue is empty
 
-                audio_data_f32 = self.int2float(audio_data)
+                audio_data_f32 = self._int2float(audio_data)
 
-                # Run VAD
-                has_speech = self.vad.is_speech(audio_data_f32, 
-                                                self.cfg.SAMPLE_RATE)
+                # Run _VAD
+                has_speech = self._vad.is_speech(audio_data_f32, 
+                                                config.Config.SAMPLE_RATE)
 
                 if has_speech:
                     silence_count = 0
 
                     # Append an audio chunk to the buffer
-                    self.audio_buffer.append(audio_data_f32)
+                    self._audio_buffer.append(audio_data_f32)
 
                     # Enqueue if Xs of new audio is available
-                    new_audio = self.audio_buffer[last_sent_len:]
-                    new_duration = self.buffer_duration_s(
+                    new_audio = self._audio_buffer[last_sent_len:]
+                    new_duration = self._buffer_duration_s(
                         len(new_audio),
                         0
                     )
@@ -91,29 +91,29 @@ class AudioProcessor(mp.Process):
                     # TODO: Investigate the situation where the last chunk in a
                     #       speech is less than ENQUEUE_THRESHOLD and thus not
                     #       enqueued.
-                    if new_duration >= self.cfg.ENQUEUE_THRESHOLD:
-                        audio_segment = np.concatenate(self.audio_buffer)
-                        self.processed_queue.put(audio_segment) 
-                        last_sent_len = len(self.audio_buffer)
+                    if new_duration >= config.Config.ENQUEUE_THRESHOLD:
+                        audio_segment = np.concatenate(self._audio_buffer)
+                        self._processed_queue.put(audio_segment) 
+                        last_sent_len = len(self._audio_buffer)
 
                     # Trim buffer if it exceeds max duration
-                    total_duration = self.buffer_duration_s(
-                        len(self.audio_buffer),
-                        audio_buffer_start_len
+                    total_duration = self._buffer_duration_s(
+                        len(self._audio_buffer),
+                        _audio_buffer_start_len
                     )
-                    if total_duration > self.cfg.MAX_BUFFER_DURATION:
-                        trim_size = int(len(self.audio_buffer) 
-                                        * self.cfg.TRIM_FACTOR)
-                        self.audio_buffer = self.audio_buffer[trim_size:]
-                        audio_buffer_start_len = len(self.audio_buffer)
+                    if total_duration > self._cfg.MAX_BUFFER_DURATION:
+                        trim_size = int(len(self._audio_buffer) 
+                                        * config.Config.TRIM_FACTOR)
+                        self._audio_buffer = self._audio_buffer[trim_size:]
+                        _audio_buffer_start_len = len(self._audio_buffer)
                         last_sent_len = max(0, last_sent_len - trim_size)
 
                 else:
                     silence_count += 1
 
                     # Reset buffer on long silence
-                    if silence_count >= self.cfg.SILENCE_THRESHOLD:
-                        self.audio_buffer = []
+                    if silence_count >= self._cfg.SILENCE_THRESHOLD:
+                        self._audio_buffer = []
                         last_sent_len = 0
                         silence_count = 0
 
@@ -127,22 +127,22 @@ class AudioProcessor(mp.Process):
     def _cleanup(self):
         """Clean up the processor."""
         try:
-            self.processed_queue.close()
+            self._processed_queue.close()
         except Exception as e:
             print(f"🚨 AudioProcessor Cleanup Error: {e}")
 
 
-    def buffer_duration_s(self, curr_length, start_length):
+    def _buffer_duration_s(self, curr_length, start_length):
         """Calculate buffer duration in seconds since buffer's start_length."""
         return (
             (curr_length - start_length) 
-            * self.cfg.CHUNK_SIZE
-            / self.cfg.SAMPLE_RATE
+            * config.Config.CHUNK_SIZE
+            / config.Config.SAMPLE_RATE
         )
 
     @staticmethod
-    def int2float(sound):
-        """Convert int16 audio to float32 for VAD."""
+    def _int2float(sound):
+        """Convert int16 audio to float32 for _VAD."""
         sound = sound.astype('float32')
         max_val = np.abs(sound).max()
         if max_val > 0:
