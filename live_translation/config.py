@@ -57,19 +57,6 @@ class Config:
             If set, no translations are performed.
     """
 
-    # Immutable Settings
-    # Audio Settings, not all are modifiable for now
-    CHUNK_SIZE = 512  # 32 ms of audio at 16 kHz
-    SAMPLE_RATE = 16000  # 16 kHz
-    CHANNELS = 1  # Mono
-    # Audio Processing Settings, not modifiable for now
-    # Audio lentgh in seconds to trigger ENQUEUE that is 
-    # (send for transcription/translation)
-    ENQUEUE_THRESHOLD = 1  # seconds
-    # Trim audio buffer by this percentage when it 
-    # exceeds MAX_BUFFER_DURATION
-    TRIM_FACTOR = 0.75
-
     def __init__(self,
                  device: str = "cpu",
                  whisper_model: str = "base",
@@ -86,6 +73,19 @@ class Config:
         """
         Initialize the configuration.
         """
+
+        # Immutable Settings
+        # Audio Settings, not all are modifiable for now
+        self._CHUNK_SIZE = 512  # 32 ms of audio at 16 kHz
+        self._SAMPLE_RATE = 16000  # 16 kHz
+        self._CHANNELS = 1  # Mono
+        # Audio Processing Settings, not modifiable for now
+        # Audio lentgh in seconds to trigger ENQUEUE that is 
+        # (send for transcription/translation)
+        self._ENQUEUE_THRESHOLD = 1  # seconds
+        # Trim audio buffer by this percentage when it 
+        # exceeds MAX_BUFFER_DURATION
+        self._TRIM_FACTOR = 0.75
 
         # Mutable Settings
         self.DEVICE = device
@@ -182,3 +182,23 @@ class Config:
                 "🚨 WebSocket port is required for 'websocket' output mode. "
                 "Please specify the port using the '--ws_port' argument."
             )
+
+    @property
+    def CHUNK_SIZE(self):
+        return self._CHUNK_SIZE
+    
+    @property
+    def SAMPLE_RATE(self):
+        return self._SAMPLE_RATE
+    
+    @property
+    def CHANNELS(self):
+        return self._CHANNELS
+    
+    @property
+    def ENQUEUE_THRESHOLD(self):
+        return self._ENQUEUE_THRESHOLD
+    
+    @property
+    def TRIM_FACTOR(self):
+        return self._TRIM_FACTOR

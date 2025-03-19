@@ -11,22 +11,23 @@ class AudioRecorder(threading.Thread):
     Captures raw audio from the input and sends it to a queue for processing.
     """
     def __init__(self, audio_queue: mp.Queue, 
-                 stop_event: threading.Event 
+                 stop_event: threading.Event,
+                 cfg: config.Config 
                 ):
         """Initialize the AudioRecorder."""
 
         super().__init__()
         self._audio_queue = audio_queue
         self._stop_event = stop_event
-
+        self._cfg = cfg
         # Initialize PyAudio
         self._pyaudio_instance = pyaudio.PyAudio()
         self._stream = self._pyaudio_instance.open(
             format=pyaudio.paInt16,
-            channels=config.Config.CHANNELS,
-            rate=config.Config.SAMPLE_RATE,
+            channels=self._cfg.CHANNELS,
+            rate=self._cfg.SAMPLE_RATE,
             input=True,
-            frames_per_buffer=config.Config.CHUNK_SIZE,
+            frames_per_buffer=self._cfg.CHUNK_SIZE,
         )
 
     def run(self):
@@ -36,7 +37,7 @@ class AudioRecorder(threading.Thread):
         try:
             while not self._stop_event.is_set():
                 try:
-                    data = self._stream.read(config.Config.CHUNK_SIZE, 
+                    data = self._stream.read(self._cfg.CHUNK_SIZE, 
                                             exception_on_overflow=False)
                     audio_data = np.frombuffer(data, dtype=np.int16)
                     self._audio_queue.put(audio_data)

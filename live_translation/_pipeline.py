@@ -37,7 +37,8 @@ class PipelineManager:
         # Thread
         self._audio_recorder = AudioRecorder(
             self._raw_audio_queue, 
-            self._stop_event
+            self._stop_event,
+            self._cfg
         )
         # Processes
         self._audio_processor = AudioProcessor(

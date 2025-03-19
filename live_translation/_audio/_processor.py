@@ -73,7 +73,7 @@ class AudioProcessor(mp.Process):
 
                 # Run _VAD
                 has_speech = self._vad.is_speech(audio_data_f32, 
-                                                config.Config.SAMPLE_RATE)
+                                                self._cfg.SAMPLE_RATE)
 
                 if has_speech:
                     silence_count = 0
@@ -91,7 +91,7 @@ class AudioProcessor(mp.Process):
                     # TODO: Investigate the situation where the last chunk in a
                     #       speech is less than ENQUEUE_THRESHOLD and thus not
                     #       enqueued.
-                    if new_duration >= config.Config.ENQUEUE_THRESHOLD:
+                    if new_duration >= self._cfg.ENQUEUE_THRESHOLD:
                         audio_segment = np.concatenate(self._audio_buffer)
                         self._processed_queue.put(audio_segment) 
                         last_sent_len = len(self._audio_buffer)
@@ -103,7 +103,7 @@ class AudioProcessor(mp.Process):
                     )
                     if total_duration > self._cfg.MAX_BUFFER_DURATION:
                         trim_size = int(len(self._audio_buffer) 
-                                        * config.Config.TRIM_FACTOR)
+                                        * self._cfg.TRIM_FACTOR)
                         self._audio_buffer = self._audio_buffer[trim_size:]
                         _audio_buffer_start_len = len(self._audio_buffer)
                         last_sent_len = max(0, last_sent_len - trim_size)
@@ -136,8 +136,8 @@ class AudioProcessor(mp.Process):
         """Calculate buffer duration in seconds since buffer's start_length."""
         return (
             (curr_length - start_length) 
-            * config.Config.CHUNK_SIZE
-            / config.Config.SAMPLE_RATE
+            * self._cfg.CHUNK_SIZE
+            / self._cfg.SAMPLE_RATE
         )
 
     @staticmethod
