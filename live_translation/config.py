@@ -86,6 +86,11 @@ class Config:
         # Trim audio buffer by this percentage when it 
         # exceeds MAX_BUFFER_DURATION
         self._TRIM_FACTOR = 0.75
+        # Soft silence threshold to detect the end of short speech that might
+        # not have exceeded ENQUEUE_THRESHOLD. For example, the end of speech
+        # or a short speech segment like "yes" or "no".
+        # 16 * 32ms ~ 0.5s
+        self._SOFT_SILENCE_THRESHOLD = 16
 
         # Mutable Settings
         self.DEVICE = device
@@ -122,10 +127,10 @@ class Config:
                 f"🚨 An error when verifying the translation model: {str(e)}"
             )
 
-        # Validate silence_threshold (must be greater than 15)
-        if  self.SILENCE_THRESHOLD < 16:
+        # Validate silence_threshold (must be greater than 16)
+        if  self.SILENCE_THRESHOLD <= 16:
             raise ValueError(
-                "🚨 'silence_threshold' must be greater than 15 (~ 0.5s). "
+                "🚨 'silence_threshold' must be greater than 16 (~ 0.5s). "
             )
 
         # Validate vad_aggressiveness (must be within the range 0-9)
@@ -202,3 +207,7 @@ class Config:
     @property
     def TRIM_FACTOR(self):
         return self._TRIM_FACTOR
+    
+    @property
+    def SOFT_SILENCE_THRESHOLD(self):
+        return self._SOFT_SILENCE_THRESHOLD

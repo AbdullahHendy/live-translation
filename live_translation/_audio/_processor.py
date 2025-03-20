@@ -88,9 +88,6 @@ class AudioProcessor(mp.Process):
                         0
                     )
                     # If we have enough new audio, enqueue it
-                    # TODO: Investigate the situation where the last chunk in a
-                    #       speech is less than ENQUEUE_THRESHOLD and thus not
-                    #       enqueued.
                     if new_duration >= self._cfg.ENQUEUE_THRESHOLD:
                         audio_segment = np.concatenate(self._audio_buffer)
                         self._processed_queue.put(audio_segment) 
@@ -110,6 +107,13 @@ class AudioProcessor(mp.Process):
 
                 else:
                     silence_count += 1
+
+                    # Enqueue short speech segments or end of speech
+                    if (silence_count == self._cfg.SOFT_SILENCE_THRESHOLD and 
+                        self._audio_buffer):
+                        audio_segment = np.concatenate(self._audio_buffer)
+                        self._processed_queue.put(audio_segment)
+                        last_sent_len = len(self._audio_buffer)
 
                     # Reset buffer on long silence
                     if silence_count >= self._cfg.SILENCE_THRESHOLD:
