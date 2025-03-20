@@ -41,7 +41,8 @@ class Transcriber(mp.Process):
         print("📝 Transcriber: Ready to transcribe audio...")
         self._stop_event = self._stop_event
         try:
-            while not (self._stop_event.is_set() and self._audio_queue.empty()):
+            while (not (self._stop_event.is_set() and 
+                        self._audio_queue.empty())):
                 # Get audio segment from the queue
                 try:
                     audio_segment = self._audio_queue.get(timeout=0.5)
