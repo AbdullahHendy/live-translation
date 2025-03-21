@@ -29,7 +29,7 @@ python -m venv .venv
 source .venv/bin/activate
 ```
 
-**Install** the package from PyPI:
+**Install** the [PyPI package](https://pypi.org/project/live-translation/0.1.0/):
 ```bash
 pip install live-translation
 ```
@@ -201,7 +201,9 @@ make test
 ```bash
 make build
 ```
-> **NOTE**: Building generates a ***.whl*** file that can be ***pip*** insalled in a new environment for testing
+> **NOTE**: Building does ***lint*** and checks for ***formatting*** using [ruff](https://docs.astral.sh/ruff/). One can do that seprately using `make format` and `make lint`. For linting and formatting rules, see the [ruff config](/ruff.toml).
+
+> **NOTE**: Building generates a ***.whl*** file that can be ***pip*** installed in a new environment for testing
 
 **If needed**, run the program within the virtual environment:
 ```bash
