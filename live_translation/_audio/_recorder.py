@@ -6,14 +6,15 @@ import numpy as np
 import pyaudio
 from .. import config
 
+
 class AudioRecorder(threading.Thread):
     """
     Captures raw audio from the input and sends it to a queue for processing.
     """
-    def __init__(self, audio_queue: mp.Queue, 
-                 stop_event: threading.Event,
-                 cfg: config.Config 
-                ):
+
+    def __init__(
+        self, audio_queue: mp.Queue, stop_event: threading.Event, cfg: config.Config
+    ):
         """Initialize the AudioRecorder."""
 
         super().__init__()
@@ -37,8 +38,9 @@ class AudioRecorder(threading.Thread):
         try:
             while not self._stop_event.is_set():
                 try:
-                    data = self._stream.read(self._cfg.CHUNK_SIZE, 
-                                            exception_on_overflow=False)
+                    data = self._stream.read(
+                        self._cfg.CHUNK_SIZE, exception_on_overflow=False
+                    )
                     audio_data = np.frombuffer(data, dtype=np.int16)
                     self._audio_queue.put(audio_data)
                 except Exception as e:

@@ -12,17 +12,20 @@ from .._output import OutputManager
 
 class Transcriber(mp.Process):
     """
-    Transcriber retrieves audio segments from an audio queue, 
-    transcribes them using a Whisper model, and pushes the resulting text into 
+    Transcriber retrieves audio segments from an audio queue,
+    transcribes them using a Whisper model, and pushes the resulting text into
     a transcription queue.
     """
-    def __init__(self, processed_audio_queue: mp.Queue, 
-                 transcription_queue: mp.Queue, 
-                 stop_event: threading.Event, 
-                 cfg: config.Config, 
-                 output_manager: OutputManager
-                ):
-        """Initialize the Transcriber. """
+
+    def __init__(
+        self,
+        processed_audio_queue: mp.Queue,
+        transcription_queue: mp.Queue,
+        stop_event: threading.Event,
+        cfg: config.Config,
+        output_manager: OutputManager,
+    ):
+        """Initialize the Transcriber."""
 
         super().__init__()
         self._audio_queue = processed_audio_queue
@@ -30,19 +33,18 @@ class Transcriber(mp.Process):
         self._stop_event = stop_event
         self._cfg = cfg
         self._output_manager = output_manager
-    
+
     def run(self):
         """Load the Whisper model and transcribe audio segments."""
 
         print("🔄 Transcriber: Loading Whisper model...")
-        self.whisper_model = WhisperModel(self._cfg.WHISPER_MODEL, 
-                                          compute_type="float32",
-                                          device=self._cfg.DEVICE)
+        self.whisper_model = WhisperModel(
+            self._cfg.WHISPER_MODEL, compute_type="float32", device=self._cfg.DEVICE
+        )
         print("📝 Transcriber: Ready to transcribe audio...")
         self._stop_event = self._stop_event
         try:
-            while (not (self._stop_event.is_set() and 
-                        self._audio_queue.empty())):
+            while not (self._stop_event.is_set() and self._audio_queue.empty()):
                 # Get audio segment from the queue
                 try:
                     audio_segment = self._audio_queue.get(timeout=0.5)
@@ -56,7 +58,7 @@ class Transcriber(mp.Process):
                         segments, _ = self.whisper_model.transcribe(
                             audio_segment, language=self._cfg.SRC_LANG
                         )
-                    
+
                     transcription = " ".join(seg.text for seg in segments)
                     if transcription.strip():
                         if self._cfg.TRANSCRIBE_ONLY:

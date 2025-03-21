@@ -36,7 +36,7 @@ class OutputManager:
         entry = {
             "timestamp": timestamp,
             "transcription": transcription,
-            "translation": translation
+            "translation": translation,
         }
 
         if self._mode == "print":
@@ -47,7 +47,7 @@ class OutputManager:
             self._write_to_file(entry)
 
         elif self._mode == "websocket" and self._ws_server:
-            self._ws_server.send(json.dumps(entry, ensure_ascii=False)) 
+            self._ws_server.send(json.dumps(entry, ensure_ascii=False))
 
     def close(self):
         """Close resources and stop WebSocket server if it was started."""
@@ -56,15 +56,13 @@ class OutputManager:
             print(f"📁 Closed JSON file: {self._file_path}")
 
         if self._ws_server:
-            self._ws_server.stop() 
+            self._ws_server.stop()
 
     def _next_available_filename_path(self, directory="transcripts"):
         """Generate path of a new filename if the current one exists."""
         os.makedirs(directory, exist_ok=True)
         index = 0
-        while os.path.exists(
-            os.path.join(directory, f"transcript_{index}.json")
-        ):
+        while os.path.exists(os.path.join(directory, f"transcript_{index}.json")):
             index += 1
         return os.path.join(directory, f"transcript_{index}.json")
 

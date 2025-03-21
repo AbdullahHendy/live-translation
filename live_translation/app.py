@@ -12,9 +12,9 @@ class LiveTranslationApp:
         """Initializes the Live Translation App with a Config object."""
         self.cfg = cfg
 
-        # Force spawn insted of fork to accommodate Cuda reinitialization in 
-        # forked processes on OS with default forking paradigm (linux, MacOS). 
-        # See: 
+        # Force spawn insted of fork to accommodate Cuda reinitialization in
+        # forked processes on OS with default forking paradigm (linux, MacOS).
+        # See:
         # https://huggingface.co/docs/datasets/main/en/process#multiprocessing
         if cfg.DEVICE == "cuda":
             mp.set_start_method("spawn", force=True)
@@ -25,4 +25,3 @@ class LiveTranslationApp:
         """Starts the translation pipeline."""
         print(f"🚀 Starting live-translation with config: {self.cfg.__dict__}")
         self.pipeline_manager.run()
-

@@ -4,9 +4,10 @@ from .app import LiveTranslationApp
 from .config import Config
 from ._args import get_args
 
+
 def main():
     """CLI entry point."""
-    
+
     args = get_args()
 
     # Define the configuration object based on CLI arguments
@@ -27,6 +28,7 @@ def main():
     # Run the app with the CLI configuration
     app = LiveTranslationApp(cfg)
     app.run()
+
 
 if __name__ == "__main__":
     main()

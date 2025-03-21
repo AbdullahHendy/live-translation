@@ -49,8 +49,7 @@ class WebSocketServer:
             """Handles multiple WebSocket connections."""
             clients.add(websocket)
             print(
-                f"🌐 WebSocket Server: Client connected. "
-                f"{len(clients)} total clients."
+                f"🌐 WebSocket Server: Client connected. {len(clients)} total clients."
             )
             try:
                 await websocket.wait_closed()

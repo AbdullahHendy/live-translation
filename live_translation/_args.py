@@ -6,10 +6,8 @@ import argparse
 def get_args():
     """Parse command-line arguments for user-overridable settings."""
     parser = argparse.ArgumentParser(
-        description=(
-            "Audio Processing Pipeline - Configure runtime settings."
-        ), 
-        formatter_class=argparse.RawTextHelpFormatter
+        description=("Live Translation Pipeline - Configure runtime settings."),
+        formatter_class=argparse.RawTextHelpFormatter,
     )
 
     # Audio Settings
@@ -55,10 +53,9 @@ def get_args():
         type=str,
         choices=["cpu", "cuda"],
         default="cpu",
-        help="Device for processing ('cpu', 'cuda').\n"
-        "Default is 'cpu'.",
+        help="Device for processing ('cpu', 'cuda').\nDefault is 'cpu'.",
     )
-    
+
     parser.add_argument(
         "--whisper_model",
         type=str,
@@ -94,15 +91,12 @@ def get_args():
             "Default is 'en'."
         ),
     )
-    
+
     parser.add_argument(
         "--tgt_lang",
         type=str,
         default="es",
-        help=(
-            "Target language for translation (e.g., 'es', 'de').\n"
-            "Default is 'es'."
-        ),
+        help=("Target language for translation (e.g., 'es', 'de').\nDefault is 'es'."),
     )
 
     # Output Settings
@@ -115,7 +109,7 @@ def get_args():
             "Output method ('print', 'file', 'websocket').\n"
             "  - 'print': Prints transcriptions and translations to stdout.\n"
             "  - 'file': Saves structured JSON data (see below) "
-            "in transcripts/transcriptions.json.\n"
+            "in ./transcripts/transcriptions.json.\n"
             "  - 'websocket': Sends structured JSON data (see below)"
             " over WebSocket.\n"
             "JSON format for 'file' and 'websocket':\n"
@@ -140,9 +134,7 @@ def get_args():
     parser.add_argument(
         "--transcribe_only",
         action="store_true",
-        help=(
-            "Transcribe only mode. No translations are performed."
-        ),
+        help=("Transcribe only mode. No translations are performed."),
     )
 
     return parser.parse_args()

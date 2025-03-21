@@ -11,14 +11,17 @@ from .._output import OutputManager
 
 class Translator(mp.Process):
     """
-    Translator retrieves transcriptions from a queue, translates them using 
+    Translator retrieves transcriptions from a queue, translates them using
     the M2M-100 model, and prints the translation.
     """
-    def __init__(self, transcription_queue: mp.Queue, 
-                 stop_event: threading.Event, 
-                 cfg: config.Config, 
-                 output_manager: OutputManager
-                ):
+
+    def __init__(
+        self,
+        transcription_queue: mp.Queue,
+        stop_event: threading.Event,
+        cfg: config.Config,
+        output_manager: OutputManager,
+    ):
         """Initialize the Translator."""
         super().__init__()
         self._transcription_queue = transcription_queue
@@ -27,27 +30,21 @@ class Translator(mp.Process):
         self._output_manager = output_manager
 
         self._model_name = (
-            f"{self._cfg.TRANS_MODEL}-"
-            f"{self._cfg.SRC_LANG}-"
-            f"{self._cfg.TGT_LANG}"
+            f"{self._cfg.TRANS_MODEL}-{self._cfg.SRC_LANG}-{self._cfg.TGT_LANG}"
         )
 
         print(f"🔄 Translator: Loading {self._model_name} model...")
-        self._tokenizer = MarianTokenizer.from_pretrained(
-            self._model_name
-        )
-    
+        self._tokenizer = MarianTokenizer.from_pretrained(self._model_name)
+
     def run(self):
         self.model = MarianMTModel.from_pretrained(
-            self._model_name,
-            torch_dtype=torch.float32
+            self._model_name, torch_dtype=torch.float32
         ).to(self._cfg.DEVICE)
 
         print("🌍 Translator: Ready to translate text...")
 
         try:
-            while not (self._stop_event.is_set() and 
-                    self._transcription_queue.empty()):
+            while not (self._stop_event.is_set() and self._transcription_queue.empty()):
                 # Get transcription from the queue
                 try:
                     text = self._transcription_queue.get(timeout=0.5)
@@ -67,19 +64,16 @@ class Translator(mp.Process):
         finally:
             self._cleanup()
             print("🌍 Translator: Stopped.")
-    
+
     def _translate(self, text: str) -> str:
         if not text.strip():
             return ""
-        
-        inputs = self._tokenizer(
-            text, 
-            return_tensors="pt"
-        ).to(self._cfg.DEVICE)
+
+        inputs = self._tokenizer(text, return_tensors="pt").to(self._cfg.DEVICE)
 
         with torch.inference_mode():
             translated_tokens = self.model.generate(
-                **inputs, 
+                **inputs,
             )
         translated_text = self._tokenizer.decode(
             translated_tokens[0], skip_special_tokens=True
@@ -89,3 +83,10 @@ class Translator(mp.Process):
     def _cleanup(self):
         """Clean up the translation model."""
         pass
+
+
+def this_is_a_very_long_function_name_that_exceeds_the_limitssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss_and_should_be_flagged_by_ruff():
+    print(
+        "This line is way too long and should be flagged as wssssssssssssssssssssssssssssssssssssssell by Ruff because it's over 88 csssssssss"
+        "sssssssssssssssssssssssssssssssharacters!"
+    )

@@ -1,4 +1,4 @@
-# __init__.py 
+# __init__.py
 
 from .app import LiveTranslationApp
 from .config import Config
