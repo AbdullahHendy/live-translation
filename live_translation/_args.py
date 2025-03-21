@@ -1,16 +1,13 @@
-# args.py
+# _args.py
 
 import argparse
-import torch
 
 
 def get_args():
     """Parse command-line arguments for user-overridable settings."""
     parser = argparse.ArgumentParser(
-        description=(
-            "Audio Processing Pipeline - Configure runtime settings."
-        ), 
-        formatter_class=argparse.RawTextHelpFormatter
+        description=("Live Translation Pipeline - Configure runtime settings."),
+        formatter_class=argparse.RawTextHelpFormatter,
     )
 
     # Audio Settings
@@ -20,8 +17,8 @@ def get_args():
         default=65,
         help=(
             "Number of consecutive 32ms silent chunks to detect SILENCE.\n"
-            "SILENCE triggers sending a 'FULL' audio buffer for "
-            "transcription/translation.\n"
+            "SILENCE clears the audio buffer for transcription/translation.\n"
+            "NOTE: Minimum value is 16.\n"
             "Default is 65 (~ 2s)."
         ),
     )
@@ -34,7 +31,7 @@ def get_args():
         help=(
             "Voice Activity Detection (VAD) aggressiveness level (0-9).\n"
             "Higher values mean VAD has to be more confident to "
-            "detect speech.\n"
+            "detect speech vs silence.\n"
             "Default is 8."
         ),
     )
@@ -45,7 +42,7 @@ def get_args():
         choices=range(5, 11),
         default=7,
         help=(
-            "Max audio buffer duration in seconds before cutting 75%% of it.\n"
+            "Max audio buffer duration in seconds before trimming it.\n"
             "Default is 7 seconds."
         ),
     )
@@ -56,10 +53,9 @@ def get_args():
         type=str,
         choices=["cpu", "cuda"],
         default="cpu",
-        help="Device for processing ('cpu', 'cuda').\n"
-        "Default is 'cpu'.",
+        help="Device for processing ('cpu', 'cuda').\nDefault is 'cpu'.",
     )
-    
+
     parser.add_argument(
         "--whisper_model",
         type=str,
@@ -73,12 +69,12 @@ def get_args():
     )
 
     parser.add_argument(
-        "--trans_model_name",
+        "--trans_model",
         type=str,
         choices=["Helsinki-NLP/opus-mt", "Helsinki-NLP/opus-mt-tc-big"],
         default="Helsinki-NLP/opus-mt",
         help=(
-            "Translation model name ('Helsinki-NLP/opus-mt', "
+            "Translation model ('Helsinki-NLP/opus-mt', "
             "'Helsinki-NLP/opus-mt-tc-big'). \n"
             "NOTE: Don't include source and target languages here.\n"
             "Default is 'Helsinki-NLP/opus-mt'."
@@ -95,15 +91,12 @@ def get_args():
             "Default is 'en'."
         ),
     )
-    
+
     parser.add_argument(
         "--tgt_lang",
         type=str,
         default="es",
-        help=(
-            "Target language for translation (e.g., 'es', 'de').\n"
-            "Default is 'es'."
-        ),
+        help=("Target language for translation (e.g., 'es', 'de').\nDefault is 'es'."),
     )
 
     # Output Settings
@@ -116,7 +109,7 @@ def get_args():
             "Output method ('print', 'file', 'websocket').\n"
             "  - 'print': Prints transcriptions and translations to stdout.\n"
             "  - 'file': Saves structured JSON data (see below) "
-            "in transcripts/transcriptions.json.\n"
+            "in ./transcripts/transcriptions.json.\n"
             "  - 'websocket': Sends structured JSON data (see below)"
             " over WebSocket.\n"
             "JSON format for 'file' and 'websocket':\n"
@@ -141,9 +134,7 @@ def get_args():
     parser.add_argument(
         "--transcribe_only",
         action="store_true",
-        help=(
-            "Transcribe only mode. No translations are performed."
-        ),
+        help=("Transcribe only mode. No translations are performed."),
     )
 
     return parser.parse_args()
