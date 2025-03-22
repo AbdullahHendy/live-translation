@@ -29,7 +29,7 @@ python -m venv .venv
 source .venv/bin/activate
 ```
 
-**Install** the [PyPI package](https://pypi.org/project/live-translation/0.1.0/):
+**Install** the [PyPI package](https://pypi.org/project/live-translation/0.2.0/):
 ```bash
 pip install live-translation
 ```
@@ -131,17 +131,21 @@ For more detailed examples see [examples/](/examples/).
   from live_translation.config import Config
   from live_translation.app import LiveTranslationApp
 
-  # Initialize the app with custom configuration
-  # Configure to be CPU-based and output to WebSocket
-  config = Config(
-    device="cpu",
-    output="websocket",
-    ws_port=8765,
-  )
+  def main():
+      config = Config(
+          device="cpu",
+          output="websocket",
+          ws_port=8765
+      )
 
-  # Create and start the Live Translation App
-  app = LiveTranslationApp(config)
-  app.run()
+      # Create and start the Live Translation App
+      app = LiveTranslationApp(config)
+      app.run()
+
+  # Main guard is CRITICAL for systems that uses spawn method to create new processes
+  # This is the case for Windows and MacOS
+  if __name__ == "__main__":
+      main()
   ```
 
 - **Client**
@@ -173,6 +177,9 @@ For more detailed examples see [examples/](/examples/).
 ## Development
 
 To contribute or modify this project, these steps might be helpful:
+> **NOTE**: This workflow below is made for Linux-based systems. One might need to do some step manually on other systems. For example run test manually using `python -m pytest -s tests/` instead of `make test`. 
+> See **Makefile** for more details.
+
 
 **Clone** the repository:
 ```bash

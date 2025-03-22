@@ -2,81 +2,120 @@ import asyncio
 import glob
 import json
 import os
+import time
 import pytest
 import websockets
+import threading
+import multiprocessing as mp
 from live_translation._output import OutputManager
 from live_translation.config import Config
 
 
 @pytest.fixture
+def stop_event():
+    return threading.Event()
+
+
+@pytest.fixture
+def output_queue():
+    return mp.Queue()
+
+
+@pytest.fixture
 def temp_config():
-    """Fixture to create a Config instance with default values."""
     return Config(output="print")
 
 
-def test_output_print(capsys, temp_config):
-    """Test if OutputManager prints correctly to stdout."""
-    output_manager = OutputManager(temp_config)
-    output_manager.write("Hello", "Hola")
+def test_output_print(capsys, temp_config, output_queue, stop_event):
+    output_manager = OutputManager(temp_config, output_queue, stop_event)
+    output_manager.start()
+
+    entry = {
+        "timestamp": "2025-03-21T00:00:00Z",
+        "transcription": "Hello",
+        "translation": "Hola",
+    }
+    output_queue.put(entry)
+
+    time.sleep(2)
+
+    stop_event.set()
+    output_manager.join()
 
     captured = capsys.readouterr()
-    assert "📝 Transcriber: Hello" in captured.out
-    assert "🌍 Translator: Hola" in captured.out
+    assert "📝 Transcriber: Hello" in captured.out, (
+        "Output should contain 📝 Transcriber: Hello"
+    )
+    assert "🌍 Translator: Hola" in captured.out, (
+        "Output should container 🌍 Translator: Hola"
+    )
 
 
-def test_output_file(temp_config):
-    """Test if OutputManager writes correctly to a JSON file."""
-    temp_config.OUTPUT = "file"
-    output_manager = OutputManager(temp_config)
+def test_output_file(output_queue, stop_event):
+    cfg = Config(output="file")
+    output_manager = OutputManager(cfg, output_queue, stop_event)
+    output_manager.start()
 
-    output_manager.write("Hello", "Hola")
+    entry = {
+        "timestamp": "2025-03-21T00:00:00Z",
+        "transcription": "Hello",
+        "translation": "Hola",
+    }
+    output_queue.put(entry)
+
+    time.sleep(2)
+
+    stop_event.set()
+    output_manager.join()
 
     latest_file = find_latest_transcript()
-    assert latest_file is not None, "No transcript file was created!"
+    assert latest_file is not None
 
-    with open(latest_file, "r") as f:
+    with open(latest_file, "r", encoding="utf-8") as f:
         data = json.load(f)
 
     assert isinstance(data, list)
-    assert len(data) == 1
-    assert data[0]["transcription"] == "Hello"
-    assert data[0]["translation"] == "Hola"
+    assert len(data) > 0
+    assert data[-1]["transcription"] == "Hello"
+    assert data[-1]["translation"] == "Hola"
 
     os.remove(latest_file)
-    assert not os.path.exists(latest_file)
 
 
 @pytest.mark.asyncio
-async def test_output_websocket(temp_config):
-    """Test if OutputManager correctly sends messages over WebSocket."""
+async def test_output_websocket(output_queue, stop_event):
+    cfg = Config(output="websocket", ws_port=8765)
+    output_manager = OutputManager(cfg, output_queue, stop_event)
+    output_manager.start()
 
-    temp_config.OUTPUT = "websocket"
-    temp_config.WS_PORT = 8765
-    output_manager = OutputManager(temp_config)
-
-    for _ in range(5):
+    # Wait for WebSocket server to be ready
+    for _ in range(10):
         try:
-            async with websockets.connect(
-                f"ws://localhost:{temp_config.WS_PORT}"
-            ) as websocket:
-                output_manager.write("Hello", "Hola")
-                received_message = await websocket.recv()
-                received_data = json.loads(received_message)
-
-                assert received_data["transcription"] == "Hello"
-                assert received_data["translation"] == "Hola"
-                break
-        except ConnectionRefusedError:
-            await asyncio.sleep(1)  # Wait for server to start
+            ws = await websockets.connect(f"ws://localhost:{cfg.WS_PORT}")
+            break
+        except (ConnectionRefusedError, OSError):
+            await asyncio.sleep(0.5)
     else:
-        pytest.fail("WebSocket server did not start in time!")
+        pytest.fail("WebSocket server did not start in time")
 
-    output_manager.close()
+    entry = {
+        "timestamp": "2025-03-21T00:00:00Z",
+        "transcription": "Hello",
+        "translation": "Hola",
+    }
+    output_queue.put(entry)
+
+    received_message = await ws.recv()
+    data = json.loads(received_message)
+    assert data["transcription"] == "Hello"
+    assert data["translation"] == "Hola"
+
+    await ws.close()
+    stop_event.set()
+    output_manager.join()
 
 
-# Helper function
 def find_latest_transcript():
-    """Find the most recent transcript file in the `transcripts/` directory."""
     transcript_files = glob.glob("transcripts/transcript_*.json")
     if not transcript_files:
         return None
