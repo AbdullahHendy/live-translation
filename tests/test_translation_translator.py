@@ -2,17 +2,20 @@ import pytest
 import multiprocessing as mp
 import threading
 import time
-import json
-import os
 from live_translation._translation._translator import Translator
 from live_translation.config import Config
-from live_translation._output import OutputManager
-
-TRANSCRIPTS_DIR = "transcripts/"
 
 
 @pytest.fixture
 def transcription_queue():
+    queue = mp.Queue()
+    yield queue
+    queue.cancel_join_thread()
+    queue.close()
+
+
+@pytest.fixture
+def output_queue():
     queue = mp.Queue()
     yield queue
     queue.cancel_join_thread()
@@ -26,38 +29,22 @@ def stop_event():
 
 @pytest.fixture
 def config():
-    cfg = Config(output="file")
-    return cfg
-
-
-@pytest.fixture
-def output_manager(config):
-    return OutputManager(config)
+    return Config(output="print", transcribe_only=False)
 
 
 @pytest.fixture
 def random_text():
-    """Provide a random text input for translation."""
     return "Hello, how are you?"
 
 
-def get_latest_transcript():
-    """Find the latest transcript file in the transcripts directory."""
-    files = sorted(
-        [f for f in os.listdir(TRANSCRIPTS_DIR) if f.endswith(".json")],
-        key=lambda f: os.path.getctime(os.path.join(TRANSCRIPTS_DIR, f)),
-    )
-    return os.path.join(TRANSCRIPTS_DIR, files[-1]) if files else None
-
-
 def test_translator_pipeline(
-    transcription_queue, stop_event, config, output_manager, random_text
+    transcription_queue, output_queue, stop_event, config, random_text
 ):
-    """Populate queue, start Translator, and check transcription JSON file."""
+    """Test Translator in full pipeline mode with output queue."""
 
     transcription_queue.put(random_text)
 
-    translator = Translator(transcription_queue, stop_event, config, output_manager)
+    translator = Translator(transcription_queue, stop_event, config, output_queue)
     translator.start()
 
     time.sleep(5)
@@ -65,25 +52,17 @@ def test_translator_pipeline(
     stop_event.set()
     translator.join(timeout=3)
 
-    translator._cleanup()
-
     if translator.is_alive():
         translator.terminate()
 
-    transcript_file = get_latest_transcript()
-    assert transcript_file, "No transcript file was created"
+    assert not output_queue.empty(), "Output queue should contain an entry"
+    entry = output_queue.get()
 
-    with open(transcript_file, "r") as f:
-        data = json.load(f)
-    assert isinstance(data, list) and len(data) > 0, (
-        "Transcript file does not contain valid data"
-    )
+    assert isinstance(entry, dict)
+    assert "transcription" in entry, "Transcription should be present"
+    assert "translation" in entry, "Translation should be present"
+    assert len(entry["transcription"].strip()) > 0, "Transcription should not be empty"
+    assert len(entry["translation"].strip()) > 0, "Translation should not be empty"
 
-    data = data[0]
-
-    assert "Hello, how are you?" in data["transcription"], (
-        "Transcription missing expected text"
-    )
-    assert "Hola, ¿cómo estás?" in data["translation"], (
-        "Translation missing expected text"
-    )
+    assert "Hello, how are you?" in entry["transcription"], "Transcription should match"
+    assert "Hola, ¿cómo estás?" in entry["translation"], "Translation should match"

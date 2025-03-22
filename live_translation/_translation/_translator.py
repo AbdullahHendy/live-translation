@@ -1,12 +1,12 @@
 # translation/_translator.py
 
+from datetime import datetime, timezone
 import torch
 import queue
 import multiprocessing as mp
 import threading
 from transformers import MarianMTModel, MarianTokenizer
 from .. import config
-from .._output import OutputManager
 
 
 class Translator(mp.Process):
@@ -20,14 +20,14 @@ class Translator(mp.Process):
         transcription_queue: mp.Queue,
         stop_event: threading.Event,
         cfg: config.Config,
-        output_manager: OutputManager,
+        output_queue: mp.Queue,
     ):
         """Initialize the Translator."""
         super().__init__()
         self._transcription_queue = transcription_queue
         self._stop_event = stop_event
         self._cfg = cfg
-        self._output_manager = output_manager
+        self._output_queue = output_queue
 
         self._model_name = (
             f"{self._cfg.TRANS_MODEL}-{self._cfg.SRC_LANG}-{self._cfg.TGT_LANG}"
@@ -54,7 +54,12 @@ class Translator(mp.Process):
                 try:
                     translation = self._translate(text)
                     if not self._cfg.TRANSCRIBE_ONLY:
-                        self._output_manager.write(text, translation)
+                        entry = {
+                            "timestamp": datetime.now(timezone.utc).isoformat(),
+                            "transcription": text,
+                            "translation": translation,
+                        }
+                        self._output_queue.put(entry)
                 except Exception as e:
                     print(f"🚨 Translator Error: {e}")
         except Exception as e:
@@ -83,10 +88,3 @@ class Translator(mp.Process):
     def _cleanup(self):
         """Clean up the translation model."""
         pass
-
-
-def this_is_a_very_long_function_name_that_exceeds_the_limitssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss_and_should_be_flagged_by_ruff():
-    print(
-        "This line is way too long and should be flagged as wssssssssssssssssssssssssssssssssssssssell by Ruff because it's over 88 csssssssss"
-        "sssssssssssssssssssssssssssssssharacters!"
-    )

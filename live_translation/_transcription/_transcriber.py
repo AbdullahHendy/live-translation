@@ -1,5 +1,6 @@
 # transcription/_transcriber.py
 
+from datetime import datetime, timezone
 import queue
 import multiprocessing as mp
 import torch
@@ -7,7 +8,6 @@ import threading
 import numpy as np
 from faster_whisper import WhisperModel
 from .. import config
-from .._output import OutputManager
 
 
 class Transcriber(mp.Process):
@@ -23,7 +23,7 @@ class Transcriber(mp.Process):
         transcription_queue: mp.Queue,
         stop_event: threading.Event,
         cfg: config.Config,
-        output_manager: OutputManager,
+        output_queue: mp.Queue,
     ):
         """Initialize the Transcriber."""
 
@@ -32,7 +32,7 @@ class Transcriber(mp.Process):
         self._transcription_queue = transcription_queue
         self._stop_event = stop_event
         self._cfg = cfg
-        self._output_manager = output_manager
+        self._output_queue = output_queue
 
     def run(self):
         """Load the Whisper model and transcribe audio segments."""
@@ -62,7 +62,12 @@ class Transcriber(mp.Process):
                     transcription = " ".join(seg.text for seg in segments)
                     if transcription.strip():
                         if self._cfg.TRANSCRIBE_ONLY:
-                            self._output_manager.write(transcription)
+                            entry = {
+                                "timestamp": datetime.now(timezone.utc).isoformat(),
+                                "transcription": transcription,
+                                "translation": "",
+                            }
+                            self._output_queue.put(entry)
                         else:
                             self._transcription_queue.put(transcription)
                 except Exception as e:

@@ -29,9 +29,7 @@ class PipelineManager:
         self._raw_audio_queue = mp.Queue()
         self._processed_audio_queue = mp.Queue()
         self._transcription_queue = mp.Queue()
-
-        # Create OutputManager
-        self._output_manager = OutputManager(self._cfg)
+        self._output_queue = mp.Queue()
 
         # Thread
         self._audio_recorder = AudioRecorder(
@@ -50,15 +48,19 @@ class PipelineManager:
             self._transcription_queue,
             self._stop_event,
             self._cfg,
-            self._output_manager,
+            self._output_queue,
         )
 
         self._translator = Translator(
-            self._transcription_queue, self._stop_event, self._cfg, self._output_manager
+            self._transcription_queue, self._stop_event, self._cfg, self._output_queue
+        )
+
+        self._output_manager = OutputManager(
+            self._cfg, self._output_queue, self._stop_event
         )
 
         # List of pipeline components
-        self._threads = [self._audio_recorder]
+        self._threads = [self._audio_recorder, self._output_manager]
         self._processes = [self._audio_processor, self._transcriber, self._translator]
 
     def signal_handler(self, sig, frame):
@@ -66,7 +68,7 @@ class PipelineManager:
         if os.getpid() != self._parent_pid:
             return  # Ignore SIGINT in child processes
 
-        print("\n🛑 Stopping the pipeline...")
+        print("\n🛑 Stopping the pipeline...\n")
         self._stop_event.set()
 
     def _start_pipeline(self):
@@ -105,8 +107,6 @@ class PipelineManager:
                     "Terminating."
                 )
                 process.terminate()
-
-        self._output_manager.close()
 
         print("✅ All processes stopped.")
 
