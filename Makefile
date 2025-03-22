@@ -17,7 +17,7 @@ build: clean format lint
 # Run tests
 test:
 	@echo "🏃 Running tests..."
-	$(ACTIVATE) && pytest -s tests/
+	$(ACTIVATE) && $(PYTHON) -m pytest -s tests/
 	@echo "✅ Tests completed."
 
 # Publish package to PyPI (expects credentials in ~/.pypirc)
