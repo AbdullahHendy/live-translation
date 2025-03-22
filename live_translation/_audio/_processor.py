@@ -54,6 +54,11 @@ class AudioProcessor(mp.Process):
                 trimming.
         4. If silence is detected:
             - Increment `silence_count` to track consecutive silent chunks.
+            - If `silence_count` reaches `SOFT_SILENCE_THRESHOLD`:
+                - If there is any speech in the buffer (new speech that hasn't exceeded
+                ENQUEUE_THRESHOLD yet to get enqueued normally):
+                    - Concatenate the buffer and send it to `processed_queue`.
+                    - Update `last_sent_len` to track how much has been sent.
             - If silence persists beyond `SILENCE_THRESHOLD`:
                 - Reset the buffer (since speech has clearly stopped).
                 - Reset `last_sent_len` and `silence_count`.

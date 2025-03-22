@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "live-translation"
-version = "0.1.0"
+version = "0.2.0"
 description = "A real-time translation tool using Whisper & Opus-MT"
 authors = [
     { name = "Abdullah Hendy", email = "abdullah.a.hendy@gmail.com" }
@@ -13,16 +13,16 @@ license-files = ["LICENSE"]
 readme = "README.md"
 requires-python = ">=3.8"
 dependencies = [
-    "torch",
-    "torchaudio",
-    "transformers",
-    "numpy",
-    "pyaudio",
-    "websockets",
-    "huggingface_hub",
-    "sacremoses",
-    "faster-whisper",
-    "sentencepiece"
+    "torch==2.6.0",
+    "torchaudio==2.6.0",
+    "transformers==4.49.0",
+    "numpy==2.2.3",
+    "pyaudio==0.2.14",
+    "websockets==15.0.1",
+    "huggingface_hub==0.29.1",
+    "sacremoses==0.1.1",
+    "faster-whisper==1.1.1",
+    "sentencepiece==0.2.0",
 ]
 
 keywords = ["translation", "transcription", "speech-to-text", "real-time translation", "whisper", "marianMT", "Opus-MT", "live transcription"]
