@@ -88,10 +88,3 @@ class Translator(mp.Process):
     def _cleanup(self):
         """Clean up the translation model."""
         pass
-
-
-def this_is_a_very_long_function_name_that_exceeds_the_limitssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss_and_should_be_flagged_by_ruff():
-    print(
-        "This line is way too long and should be flagged as wssssssssssssssssssssssssssssssssssssssell by Ruff because it's over 88 csssssssss"
-        "sssssssssssssssssssssssssssssssharacters!"
-    )
