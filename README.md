@@ -4,18 +4,18 @@ This project provides a real-time speech-to-text translation solution. It captur
 
 #### 🖥️ Print Output Demo
 
-<a href="assets/print.gif" target="_blank">
-  <img src="assets/print.gif" alt="Print Demo" />
+<a href="doc/print.gif" target="_blank">
+  <img src="doc/print.gif" alt="Print Demo" />
 </a>
 
 #### 🌍 WebSocket Output Demo
 
-<a href="assets/websocket.gif" target="_blank">
-  <img src="assets/websocket.gif" alt="WebSocket Demo" />
+<a href="doc/websocket.gif" target="_blank">
+  <img src="doc/websocket.gif" alt="WebSocket Demo" />
 </a>
 
 ## Architecture Overview
-<img src="assets/live-translation-piepline.png" alt="Architecture Diagram" />
+<img src="doc/live-translation-piepline.png" alt="Architecture Diagram" />
 
 
 ## Features
@@ -45,7 +45,7 @@ python -m venv .venv
 source .venv/bin/activate
 ```
 
-**Install** the [PyPI package](https://pypi.org/project/live-translation/0.3.0/):
+**Install** the [PyPI package](https://pypi.org/project/live-translation/0.3.1/):
 ```bash
 pip install live-translation
 ```
