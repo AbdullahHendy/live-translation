@@ -2,6 +2,22 @@
 
 This project provides a real-time speech-to-text translation solution. It captures audio from the microphone, processes it, transcribes it into text, and translates it to a target language. It uses the **Silero** model for processing (Voice Activity Detection), **Whisper** model for transcription and **Opus-MT** for translation. The output can be through ***stdout***, a ***JSON file***, or ***websockets***. 
 
+#### 🖥️ Print Output Demo
+
+<a href="assets/print.gif" target="_blank">
+  <img src="assets/print.gif" alt="Print Demo" />
+</a>
+
+#### 🌍 WebSocket Output Demo
+
+<a href="assets/websocket.gif" target="_blank">
+  <img src="assets/websocket.gif" alt="WebSocket Demo" />
+</a>
+
+## Architecture Overview
+<img src="assets/live-translation-piepline.png" alt="Architecture Diagram" />
+
+
 ## Features
 
 - Real-time speech capture and processing using **Silero** VAD (Voice Activity Detection)
@@ -234,7 +250,6 @@ This project was tested and developed on the following system configuration:
 
 ## Improvements
 
-- **Block Diagram**: Include a block diagram to visually represent the flow and architecture of the system, making it easier to understand the overall design.
 - **Better Error Handling**: Improve error handling across various components (audio, transcription, translation) to ensure the system is robust and can handle unexpected scenarios gracefully.
 - **Performance Optimization**: Investigate performance bottlenecks including checking sleep durations and optimizing concurrency management to minimize lag.
 - **Concurrency Design Check**: Review and optimize the threading design to ensure thread safety and prevent issues like race conditions or deadlocks, etc., revisit the current design of ***AudioRecorder*** being a thread while ***AudioProcessor***, ***Transcriber***, and ***Translator*** being processes.
