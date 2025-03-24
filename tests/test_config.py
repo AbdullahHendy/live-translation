@@ -26,7 +26,7 @@ def test_config_defaults(default_config):
 def test_config_modifiable_attributes():
     """Test if mutable attributes can be changed."""
     cfg = Config(
-        device="cuda",
+        device="cpu",
         whisper_model="tiny",
         trans_model="Helsinki-NLP/opus-mt",
         src_lang="en",
@@ -38,7 +38,7 @@ def test_config_modifiable_attributes():
         max_buffer_duration=10,
         transcribe_only=True,
     )
-    assert cfg.DEVICE == "cuda"
+    assert cfg.DEVICE == "cpu"
     assert cfg.WHISPER_MODEL == "tiny"
     assert cfg.TRANS_MODEL == "Helsinki-NLP/opus-mt"
     assert cfg.SRC_LANG == "en"

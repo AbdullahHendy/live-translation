@@ -25,16 +25,22 @@ def config():
     return Config()
 
 
-def test_audio_recorder_initialization(audio_queue, stop_event, config):
+@patch("live_translation._audio._recorder.pyaudio.PyAudio")
+def test_audio_recorder_initialization(mock_pyaudio, audio_queue, stop_event, config):
     """Test if AudioRecorder initializes correctly."""
+
+    mock_stream = MagicMock()
+    mock_pyaudio.return_value.open.return_value = mock_stream
+    mock_stream.is_active.return_value = True
+
     recorder = AudioRecorder(audio_queue, stop_event, config)
 
-    assert recorder._audio_queue is audio_queue, "Audio queue not set correctly!"
-    assert recorder._stop_event is stop_event, "Stop event not set correctly!"
-    assert recorder._cfg is config, "Config not set correctly!"
-    assert recorder._pyaudio_instance is not None, "PyAudio instance not created!"
-    assert recorder._stream is not None, "Audio stream not created!"
-    assert recorder._stream.is_active(), "Audio stream not active!"
+    assert recorder._audio_queue is audio_queue
+    assert recorder._stop_event is stop_event
+    assert recorder._cfg is config
+    assert recorder._pyaudio_instance is not None
+    assert recorder._stream is not None
+    assert recorder._stream.is_active()
 
     recorder._cleanup()
 
