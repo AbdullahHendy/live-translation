@@ -1,6 +1,11 @@
 import subprocess
 import time
 import psutil
+import os
+import pytest
+
+# If running in GitHub Actions (CI) (skip tests requiring audio hardware)
+IN_GITHUB_ACTIONS = os.getenv("GITHUB_ACTIONS") == "true"
 
 EXPECTED_LOGS = [
     "🚀 Starting the pipeline...",
@@ -13,6 +18,9 @@ EXPECTED_LOGS = [
 ]
 
 
+@pytest.mark.skipif(
+    IN_GITHUB_ACTIONS, reason="Audio hardware not available in GitHub Actions."
+)
 def test_pipeline():
     """Run PipelineManager with a Config instance then capture logs."""
 
