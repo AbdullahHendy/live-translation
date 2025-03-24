@@ -4,18 +4,18 @@ This project provides a real-time speech-to-text translation solution. It captur
 
 #### 🖥️ Print Output Demo
 
-<a href="doc/print.gif" target="_blank">
-  <img src="doc/print.gif" alt="Print Demo" />
+<a href="https://github.com/AbdullahHendy/live-translation/blob/main/doc/print.gif?raw=true" target="_blank">
+  <img src="https://github.com/AbdullahHendy/live-translation/blob/main/doc/print.gif?raw=true" alt="Print Demo" />
 </a>
 
 #### 🌍 WebSocket Output Demo
 
-<a href="doc/websocket.gif" target="_blank">
-  <img src="doc/websocket.gif" alt="WebSocket Demo" />
+<a href="https://github.com/AbdullahHendy/live-translation/blob/main/doc/websocket.gif?raw=true" target="_blank">
+  <img src="https://github.com/AbdullahHendy/live-translation/blob/main/doc/websocket.gif?raw=true" alt="WebSocket Demo" />
 </a>
 
 ## Architecture Overview
-<img src="doc/live-translation-piepline.png" alt="Architecture Diagram" />
+<img src="https://github.com/AbdullahHendy/live-translation/blob/main/doc/live-translation-piepline.png?raw=true" alt="Architecture Diagram" />
 
 
 ## Features
