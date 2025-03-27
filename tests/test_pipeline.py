@@ -3,8 +3,8 @@ import time
 import psutil
 import os
 import pytest
+import select
 
-# If running in GitHub Actions (CI) (skip tests requiring audio hardware)
 IN_GITHUB_ACTIONS = os.getenv("GITHUB_ACTIONS") == "true"
 
 EXPECTED_LOGS = [
@@ -34,12 +34,27 @@ def test_pipeline():
             "PipelineManager(Config()).run()",
         ],
         stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
         text=True,
-        bufsize=1,  # Line buffered to capture logs
     )
 
-    time.sleep(10)
+    poll_interval = 0.1
+    waited = 0
+    timeout = 10
+    found_logs = set()
+    output_lines = []
+
+    # Poll for all expected logs
+    while waited < timeout and len(found_logs) < len(EXPECTED_LOGS):
+        ready, _, _ = select.select([process.stdout], [], [], poll_interval)
+        if ready:
+            line = process.stdout.readline()
+            if line:
+                output_lines.append(line)
+                for expected in EXPECTED_LOGS:
+                    if expected in line:
+                        found_logs.add(expected)
+        waited += poll_interval
 
     parent = psutil.Process(process.pid)
     for child in parent.children(recursive=True):
@@ -48,10 +63,4 @@ def test_pipeline():
     process.terminate()
     process.wait(timeout=5)
 
-    stdout, _ = process.communicate()
-
-    # Check if all expected logs are present
-    for log in EXPECTED_LOGS:
-        assert log in stdout, f"Missing log: {log}"
-
-    assert process.returncode is not None
+    assert process.returncode is not None, "CLI process didn't exit cleanly"

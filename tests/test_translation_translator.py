@@ -1,6 +1,5 @@
 import pytest
 import multiprocessing as mp
-import threading
 import time
 from live_translation._translation._translator import Translator
 from live_translation.config import Config
@@ -24,7 +23,7 @@ def output_queue():
 
 @pytest.fixture
 def stop_event():
-    return threading.Event()
+    return mp.Event()
 
 
 @pytest.fixture

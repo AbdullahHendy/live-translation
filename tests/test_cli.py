@@ -1,8 +1,8 @@
 import subprocess
 import psutil
-import time
 import os
 import pytest
+import select
 
 CLI_COMMAND = ["python", "-m", "live_translation.cli"]
 
@@ -34,18 +34,42 @@ def test_cli_invalid_argument():
 def test_cli_real_execution():
     """Test CLI execution."""
     process = subprocess.Popen(
-        CLI_COMMAND, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True
+        CLI_COMMAND,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,  # Combine stderr for full output
+        text=True,
+        bufsize=1
     )
-    time.sleep(10)
 
-    parent = psutil.Process(process.pid)
-    for child in parent.children(recursive=True):
-        child.terminate()
+    timeout = 10
+    poll_interval = 0.1
+    waited = 0
+    found = False
+    output_lines = []
 
-    process.terminate()
-    process.wait(timeout=5)
+    try:
+        while not found and waited < timeout:
+            ready, _, _ = select.select([process.stdout], [], [], poll_interval)
+            if ready:
+                line = process.stdout.readline()
+                if line:
+                    output_lines.append(line)
+                    if "🚀 Starting the pipeline..." in line:
+                        found = True
+                        break
+            waited += poll_interval
 
-    stdout, _ = process.communicate()
+        assert found, "CLI didn't start properly"
 
-    assert process.returncode is not None, "CLI command should exit."
-    assert "🚀 Starting the pipeline..." in stdout, "CLI didn't start properly"
+    finally:
+        try:
+            parent = psutil.Process(process.pid)
+            for child in parent.children(recursive=True):
+                child.terminate()
+            process.terminate()
+            process.wait(timeout=5)
+        except Exception as e:
+            print(f"⚠️ Process cleanup failed: {e}")
+
+        if process.stdout:
+            process.stdout.close()
