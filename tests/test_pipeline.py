@@ -1,5 +1,4 @@
 import subprocess
-import time
 import psutil
 import os
 import pytest

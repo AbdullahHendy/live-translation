@@ -38,7 +38,7 @@ def test_cli_real_execution():
         stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT,  # Combine stderr for full output
         text=True,
-        bufsize=1
+        bufsize=1,
     )
 
     timeout = 10

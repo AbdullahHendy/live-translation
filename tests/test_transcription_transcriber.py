@@ -61,7 +61,7 @@ def test_transcriber_pipeline_output_queue(
         output_queue=output_queue,
     )
     transcriber.start()
-    
+
     max_wait = 10
     poll_interval = 0.1
     waited = 0
