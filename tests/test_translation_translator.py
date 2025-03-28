@@ -46,7 +46,14 @@ def test_translator_pipeline(
     translator = Translator(transcription_queue, stop_event, config, output_queue)
     translator.start()
 
-    time.sleep(5)
+    max_wait = 10
+    poll_interval = 0.1
+    waited = 0
+    while output_queue.empty() and waited < max_wait:
+        time.sleep(poll_interval)
+        waited += poll_interval
+
+    assert not output_queue.empty(), "Output queue should contain an entry"
 
     stop_event.set()
     translator.join(timeout=3)
@@ -54,7 +61,6 @@ def test_translator_pipeline(
     if translator.is_alive():
         translator.terminate()
 
-    assert not output_queue.empty(), "Output queue should contain an entry"
     entry = output_queue.get()
 
     assert isinstance(entry, dict)
