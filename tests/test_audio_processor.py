@@ -2,7 +2,6 @@ import pytest
 import numpy as np
 import wave
 import multiprocessing as mp
-import threading
 import time
 from live_translation._audio._processor import AudioProcessor
 from live_translation.config import Config
@@ -26,7 +25,7 @@ def processed_queue():
 
 @pytest.fixture
 def stop_event():
-    return threading.Event()
+    return mp.Event()
 
 
 @pytest.fixture
@@ -57,7 +56,6 @@ def test_audio_processor_pipeline(
 ):
     """Send audio to audio_queue and check processed_queue."""
 
-    # Send audio to `audio_queue`
     chunk_size = 512
     for i in range(0, len(real_speech) - chunk_size + 1, chunk_size):
         chunk = real_speech[i : i + chunk_size]
@@ -66,7 +64,13 @@ def test_audio_processor_pipeline(
     processor = AudioProcessor(audio_queue, processed_queue, stop_event, config)
     processor.start()
 
-    time.sleep(10)
+    max_wait = 10
+    poll_interval = 0.1
+    waited = 0
+
+    while processed_queue.qsize() == 0 and waited < max_wait:
+        time.sleep(poll_interval)
+        waited += poll_interval
 
     assert not processed_queue.empty(), (
         "Processed queue should contain VAD-filtered audio"
@@ -82,4 +86,4 @@ def test_audio_processor_pipeline(
 
     assert (
         isinstance(processed_data, np.ndarray) and processed_data.dtype == np.float32
-    ), "❌ Processed audio format is incorrect!"
+    ), "Processed audio format is incorrect!"

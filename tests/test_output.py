@@ -5,7 +5,6 @@ import os
 import time
 import pytest
 import websockets
-import threading
 import multiprocessing as mp
 from live_translation._output import OutputManager
 from live_translation.config import Config
@@ -13,7 +12,7 @@ from live_translation.config import Config
 
 @pytest.fixture
 def stop_event():
-    return threading.Event()
+    return mp.Event()
 
 
 @pytest.fixture

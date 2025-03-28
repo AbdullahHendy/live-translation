@@ -1,7 +1,6 @@
 import pytest
 import numpy as np
 import multiprocessing as mp
-import threading
 import time
 import torchaudio
 from live_translation._transcription._transcriber import Transcriber
@@ -34,7 +33,7 @@ def output_queue():
 
 @pytest.fixture
 def stop_event():
-    return threading.Event()
+    return mp.Event()
 
 
 @pytest.fixture
@@ -62,7 +61,13 @@ def test_transcriber_pipeline_output_queue(
         output_queue=output_queue,
     )
     transcriber.start()
-    time.sleep(10)
+
+    max_wait = 10
+    poll_interval = 0.1
+    waited = 0
+    while output_queue.empty() and waited < max_wait:
+        time.sleep(poll_interval)
+        waited += poll_interval
 
     assert not output_queue.empty(), "Output queue should contain an entry"
 
@@ -97,8 +102,13 @@ def test_transcriber_pipeline_transcription_queue(
         output_queue=output_queue,
     )
     transcriber.start()
-    time.sleep(10)
 
+    max_wait = 10
+    poll_interval = 0.1
+    waited = 0
+    while transcription_queue.empty() and waited < max_wait:
+        time.sleep(poll_interval)
+        waited += poll_interval
     assert not transcription_queue.empty(), "Transcription queue should contain text"
 
     transcription = transcription_queue.get()

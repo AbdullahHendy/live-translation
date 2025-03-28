@@ -1,7 +1,6 @@
 import pytest
 import numpy as np
 import multiprocessing as mp
-import threading
 import time
 from unittest.mock import MagicMock, patch
 from live_translation._audio._recorder import AudioRecorder
@@ -17,7 +16,7 @@ def audio_queue():
 
 @pytest.fixture
 def stop_event():
-    return threading.Event()
+    return mp.Event()
 
 
 @pytest.fixture
