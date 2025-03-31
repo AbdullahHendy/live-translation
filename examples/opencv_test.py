@@ -40,7 +40,7 @@ def start_websocket_listener():
                     print(f"Received message: {message}")
                     data = json.loads(message)
                     new_text = data.get(
-                        "translation", ""
+                        "transcription", ""
                     )  # transcription or translation
 
                     with lock:
@@ -86,7 +86,7 @@ def main():
             box_x = x + w + 10
             box_y = y
             box_width = 250
-            box_height = h
+            #box_height = h
 
             lines = wrap_text(current_text, box_width - 10, font, font_scale, thickness)
 
