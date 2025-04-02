@@ -48,7 +48,7 @@ def wrap_text(text, max_width):
     return lines[:MAX_LINES]
 
 
-async def websocket_listener(shared_text, transcribe_only=False):
+async def websocket_listener(shared_text, transcription_only=False):
     uri = f"ws://localhost:{WS_PORT}"
     while not exit_event.is_set():
         try:
@@ -57,7 +57,7 @@ async def websocket_listener(shared_text, transcribe_only=False):
                 while not exit_event.is_set():
                     msg = await websocket.recv()
                     data = json.loads(msg)
-                    key = "transcription" if transcribe_only else "translation"
+                    key = "transcription" if transcription_only else "translation"
                     translation = data.get(key, "")
                     shared_text["text"] = translation
                     shared_text["timestamp"] = time.time()
@@ -68,13 +68,13 @@ async def websocket_listener(shared_text, transcribe_only=False):
             await asyncio.sleep(2)
 
 
-def start_ws_listener(shared_text, transcribe_only=False):
+def start_ws_listener(shared_text, transcription_only=False):
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
-    loop.run_until_complete(websocket_listener(shared_text, transcribe_only))
+    loop.run_until_complete(websocket_listener(shared_text, transcription_only))
 
 
-def start_server_proc(transcribe_only=False):
+def start_server_proc(transcription_only=False):
     args = [
         sys.executable,
         "-m",
@@ -84,7 +84,7 @@ def start_server_proc(transcribe_only=False):
         "--ws_port",
         str(WS_PORT),
     ]
-    if transcribe_only:
+    if transcription_only:
         args.append("--transcribe_only")
 
     return subprocess.Popen(args)
@@ -102,7 +102,7 @@ def main():
     parser.add_argument(
         "--transcription_only",
         action="store_true",
-        help="Only transcribe without translation",
+        help="Overlay only the transcription text",
     )
     args = parser.parse_args()
 
