@@ -1,13 +1,8 @@
 import subprocess
 import psutil
-import os
-import pytest
 import select
 
-CLI_COMMAND = ["python", "-m", "live_translation.cli"]
-
-# If running in GitHub Actions (CI) (skip tests requiring audio hardware)
-IN_GITHUB_ACTIONS = os.getenv("GITHUB_ACTIONS") == "true"
+CLI_COMMAND = ["python", "-u", "-m", "live_translation.server.cli"]
 
 
 def test_cli_help():
@@ -28,9 +23,6 @@ def test_cli_invalid_argument():
     )
 
 
-@pytest.mark.skipif(
-    IN_GITHUB_ACTIONS, reason="Audio hardware not available in GitHub Actions."
-)
 def test_cli_real_execution():
     """Test CLI execution."""
     process = subprocess.Popen(

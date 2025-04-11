@@ -1,25 +1,17 @@
 import subprocess
 import psutil
-import os
-import pytest
 import select
-
-IN_GITHUB_ACTIONS = os.getenv("GITHUB_ACTIONS") == "true"
 
 EXPECTED_LOGS = [
     "🚀 Starting the pipeline...",
     "🔄 Transcriber: Loading Whisper model...",
     "🔄 Translator: Loading Helsinki-NLP/opus-mt-en-es model...",
-    "🎤 Recorder: Listening...",
     "🔄 AudioProcessor: Ready to process audio...",
     "📝 Transcriber: Ready to transcribe audio...",
     "🌍 Translator: Ready to translate text...",
 ]
 
 
-@pytest.mark.skipif(
-    IN_GITHUB_ACTIONS, reason="Audio hardware not available in GitHub Actions."
-)
 def test_pipeline():
     """Run PipelineManager with a Config instance then capture logs."""
 
@@ -28,8 +20,8 @@ def test_pipeline():
             "python",
             "-u",
             "-c",
-            "from live_translation._pipeline import PipelineManager; "
-            "from live_translation.config import Config; "
+            "from live_translation.server._pipeline import PipelineManager; "
+            "from live_translation.server.config import Config; "
             "PipelineManager(Config()).run()",
         ],
         stdout=subprocess.PIPE,
@@ -61,5 +53,9 @@ def test_pipeline():
 
     process.terminate()
     process.wait(timeout=5)
+
+    # Assert that all expected logs were found
+    missing_logs = [log for log in EXPECTED_LOGS if log not in found_logs]
+    assert not missing_logs, f"Missing expected logs: {missing_logs}"
 
     assert process.returncode is not None, "CLI process didn't exit cleanly"

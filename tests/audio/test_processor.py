@@ -4,7 +4,7 @@ import wave
 import multiprocessing as mp
 import time
 from live_translation._audio._processor import AudioProcessor
-from live_translation.config import Config
+from live_translation.server.config import Config
 
 
 @pytest.fixture
