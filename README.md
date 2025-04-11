@@ -1,31 +1,38 @@
 # Real-time Speech-to-Text Translation
 
-This project provides a real-time speech-to-text translation solution. It captures audio from the microphone, processes it, transcribes it into text, and translates it to a target language. It uses the **Silero** model for processing (Voice Activity Detection), **Whisper** model for transcription and **Opus-MT** for translation. The output can be through ***stdout***, a ***JSON file***, or ***websockets***. 
+This project provides a real-time speech-to-text translation system built on a modular server–client architecture.
 
-#### 🖥️ Print Output Demo
+- The **client** streams microphone audio to the server and receives structured results in real time over a full-duplex WebSocket.
+- The **server** performs transcription using **Whisper** and optional translation using **Opus-MT**, with **Silero VAD** for voice activity detection.
+- Transcription and translation results are returned to the client in real time.
+- The server can optionally log results to stdout or a **JSONL** file.
 
-<a href="https://github.com/AbdullahHendy/live-translation/blob/main/doc/print.gif?raw=true" target="_blank">
-  <img src="https://github.com/AbdullahHendy/live-translation/blob/main/doc/print.gif?raw=true" alt="Print Demo" />
-</a>
+The program can be used both as a **command-line tool** or as a **Python API** in other applications, with full support for non-blocking and asynchronous workflows.
 
-#### 🌍 WebSocket Output Demo
+#### 🖥️🌍 Server-Client Demo
 
-<a href="https://github.com/AbdullahHendy/live-translation/blob/main/doc/websocket.gif?raw=true" target="_blank">
-  <img src="https://github.com/AbdullahHendy/live-translation/blob/main/doc/websocket.gif?raw=true" alt="WebSocket Demo" />
+<a href="https://github.com/AbdullahHendy/live-translation/blob/main/doc/demo.gif?raw=true" target="_blank">
+  <img src="https://github.com/AbdullahHendy/live-translation/blob/main/doc/demo.gif?raw=true" alt="Server-Client Demo" />
 </a>
 
 ## Architecture Overview
-<img src="https://github.com/AbdullahHendy/live-translation/blob/main/doc/live-translation-piepline.png?raw=true" alt="Architecture Diagram" />
+<img src="https://github.com/AbdullahHendy/live-translation/blob/main/doc/live-translation-pipeline.png?raw=true" alt="Architecture Diagram" />
 
 
 ## Features
 
-- Real-time speech capture and processing using **Silero** VAD (Voice Activity Detection)
-- Speech-to-text transcription using the Whisper model
-- Translation of transcriptions from a source language to a target language
-- Multithreaded design for efficient processing
-- Different output modes: stdout, **JSON** file, websocket server
-
+- Real-time speech capture using **PyAudio**
+- Voice Activity Detection (VAD) using **Silero** for more efficient processing
+- Speech-to-text transcription using OpenAI's **Whisper**
+- Translation of transcriptions using Helsinki-NLP's **OpusMT**
+- **Full-duplex WebSocket streaming** between client and server
+- Multithreaded design for parallelized processing
+- Optional server logging:
+  - Print to **stdout**
+  - Save transcription/translation logs to a structured **.jsonl** file
+- Designed for both:
+  - Simple **CLI** usage (***live-translate-server***, ***live-translate-client***)
+  - **Python API** usage (***LiveTranslationServer***, ***LiveTranslationClient***) with Asynchronous support for embedding in larger systems
 ## Prerequisites
 
 Before running the project, you need to install the following system dependencies:
@@ -52,12 +59,12 @@ pip install live-translation
 
 **Verify** the installation:
 ```bash
-python -c "import live_translation; print('live-translation installed successfully!')"
+python -c "import live_translation; print('live-translation installed successfully')"
 ```
 
 ## Usage
 
-> **NOTE**: One can safely ignore the following warning that might appear on **Linux** systems:
+> **NOTE**: One can safely ignore similar warnings that might appear on **Linux** systems when running the client as it tries to open the mic:
 >
 > ALSA lib pcm_dsnoop.c:567:(snd_pcm_dsnoop_open) unable to open slave
 > ALSA lib pcm_dmix.c:1000:(snd_pcm_dmix_open) unable to open slave
@@ -73,133 +80,139 @@ python -c "import live_translation; print('live-translation installed successful
 >
 
 ### CLI 
-live-translation can be run directly from the command line:
-```bash
-live-translate [OPTIONS]
-```
-
-**[OPTIONS]**
-```bash
-usage: live-translate [-h] [--silence_threshold SILENCE_THRESHOLD] [--vad_aggressiveness {0,1,2,3,4,5,6,7,8,9}] [--max_buffer_duration {5,6,7,8,9,10}] [--device {cpu,cuda}] [--whisper_model {tiny,base,small,medium,large,large-v2}]
-                      [--trans_model {Helsinki-NLP/opus-mt,Helsinki-NLP/opus-mt-tc-big}] [--src_lang SRC_LANG] [--tgt_lang TGT_LANG] [--output {print,file,websocket}] [--ws_port WS_PORT] [--transcribe_only]
-
-Live Translation Pipeline - Configure runtime settings.
-
-options:
-  -h, --help            show this help message and exit
-  --silence_threshold SILENCE_THRESHOLD
-                        Number of consecutive 32ms silent chunks to detect SILENCE.
-                        SILENCE clears the audio buffer for transcription/translation.
-                        NOTE: Minimum value is 16.
-                        Default is 65 (~ 2s).
-  --vad_aggressiveness {0,1,2,3,4,5,6,7,8,9}
-                        Voice Activity Detection (VAD) aggressiveness level (0-9).
-                        Higher values mean VAD has to be more confident to detect speech vs silence.
-                        Default is 8.
-  --max_buffer_duration {5,6,7,8,9,10}
-                        Max audio buffer duration in seconds before trimming it.
-                        Default is 7 seconds.
-  --device {cpu,cuda}   Device for processing ('cpu', 'cuda').
-                        Default is 'cpu'.
-  --whisper_model {tiny,base,small,medium,large,large-v2}
-                        Whisper model size ('tiny', 'base', 'small', 'medium', 'large', 'large-v2').
-                        Default is 'base'.
-  --trans_model {Helsinki-NLP/opus-mt,Helsinki-NLP/opus-mt-tc-big}
-                        Translation model ('Helsinki-NLP/opus-mt', 'Helsinki-NLP/opus-mt-tc-big'). 
-                        NOTE: Don't include source and target languages here.
-                        Default is 'Helsinki-NLP/opus-mt'.
-  --src_lang SRC_LANG   Source/Input language for transcription (e.g., 'en', 'fr').
-                        Default is 'en'.
-  --tgt_lang TGT_LANG   Target language for translation (e.g., 'es', 'de').
-                        Default is 'es'.
-  --output {print,file,websocket}
-                        Output method ('print', 'file', 'websocket').
-                          - 'print': Prints transcriptions and translations to stdout.
-                          - 'file': Saves structured JSON data (see below) in ./transcripts/transcriptions.json.
-                          - 'websocket': Sends structured JSON data (see below) over WebSocket.
-                        JSON format for 'file' and 'websocket':
-                        {
-                            "timestamp": "2025-03-06T12:34:56.789Z",
-                            "transcription": "Hello world",
-                            "translation": "Hola mundo"
-                        }.
-                        Default is 'print'.
-  --ws_port WS_PORT     WebSocket port for sending transcriptions.
-                        Required if --output is 'websocket'.
-  --transcribe_only     Transcribe only mode. No translations are performed.
-```
-
-- in case of **websockets**, one can connect to the server using **curl**, **wscat**, etc.. 
+* **server** can be run directly from the command line:
   ```bash
-  curl --include --no-buffer ws://localhost:<PORT_NUM>
+  live-translate-server [OPTIONS]
   ```
+
+  **[OPTIONS]**
   ```bash
-  wscat -c ws://localhost:<PORT_NUM>
+  usage: live-translate-server [-h] [--silence_threshold SILENCE_THRESHOLD] [--vad_aggressiveness {0,1,2,3,4,5,6,7,8,9}] [--max_buffer_duration {5,6,7,8,9,10}] [--device {cpu,cuda}] [--whisper_model {tiny,base,small,medium,large,large-v2}]
+                              [--trans_model {Helsinki-NLP/opus-mt,Helsinki-NLP/opus-mt-tc-big}] [--src_lang SRC_LANG] [--tgt_lang TGT_LANG] [--log {print,file}] [--ws_port WS_PORT] [--transcribe_only]
+
+  Live Translation Server - Configure runtime settings.
+
+  options:
+    -h, --help            show this help message and exit
+    --silence_threshold SILENCE_THRESHOLD
+                          Number of consecutive 32ms silent chunks to detect SILENCE.
+                          SILENCE clears the audio buffer for transcription/translation.
+                          NOTE: Minimum value is 16.
+                          Default is 65 (~ 2s).
+    --vad_aggressiveness {0,1,2,3,4,5,6,7,8,9}
+                          Voice Activity Detection (VAD) aggressiveness level (0-9).
+                          Higher values mean VAD has to be more confident to detect speech vs silence.
+                          Default is 8.
+    --max_buffer_duration {5,6,7,8,9,10}
+                          Max audio buffer duration in seconds before trimming it.
+                          Default is 7 seconds.
+    --device {cpu,cuda}   Device for processing ('cpu', 'cuda').
+                          Default is 'cpu'.
+    --whisper_model {tiny,base,small,medium,large,large-v2}
+                          Whisper model size ('tiny', 'base', 'small', 'medium', 'large', 'large-v2').
+                          Default is 'base'.
+    --trans_model {Helsinki-NLP/opus-mt,Helsinki-NLP/opus-mt-tc-big}
+                          Translation model ('Helsinki-NLP/opus-mt', 'Helsinki-NLP/opus-mt-tc-big'). 
+                          NOTE: Don't include source and target languages here.
+                          Default is 'Helsinki-NLP/opus-mt'.
+    --src_lang SRC_LANG   Source/Input language for transcription (e.g., 'en', 'fr').
+                          Default is 'en'.
+    --tgt_lang TGT_LANG   Target language for translation (e.g., 'es', 'de').
+                          Default is 'es'.
+    --log {print,file}    Optional logging mode for saving transcription output.
+                            - 'file': Save each result to a structured .jsonl file in ./transcripts/transcript_{TIMESTAMP}.jsonl.
+                            - 'print': Print each result to stdout.
+                          Default is None (no logging).
+    --ws_port WS_PORT     WebSocket port the of the server.
+                          Used to listen for client audio and publishe output (e.g., 8765).
+    --transcribe_only     Transcribe only mode. No translations are performed.
+  ```
+
+* **client** can be run directly from the command line:
+  ```bash
+  live-translate-client [OPTIONS]
+  ```
+
+  **[OPTIONS]**
+  ```bash
+  usage: live-translate-client [-h] --server SERVER
+
+  Live Translation Client - Stream audio to the server.
+
+  options:
+    -h, --help       show this help message and exit
+    --server SERVER  WebSocket URI of the server (e.g., ws://localhost:8765)
+
   ```
 
 ### API
-You can also import and use live_translation directly in your Python code.
-The following is a ***simple*** example of running *live_translation* in a server/client fashion.
-For more detailed examples see [examples/](/examples/).
+You can also import and use ***live_translation*** directly in your Python code.
+The following is ***simple*** examples of running ***live_translation***'s server and client in a **blocking** fashion.
+For more detailed examples showing **non-blocking** and **asynchronous** workflows, see [examples/](/examples/).
+
+> **NOTE**: The examples below assumes the ***live_translation*** package has been installed as shown in the [Installation](#installation).
+>
+> **NOTE**: One can run a provided example in [examples/](./examples/) as **`python -m examples.<example_name>`**. For example: **`python -m examples.magic_word`** 
+> Running the example this way from inside the repository assume a development environment has been set up, see [## Development & Contribution](#development--contribution) in the next section.
+>
 
 - **Server**
   ```python
-  from live_translation.config import Config
-  from live_translation.app import LiveTranslationApp
+  from live_translation import LiveTranslationServer, ServerConfig
 
   def main():
-      config = Config(
+      config = ServerConfig(
           device="cpu",
-          output="websocket",
-          ws_port=8765
+          ws_port=8765,
+          log="print",
+          transcribe_only=False,
       )
 
-      # Create and start the Live Translation App
-      app = LiveTranslationApp(config)
-      app.run()
+      server = LiveTranslationServer(config)
+      server.run(blocking=True)
 
   # Main guard is CRITICAL for systems that uses spawn method to create new processes
   # This is the case for Windows and MacOS
   if __name__ == "__main__":
       main()
+
   ```
 
 - **Client**
   ```python
-  import asyncio
-  import websockets
-  import json
+  from live_translation import LiveTranslationClient, ClientConfig
 
-  async def listen():
-      uri = "ws://localhost:8765"
-      async with websockets.connect(uri) as websocket:
-          print("🔌 Connected to Live Translation WebSocket server.")
+  def parser_callback(entry):
+      """ Callback function to parse the output from the server. """
+      print(f"📝 {entry['transcription']}")
+      print(f"🌍 {entry['translation']}")
+      
+      # Returning True signals the client to shutdown
+      return False
 
-          try:
-              while True:
-                  message = await websocket.recv()
-                  data = json.loads(message)
+  def main():
+      config = ClientConfig(
+          server_uri="ws://localhost:8765"
+      )
 
-                  print(f"⏳ Timestamp: {data['timestamp']}")
-                  print(f"📝 Transcription: {data['transcription']}")
-                  print(f"🌍 Translation: {data['translation']}\n")
+      client = LiveTranslationClient(config)
+      client.run(callback=parser_callback, blocking=True)
 
-          except websockets.exceptions.ConnectionClosed:
-              print("WebSocket connection closed.")
+  if __name__ == "__main__":
+      main()
 
-  asyncio.run(listen())
   ```
 
-## Development
+## Development & Contribution
 
 To contribute or modify this project, these steps might be helpful:
-> **NOTE**: This workflow below is made for Linux-based systems. One might need to do some step manually on other systems. For example run test manually using `python -m pytest -s tests/` instead of `make test`. 
+> **NOTE**: This workflow below is developed with Linux-based systems with typical build tools installed e.g. ***Make*** in mind. One might need to install ***Make*** and possibly other tools on other systems. However, one can still do things manually without ***Make***, for example, run test manually using `python -m pytest -s tests/` instead of `make test`. 
 > See **Makefile** for more details.
 
 
-**Clone** the repository:
+**Fork & Clone** the repository:
 ```bash
-git clone git@github.com:AbdullahHendy/live-translation.git
+git clone git@github.com:<your-username>/live-translation.git
 cd live-translation
 ```
 
@@ -228,10 +241,15 @@ make build
 
 > **NOTE**: Building generates a ***.whl*** file that can be ***pip*** installed in a new environment for testing
 
-**If needed**, run the program within the virtual environment:
+**If needed**, run the server and the client within the virtual environment:
 ```bash
-python -m live_translation.cli [OPTIONS]
+python -m live_translation.server.cli [OPTIONS]
+python -m live_translation.client.cli [OPTIONS]
 ```
+**For contribution**:
+- Make your changes in a feature branch
+- Ensure all tests pass
+- Open a Pull Request (PR) with a clear description of your changes
 
 ## Tested Environment
 
@@ -243,16 +261,15 @@ This project was tested and developed on the following system configuration:
 - **Python Version**: 3.12.7
 - **Processor**: 13th Gen Intel(R) Core(TM) i9-13900HX
 - **GPU**: GeForce RTX 4070 Max-Q / Mobile [^1]
-- **RAM**: 16GB DDR5
+- **RAM**: 32GB DDR5
 - **Dependencies**: All required dependencies are listed in `requirements.txt` and [Prerequisites](#prerequisites)
 
-[^1]: CUDA not utilized, as the `DEVICE` configuration is set to `"cpu"`. Additional Nvidia drivers, CUDA, cuDNN installation needed if option `"cuda"` were to be used.
+[^1]: CUDA not utilized, as the `DEVICE` configuration is set to `"cpu"`. Additional **Nvidia drivers**, **CUDA**, **cuDNN** installation needed if option `"cuda"` were to be used.
 
 ## Improvements
 
-- **Better Error Handling**: Improve error handling across various components (audio, transcription, translation) to ensure the system is robust and can handle unexpected scenarios gracefully.
-- **Performance Optimization**: Investigate performance bottlenecks including checking sleep durations and optimizing concurrency management to minimize lag.
-- **Concurrency Design Check**: Review and optimize the threading design to ensure thread safety and prevent issues like race conditions or deadlocks, etc., revisit the current design of ***AudioRecorder*** being a thread while ***AudioProcessor***, ***Transcriber***, and ***Translator*** being processes.
+- **ARM64 Support**: Ensure support for ARM64 based systems.
+- **Concurrency Design Check**: Review and optimize the threading design to ensure thread safety and prevent issues like race conditions or deadlocks, etc., revisit the current design of ***WebSocketIO*** being a thread while ***AudioProcessor***, ***Transcriber***, and ***Translator*** being processes.
 - **Logging**: Integrate detailed logging to track system activity, errors, and performance metrics using a more formal logging framework.
 
 ## Citations

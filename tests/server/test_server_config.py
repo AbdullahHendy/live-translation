@@ -1,5 +1,5 @@
 import pytest
-from live_translation.config import Config
+from live_translation.server.config import Config
 
 
 @pytest.fixture
@@ -15,8 +15,8 @@ def test_config_defaults(default_config):
     assert default_config.TRANS_MODEL == "Helsinki-NLP/opus-mt"
     assert default_config.SRC_LANG == "en"
     assert default_config.TGT_LANG == "es"
-    assert default_config.OUTPUT == "print"
-    assert default_config.WS_PORT is None
+    assert default_config.LOG is None
+    assert default_config.WS_PORT == 8765
     assert default_config.SILENCE_THRESHOLD == 65
     assert default_config.VAD_AGGRESSIVENESS == 8
     assert default_config.MAX_BUFFER_DURATION == 7
@@ -31,7 +31,7 @@ def test_config_modifiable_attributes():
         trans_model="Helsinki-NLP/opus-mt",
         src_lang="en",
         tgt_lang="hi",
-        output="websocket",
+        log="print",
         ws_port=8080,
         silence_threshold=70,
         vad_aggressiveness=5,
@@ -43,7 +43,7 @@ def test_config_modifiable_attributes():
     assert cfg.TRANS_MODEL == "Helsinki-NLP/opus-mt"
     assert cfg.SRC_LANG == "en"
     assert cfg.TGT_LANG == "hi"
-    assert cfg.OUTPUT == "websocket"
+    assert cfg.LOG == "print"
     assert cfg.WS_PORT == 8080
     assert cfg.SILENCE_THRESHOLD == 70
     assert cfg.VAD_AGGRESSIVENESS == 5
@@ -70,7 +70,7 @@ def test_config_validate():
         {"device": "gpu"},
         {"whisper_model": "super"},
         {"trans_model": "Helsinki-NLP/random"},
-        {"output": "random"},
+        {"log": "random"},
         {"vad_aggressiveness": 10},
         {"max_buffer_duration": 4},
     ]

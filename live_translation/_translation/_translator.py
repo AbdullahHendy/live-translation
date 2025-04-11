@@ -6,7 +6,7 @@ import queue
 import multiprocessing as mp
 import threading
 from transformers import MarianMTModel, MarianTokenizer
-from .. import config
+from ..server import config
 
 
 class Translator(mp.Process):

@@ -1,11 +1,11 @@
-# app.py
+# server/server.py
 
 from .config import Config
 import multiprocessing as mp
 from ._pipeline import PipelineManager
 
 
-class LiveTranslationApp:
+class LiveTranslationServer:
     """Encapsulates the Live Translation App Pipeline."""
 
     def __init__(self, cfg: Config):
@@ -21,7 +21,15 @@ class LiveTranslationApp:
 
         self.pipeline_manager = PipelineManager(self.cfg)
 
-    def run(self):
-        """Starts the translation pipeline."""
+    def run(self, blocking=True):
+        """Starts the translation pipeline in blocking or non-blocking mode."""
         print(f"🚀 Starting live-translation with config: {self.cfg.__dict__}")
-        self.pipeline_manager.run()
+        if blocking:
+            self.pipeline_manager.run()
+        else:
+            return self.pipeline_manager.run_async()
+
+    def stop(self):
+        """Stops the translation pipeline."""
+        print("🛑 Stopping live-translation...")
+        self.pipeline_manager.stop()

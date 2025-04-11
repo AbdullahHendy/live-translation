@@ -4,7 +4,7 @@ import multiprocessing as mp
 import time
 import torchaudio
 from live_translation._transcription._transcriber import Transcriber
-from live_translation.config import Config
+from live_translation.server.config import Config
 
 
 @pytest.fixture
@@ -49,7 +49,7 @@ def test_transcriber_pipeline_output_queue(
     real_speech,
 ):
     # Transcriber in transcribe_only mode → sends to output_queue
-    config = Config(transcribe_only=True, output="print")
+    config = Config(transcribe_only=True)
 
     processed_audio_queue.put(real_speech)
 
@@ -89,7 +89,7 @@ def test_transcriber_pipeline_transcription_queue(
     real_speech,
 ):
     # Transcriber in full pipeline mode → sends plain text to transcription_queue
-    config = Config(transcribe_only=False, output="file")
+    config = Config(transcribe_only=False)
     output_queue = mp.Queue()  # still required but unused
 
     processed_audio_queue.put(real_speech)
@@ -110,7 +110,7 @@ def test_transcriber_pipeline_transcription_queue(
         time.sleep(poll_interval)
         waited += poll_interval
     assert not transcription_queue.empty(), "Transcription queue should contain text"
-
+    assert output_queue.empty(), "Output queue should be empty"
     transcription = transcription_queue.get()
     stop_event.set()
     transcriber.join(timeout=3)

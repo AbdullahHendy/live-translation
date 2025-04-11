@@ -2,7 +2,7 @@ import pytest
 import multiprocessing as mp
 import time
 from live_translation._translation._translator import Translator
-from live_translation.config import Config
+from live_translation.server.config import Config
 
 
 @pytest.fixture
@@ -28,20 +28,20 @@ def stop_event():
 
 @pytest.fixture
 def config():
-    return Config(output="print", transcribe_only=False)
+    return Config(transcribe_only=False)
 
 
 @pytest.fixture
-def random_text():
+def test_text():
     return "Hello, how are you?"
 
 
 def test_translator_pipeline(
-    transcription_queue, output_queue, stop_event, config, random_text
+    transcription_queue, output_queue, stop_event, config, test_text
 ):
     """Test Translator in full pipeline mode with output queue."""
 
-    transcription_queue.put(random_text)
+    transcription_queue.put(test_text)
 
     translator = Translator(transcription_queue, stop_event, config, output_queue)
     translator.start()
