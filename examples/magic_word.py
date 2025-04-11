@@ -1,8 +1,6 @@
 import asyncio
-from live_translation.server.server import LiveTranslationServer
-from live_translation.server.config import Config as ServerConfig
-from live_translation.client.client import LiveTranslationClient
-from live_translation.client.config import Config as ClientConfig
+from live_translation import LiveTranslationServer, ServerConfig
+from live_translation import LiveTranslationClient, ClientConfig
 
 WS_PORT = 8765
 MAGIC_WORD = "TE QUIERO"
@@ -30,8 +28,6 @@ async def main():
     client_cfg = ClientConfig(server_uri=f"ws://localhost:{WS_PORT}")
     client = LiveTranslationClient(client_cfg)
     await client.run(callback=callback, blocking=False)
-
-    print("IM HERE")
 
     # 4. Shut down server
     pipeline.stop()
