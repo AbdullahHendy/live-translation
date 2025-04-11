@@ -120,6 +120,7 @@ def wait_for_output(process, match, timeout=10):
         ready, _, _ = select.select([process.stdout], [], [], poll_interval)
         if ready:
             line = process.stdout.readline()
+            print("line: " + line.strip())
             if line:
                 if match in line:
                     return True
