@@ -3,6 +3,7 @@
 import asyncio
 import threading
 import json
+import time
 import numpy as np
 import websockets
 from ._logger import OutputLogger
@@ -26,10 +27,15 @@ class WebSocketIO(threading.Thread):
         self._logger = OutputLogger(cfg) if cfg.LOG else None
 
     def run(self):
-        print(f"🌐 WebSocketIO: Listening on ws://0.0.0.0:{self._port}")
         self._loop = asyncio.new_event_loop()
         asyncio.set_event_loop(self._loop)
-        self._loop.run_until_complete(self._start_server())
+        while not self._stop_event.is_set():
+            try:
+                self._loop.run_until_complete(self._start_server())
+                break  # break if successful
+            except Exception as e:
+                print(f"🚨 WebSocketIO error: {e}. Retrying in 2 seconds...")
+                time.sleep(2)
 
     async def _start_server(self):
         async def handler(websocket):
@@ -69,6 +75,15 @@ class WebSocketIO(threading.Thread):
             except Exception as e:
                 print(f"🚨 WebSocketIO handler error: {e}")
 
-        async with websockets.serve(handler, "0.0.0.0", self._port):
-            while not self._stop_event.is_set():
-                await asyncio.sleep(0.1)
+        # Start the WebSocket server and log immediately after successful bind
+        server = None
+        try:
+            server = await websockets.serve(handler, "0.0.0.0", self._port)
+            print(f"🌐 WebSocketIO: Listening on ws://0.0.0.0:{self._port}")
+            async with server:
+                while not self._stop_event.is_set():
+                    await asyncio.sleep(0.1)
+        finally:
+            if server:
+                server.close()
+                await server.wait_closed()
