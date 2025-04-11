@@ -69,15 +69,8 @@ class LiveTranslationClient:
                             self._send_audio(websocket),
                             self._receive_output(websocket, callback),
                         )
-                except (
-                    ConnectionRefusedError,
-                    websockets.exceptions.InvalidURI,
-                    websockets.exceptions.InvalidHandshake,
-                ) as e:
-                    print(f"🔌 Connection failed: {e}. Retrying in 2 seconds...")
-                    await asyncio.sleep(2)
                 except Exception as e:
-                    print(f"🚨 Unexpected client error: {e}. Retrying in 2 seconds...")
+                    print(f"🔌 Connection failed: {e}. Retrying in 2 seconds...")
                     await asyncio.sleep(2)
 
         if blocking:
