@@ -108,7 +108,7 @@ def get_args():
         help=(
             "Optional logging mode for saving transcription output.\n"
             "  - 'file': Save each result to a structured .jsonl file in "
-            "./transcripts/transcriptions.json.\n"
+            "./transcripts/transcript_{TIMESTAMP}.jsonl.\n"
             "  - 'print': Print each result to stdout.\n"
             "Default is None (no logging)."
         ),
