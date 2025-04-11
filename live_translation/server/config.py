@@ -1,4 +1,4 @@
-# config.py
+# server/config.py
 
 import torch
 import huggingface_hub as hf_hub
@@ -7,7 +7,7 @@ import huggingface_hub.errors as hf_errors
 
 class Config:
     """
-    Configuration class for the application.
+    Configuration class for the Live Translation Server.
 
     This class provides explicit configuration settings with default values.
 
@@ -27,21 +27,20 @@ class Config:
         tgt_lang (str): Target language for translation (e.g., 'es', 'de').
             Default is 'es'.
 
-        output (str): Output method ('print', 'file', 'websocket').
+        log (str): Logging method ('None', 'print', 'file').
             - 'print': Prints transcriptions and translations to stdout.
             - 'file': Saves structured JSON data in
-            transcripts/transcriptions.json.
-            - 'websocket': Sends structured JSON data over WebSocket.
-            JSON format for 'file' and 'websocket':
+            transcripts/transcript_{TIMESTAMP}.jsonl.
+            JSON format:
             {
                 "timestamp": "2025-03-06T12:34:56.789Z",
                 "transcription": "Hello world",
                 "translation": "Hola mundo"
             }
-            Default is 'print'.
+            Default is 'None' (no logging).
 
-        ws_port (int, optional): WebSocket port for sending transcriptions.
-            Required if `output="websocket"`.
+        ws_port (int): Server WebSocket port.
+            Default is 8765.
 
         silence_threshold (int): Number of consecutive 32ms silent chunks to
             detect SILENCE. SILENCE clears the audio buffer for
@@ -65,8 +64,8 @@ class Config:
         trans_model: str = "Helsinki-NLP/opus-mt",
         src_lang: str = "en",
         tgt_lang: str = "es",
-        output: str = "print",
-        ws_port: int = None,
+        log: str = None,
+        ws_port: int = 8765,
         silence_threshold: int = 65,
         vad_aggressiveness: int = 8,
         max_buffer_duration: int = 7,
@@ -100,7 +99,7 @@ class Config:
         self.TRANS_MODEL = trans_model
         self.SRC_LANG = src_lang
         self.TGT_LANG = tgt_lang
-        self.OUTPUT = output
+        self.LOG = log
         self.WS_PORT = ws_port
         self.SILENCE_THRESHOLD = silence_threshold
         self.VAD_AGGRESSIVENESS = vad_aggressiveness
@@ -180,17 +179,17 @@ class Config:
                 "'Helsinki-NLP/opus-mt', 'Helsinki-NLP/opus-mt-tc-big'. "
             )
 
-        # Validate output method
-        if self.OUTPUT not in ["print", "file", "websocket"]:
+        # Validate logging method
+        if self.LOG not in [None, "print", "file"]:
             raise ValueError(
                 "🚨 'output' must be one of the following: 'print', 'file', "
                 "'websocket'. "
             )
 
         # Validate WebSocket port
-        if self.OUTPUT == "websocket" and self.WS_PORT is None:
+        if self.WS_PORT is None:
             raise ValueError(
-                "🚨 WebSocket port is required for 'websocket' output mode. "
+                "🚨 WebSocket port is required. "
                 "Please specify the port using the '--ws_port' argument."
             )
 

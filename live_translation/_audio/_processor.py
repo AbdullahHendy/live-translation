@@ -6,7 +6,7 @@ import threading
 import numpy as np
 import time
 from ._vad import VoiceActivityDetector
-from .. import config
+from ..server.config import Config
 
 
 class AudioProcessor(mp.Process):
@@ -20,7 +20,7 @@ class AudioProcessor(mp.Process):
         audio_queue: mp.Queue,
         processed_queue: mp.Queue,
         stop_event: threading.Event,
-        cfg: config.Config,
+        cfg: Config,
     ):
         super().__init__()
         self._audio_queue = audio_queue

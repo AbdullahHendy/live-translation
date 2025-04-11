@@ -4,11 +4,10 @@ import os
 import multiprocessing as mp
 import signal
 import time
-from ._audio._recorder import AudioRecorder
-from ._audio._processor import AudioProcessor
-from ._transcription._transcriber import Transcriber
-from ._translation._translator import Translator
-from ._output import OutputManager
+from ._ws import WebSocketIO
+from .._audio._processor import AudioProcessor
+from .._transcription._transcriber import Transcriber
+from .._translation._translator import Translator
 from . import config
 
 
@@ -32,8 +31,12 @@ class PipelineManager:
         self._output_queue = mp.Queue()
 
         # Thread
-        self._audio_recorder = AudioRecorder(
-            self._raw_audio_queue, self._stop_event, self._cfg
+        self.ws_io = WebSocketIO(
+            self._cfg.WS_PORT,
+            self._raw_audio_queue,
+            self._output_queue,
+            self._stop_event,
+            self._cfg,
         )
         # Processes
         self._audio_processor = AudioProcessor(
@@ -52,15 +55,14 @@ class PipelineManager:
         )
 
         self._translator = Translator(
-            self._transcription_queue, self._stop_event, self._cfg, self._output_queue
-        )
-
-        self._output_manager = OutputManager(
-            self._cfg, self._output_queue, self._stop_event
+            self._transcription_queue,
+            self._stop_event,
+            self._cfg,
+            self._output_queue,
         )
 
         # List of pipeline components
-        self._threads = [self._audio_recorder, self._output_manager]
+        self._threads = [self.ws_io]
         self._processes = [self._audio_processor, self._transcriber, self._translator]
 
     def signal_handler(self, sig, frame):
@@ -123,6 +125,11 @@ class PipelineManager:
                 time.sleep(0.1)
         finally:
             self._stop_pipeline()
+
+    def run_async(self):
+        """Run the pipeline manager for non-blocking execution."""
+        self._start_pipeline()
+        return self
 
     def stop(self):
         """Stop the pipeline."""

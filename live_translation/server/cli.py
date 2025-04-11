@@ -1,6 +1,6 @@
-# cli.py
+# server/cli.py
 
-from .app import LiveTranslationApp
+from .server import LiveTranslationServer
 from .config import Config
 from ._args import get_args
 
@@ -17,7 +17,7 @@ def main():
         trans_model=args.trans_model,
         src_lang=args.src_lang,
         tgt_lang=args.tgt_lang,
-        output=args.output,
+        log=args.log,
         ws_port=args.ws_port,
         silence_threshold=args.silence_threshold,
         vad_aggressiveness=args.vad_aggressiveness,
@@ -26,8 +26,8 @@ def main():
     )
 
     # Run the app with the CLI configuration
-    app = LiveTranslationApp(cfg)
-    app.run()
+    server = LiveTranslationServer(cfg)
+    server.run()
 
 
 if __name__ == "__main__":

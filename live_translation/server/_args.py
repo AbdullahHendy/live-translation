@@ -4,9 +4,9 @@ import argparse
 
 
 def get_args():
-    """Parse command-line arguments for user-overridable settings."""
+    """Parse command-line arguments for server user-overridable settings."""
     parser = argparse.ArgumentParser(
-        description=("Live Translation Pipeline - Configure runtime settings."),
+        description=("Live Translation Server - Configure runtime settings."),
         formatter_class=argparse.RawTextHelpFormatter,
     )
 
@@ -99,35 +99,28 @@ def get_args():
         help=("Target language for translation (e.g., 'es', 'de').\nDefault is 'es'."),
     )
 
-    # Output Settings
+    # Logging Settings
     parser.add_argument(
-        "--output",
+        "--log",
         type=str,
-        choices=["print", "file", "websocket"],
-        default="print",
+        choices=["print", "file"],
+        default=None,
         help=(
-            "Output method ('print', 'file', 'websocket').\n"
-            "  - 'print': Prints transcriptions and translations to stdout.\n"
-            "  - 'file': Saves structured JSON data (see below) "
-            "in ./transcripts/transcriptions.json.\n"
-            "  - 'websocket': Sends structured JSON data (see below)"
-            " over WebSocket.\n"
-            "JSON format for 'file' and 'websocket':\n"
-            "{\n"
-            '    "timestamp": "2025-03-06T12:34:56.789Z",\n'
-            '    "transcription": "Hello world",\n'
-            '    "translation": "Hola mundo"\n'
-            "}.\n"
-            "Default is 'print'."
+            "Optional logging mode for saving transcription output.\n"
+            "  - 'file': Save each result to a structured .jsonl file in "
+            "./transcripts/transcriptions.json.\n"
+            "  - 'print': Print each result to stdout.\n"
+            "Default is None (no logging)."
         ),
     )
 
     parser.add_argument(
         "--ws_port",
         type=int,
+        default=8765,
         help=(
-            "WebSocket port for sending transcriptions.\n"
-            "Required if --output is 'websocket'."
+            "WebSocket port the of the server.\n"
+            "Used to listen for client audio and publishe output (e.g., 8765)."
         ),
     )
 

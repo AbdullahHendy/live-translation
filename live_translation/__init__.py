@@ -1,6 +1,13 @@
-# __init__.py
+# live_translation/__init__.py
 
-from .app import LiveTranslationApp
-from .config import Config
+from .server.server import LiveTranslationServer
+from .server.config import Config as ServerConfig
+from .client.client import LiveTranslationClient
+from .client.config import Config as ClientConfig
 
-__all__ = ["LiveTranslationApp", "Config"]
+__all__ = [
+    "LiveTranslationServer",
+    "ServerConfig",
+    "LiveTranslationClient",
+    "ClientConfig",
+]

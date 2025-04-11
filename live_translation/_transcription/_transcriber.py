@@ -7,7 +7,7 @@ import torch
 import threading
 import numpy as np
 from faster_whisper import WhisperModel
-from .. import config
+from ..server import config
 
 
 class Transcriber(mp.Process):
