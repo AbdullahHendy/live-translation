@@ -48,8 +48,8 @@ class LiveTranslationClient:
             async for message in websocket:
                 try:
                     entry = json.loads(message)
-                    # If callback returns non-None, exit the loop
-                    if callback and callback(entry):
+                    # If callback returns True, exit the loop
+                    if callback and callback(entry) is True:
                         print("🛑 Callback requested client stopping.")
                         self.stop()
                         break
