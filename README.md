@@ -52,7 +52,7 @@ python -m venv .venv
 source .venv/bin/activate
 ```
 
-**Install** the [PyPI package](https://pypi.org/project/live-translation/0.3.2/):
+**Install** the [PyPI package](https://pypi.org/project/live-translation/):
 ```bash
 pip install live-translation
 ```
