@@ -24,8 +24,10 @@ class Config:
         self._validate()
 
     def _validate(self):
-        if not self.SERVER_URI.startswith("ws://"):
-            raise ValueError("🚨 'server_uri' must start with 'ws://'")
+        if not (
+            self.SERVER_URI.startswith("ws://") or self.SERVER_URI.startswith("wss://")
+        ):
+            raise ValueError("🚨 'server_uri' must start with 'ws://' or 'wss://'")
 
     @property
     def CHUNK_SIZE(self):

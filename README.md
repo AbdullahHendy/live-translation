@@ -182,21 +182,30 @@ For more detailed examples showing **non-blocking** and **asynchronous** workflo
   ```python
   from live_translation import LiveTranslationClient, ClientConfig
 
-  def parser_callback(entry):
-      """ Callback function to parse the output from the server. """
+  def parser_callback(entry, *args, **kwargs):
+      """Callback function to parse the output from the server.
+
+      Args:
+          entry (dict): The message from the server.
+          *args: Optional positional args passed from the client.
+          **kwargs: Optional keyword args passed from the client.
+      """
       print(f"📝 {entry['transcription']}")
       print(f"🌍 {entry['translation']}")
-      
+
       # Returning True signals the client to shutdown
       return False
 
   def main():
-      config = ClientConfig(
-          server_uri="ws://localhost:8765"
-      )
+      config = ClientConfig(server_uri="ws://localhost:8765")
 
       client = LiveTranslationClient(config)
-      client.run(callback=parser_callback, blocking=True)
+      client.run(
+          callback=parser_callback,
+          callback_args=(),  # Optional: positional args to pass
+          callback_kwargs={},  # Optional: keyword args to pass
+          blocking=True,
+      )
 
   if __name__ == "__main__":
       main()

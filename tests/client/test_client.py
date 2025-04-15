@@ -31,9 +31,52 @@ async def test_receive_output_callback_exit(config):
         called_entries.append(entry)
         return "te quiero" in entry["translation"].lower()
 
-    await client._receive_output(mock_websocket, mock_callback)
+    await client._receive_output(mock_websocket, mock_callback, None, None)
 
     assert len(called_entries) == 2
+    assert client._exit_requested is True
+
+
+@pytest.mark.asyncio
+async def test_receive_output_callback_with_args_kwargs():
+    """Test that args and kwargs are passed to the callback and stop is triggered."""
+    from live_translation.client.config import Config
+
+    config = Config(server_uri="ws://fake-uri")
+
+    client = LiveTranslationClient(config)
+
+    # Simulated JSON messages from server
+    messages = [
+        '{"transcription": "hello", "translation": "hola"}',
+        '{"transcription": "bye", "translation": "te quiero"}',
+    ]
+
+    # Mock websocket that behaves like async iterable
+    mock_websocket = mock.AsyncMock()
+    mock_websocket.__aiter__.return_value = iter(messages)
+
+    received = []
+    callback_args = ("extra1",)
+    callback_kwargs = {"flag": "value"}
+
+    def mock_callback(entry, *args, **kwargs):
+        received.append((entry, args, kwargs))
+        # Trigger stop if Spanish translation is "te quiero"
+        return entry["translation"] == "te quiero"
+
+    await client._receive_output(
+        mock_websocket,
+        callback=mock_callback,
+        callback_args=callback_args,
+        callback_kwargs=callback_kwargs,
+    )
+
+    # Assertions
+    assert len(received) == 2
+    assert received[0][1] == callback_args
+    assert received[0][2] == callback_kwargs
+    assert received[1][0]["translation"] == "te quiero"
     assert client._exit_requested is True
 
 
@@ -57,7 +100,7 @@ async def test_receive_output_handles_json_error(config):
         seen.append(entry)
         return len(seen) == 2
 
-    await client._receive_output(mock_websocket, cb)
+    await client._receive_output(mock_websocket, cb, None, None)
 
     assert len(seen) == 2
     assert client._exit_requested
