@@ -24,6 +24,11 @@ class Config:
         self._validate()
 
     def _validate(self):
+        if not self.SERVER_URI:
+            raise ValueError(
+                "🚨 'server_uri' cannot be empty. Use --server to specify it. "
+            )
+
         if not (
             self.SERVER_URI.startswith("ws://") or self.SERVER_URI.startswith("wss://")
         ):

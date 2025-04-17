@@ -59,7 +59,7 @@ pip install live-translation
 
 **Verify** the installation:
 ```bash
-python -c "import live_translation; print('live-translation installed successfully')"
+python -c "import live_translation; print(f'live-translation installed successfully\n{live_translation.__version__}')"
 ```
 
 ## Usage
@@ -88,8 +88,8 @@ python -c "import live_translation; print('live-translation installed successful
   **[OPTIONS]**
   ```bash
   usage: live-translate-server [-h] [--silence_threshold SILENCE_THRESHOLD] [--vad_aggressiveness {0,1,2,3,4,5,6,7,8,9}] [--max_buffer_duration {5,6,7,8,9,10}] [--device {cpu,cuda}]
-                              [--whisper_model {tiny,base,small,medium,large,large-v2,large-v3,large-v3-turbo}] [--trans_model {Helsinki-NLP/opus-mt,Helsinki-NLP/opus-mt-tc-big}] [--src_lang SRC_LANG]
-                              [--tgt_lang TGT_LANG] [--log {print,file}] [--ws_port WS_PORT] [--transcribe_only]
+                              [--whisper_model {tiny,base,small,medium,large,large-v2,large-v3,large-v3-turbo}] [--trans_model {Helsinki-NLP/opus-mt,Helsinki-NLP/opus-mt-tc-big}]
+                              [--src_lang SRC_LANG] [--tgt_lang TGT_LANG] [--log {print,file}] [--ws_port WS_PORT] [--transcribe_only] [--version]
 
   Live Translation Server - Configure runtime settings.
 
@@ -110,7 +110,9 @@ python -c "import live_translation; print('live-translation installed successful
     --device {cpu,cuda}   Device for processing ('cpu', 'cuda').
                           Default is 'cpu'.
     --whisper_model {tiny,base,small,medium,large,large-v2,large-v3,large-v3-turbo}
-                          Whisper model size ('tiny', 'base', 'small', 'medium', 'large', 'large-v2', 'large-v3', 'large-v3-turbo).
+                          Whisper model size ('tiny', 'base', 'small', 'medium', 'large', 'large-v2', 'large-v3', 'large-v3-turbo). 
+                          NOTE: Running large models like 'large-v3', or 'large-v3-turbo' might require a decent GPU with CUDA support for resonable performance. 
+                          NOTE: large-v3-turbo has great accuracy while being significantly faster than the original large-v3 model. see: https://github.com/openai/whisper/discussions/2363 
                           Default is 'base'.
     --trans_model {Helsinki-NLP/opus-mt,Helsinki-NLP/opus-mt-tc-big}
                           Translation model ('Helsinki-NLP/opus-mt', 'Helsinki-NLP/opus-mt-tc-big'). 
@@ -127,6 +129,7 @@ python -c "import live_translation; print('live-translation installed successful
     --ws_port WS_PORT     WebSocket port the of the server.
                           Used to listen for client audio and publishe output (e.g., 8765).
     --transcribe_only     Transcribe only mode. No translations are performed.
+    --version             Print version and exit.
   ```
 
 * **client** can be run directly from the command line:
@@ -136,14 +139,14 @@ python -c "import live_translation; print('live-translation installed successful
 
   **[OPTIONS]**
   ```bash
-  usage: live-translate-client [-h] --server SERVER
+  usage: live-translate-client [-h] [--server SERVER] [--version]
 
   Live Translation Client - Stream audio to the server.
 
   options:
     -h, --help       show this help message and exit
     --server SERVER  WebSocket URI of the server (e.g., ws://localhost:8765)
-
+    --version        Print version and exit.
   ```
 
 ### API

@@ -144,4 +144,11 @@ def get_args():
         help=("Transcribe only mode. No translations are performed."),
     )
 
+    # Version
+    parser.add_argument(
+        "--version",
+        action="store_true",
+        help="Print version and exit.",
+    )
+
     return parser.parse_args()
