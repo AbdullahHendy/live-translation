@@ -2,9 +2,12 @@
 requires = ["setuptools", "wheel"]
 build-backend = "setuptools.build_meta"
 
+[tool.setuptools.dynamic]
+version = {attr = "live_translation.__version__"}
+
 [project]
 name = "live-translation"
-version = "0.4.0"
+dynamic = ["version"]
 description = "A real-time translation tool using Whisper & Opus-MT"
 authors = [
     { name = "Abdullah Hendy", email = "abdullah.a.hendy@gmail.com" }

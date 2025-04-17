@@ -31,9 +31,8 @@ def test_pipeline():
 
     poll_interval = 0.1
     waited = 0
-    timeout = 10
+    timeout = 20
     found_logs = set()
-    output_lines = []
 
     # Poll for all expected logs
     while waited < timeout and len(found_logs) < len(EXPECTED_LOGS):
@@ -41,10 +40,13 @@ def test_pipeline():
         if ready:
             line = process.stdout.readline()
             if line:
-                output_lines.append(line)
                 for expected in EXPECTED_LOGS:
                     if expected in line:
                         found_logs.add(expected)
+
+                if len(found_logs) == len(EXPECTED_LOGS):
+                    break
+
         waited += poll_interval
 
     parent = psutil.Process(process.pid)

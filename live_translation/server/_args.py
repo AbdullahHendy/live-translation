@@ -59,11 +59,26 @@ def get_args():
     parser.add_argument(
         "--whisper_model",
         type=str,
-        choices=["tiny", "base", "small", "medium", "large", "large-v2"],
+        choices=[
+            "tiny",
+            "base",
+            "small",
+            "medium",
+            "large",
+            "large-v2",
+            "large-v3",
+            "large-v3-turbo",
+        ],
         default="base",
         help=(
             "Whisper model size ('tiny', 'base', 'small', 'medium', "
-            "'large', 'large-v2').\n"
+            "'large', 'large-v2', 'large-v3', 'large-v3-turbo). \n"
+            "NOTE: Running large models like 'large-v3', or 'large-v3-turbo' "
+            "might require a decent GPU with CUDA support for reasonable performance. "
+            "\n"
+            "NOTE: large-v3-turbo has great accuracy while being significantly faster "
+            "than the original large-v3 model. see: "
+            "https://github.com/openai/whisper/discussions/2363 \n"
             "Default is 'base'."
         ),
     )
@@ -128,6 +143,13 @@ def get_args():
         "--transcribe_only",
         action="store_true",
         help=("Transcribe only mode. No translations are performed."),
+    )
+
+    # Version
+    parser.add_argument(
+        "--version",
+        action="store_true",
+        help="Print version and exit.",
     )
 
     return parser.parse_args()

@@ -15,7 +15,8 @@ class Config:
         device (str): Device for processing ('cpu', 'cuda'). Default is 'cpu'.
 
         whisper_model (str): Whisper model size ('tiny', 'base', 'small',
-            'medium', 'large', 'large-v2'). Default is 'base'.
+            'medium', 'large', 'large-v2', 'large-v3', 'large-v3-turbo').
+            Default is 'base'.
 
         trans_model (str): Translation model ('Helsinki-NLP/opus-mt',
             'Helsinki-NLP/opus-mt-tc-big'). NOTE: Don't include source and
@@ -112,21 +113,22 @@ class Config:
     def _validate(self):
         """Validate arguments before applying them."""
 
-        # Validate OpusMT translation model and language pair
-        model_name = f"{self.TRANS_MODEL}-{self.SRC_LANG}-{self.TGT_LANG}"
-        try:
-            hf_hub.model_info(model_name)  # Check if the model exists
-        except hf_errors.RepositoryNotFoundError:
-            raise ValueError(
-                f"\n🚨 The model for the language pair "
-                f"'{self.SRC_LANG}-{self.TGT_LANG}' could not be found. "
-                "Ensure the language pair is supported by OpusMT on "
-                "Hugging Face (Helsinki-NLP models)."
-            )
-        except Exception as e:
-            raise ValueError(
-                f"🚨 An error when verifying the translation model: {str(e)}"
-            )
+        # Validate OpusMT translation model and language pair if not transcribe only
+        if not self.TRANSCRIBE_ONLY:
+            model_name = f"{self.TRANS_MODEL}-{self.SRC_LANG}-{self.TGT_LANG}"
+            try:
+                hf_hub.model_info(model_name)  # Check if the model exists
+            except hf_errors.RepositoryNotFoundError:
+                raise ValueError(
+                    f"\n🚨 The model for the language pair "
+                    f"'{self.SRC_LANG}-{self.TGT_LANG}' could not be found. "
+                    "Ensure the language pair is supported by OpusMT on "
+                    "Hugging Face (Helsinki-NLP models)."
+                )
+            except Exception as e:
+                raise ValueError(
+                    f"🚨 An error when verifying the translation model: {str(e)}"
+                )
 
         # Validate silence_threshold (must be greater than 16)
         if self.SILENCE_THRESHOLD <= 16:
@@ -163,10 +165,13 @@ class Config:
             "medium",
             "large",
             "large-v2",
+            "large-v3",
+            "large-v3-turbo",
         ]:
             raise ValueError(
                 "🚨 'whisper_model' must be one of the following: 'tiny', "
-                "'base', 'small', 'medium', 'large', 'large-v2'."
+                "'base', 'small', 'medium', 'large', 'large-v2', 'large-v3', "
+                "'large-v3-turbo'."
             )
 
         # Validate translation model
@@ -181,10 +186,7 @@ class Config:
 
         # Validate logging method
         if self.LOG not in [None, "print", "file"]:
-            raise ValueError(
-                "🚨 'output' must be one of the following: 'print', 'file', "
-                "'websocket'. "
-            )
+            raise ValueError("🚨 'log' must be one of the following: 'print', 'file'. ")
 
         # Validate WebSocket port
         if self.WS_PORT is None:

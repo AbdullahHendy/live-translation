@@ -59,7 +59,7 @@ pip install live-translation
 
 **Verify** the installation:
 ```bash
-python -c "import live_translation; print('live-translation installed successfully')"
+python -c "import live_translation; print(f'live-translation installed successfully\n{live_translation.__version__}')"
 ```
 
 ## Usage
@@ -87,8 +87,9 @@ python -c "import live_translation; print('live-translation installed successful
 
   **[OPTIONS]**
   ```bash
-  usage: live-translate-server [-h] [--silence_threshold SILENCE_THRESHOLD] [--vad_aggressiveness {0,1,2,3,4,5,6,7,8,9}] [--max_buffer_duration {5,6,7,8,9,10}] [--device {cpu,cuda}] [--whisper_model {tiny,base,small,medium,large,large-v2}]
-                              [--trans_model {Helsinki-NLP/opus-mt,Helsinki-NLP/opus-mt-tc-big}] [--src_lang SRC_LANG] [--tgt_lang TGT_LANG] [--log {print,file}] [--ws_port WS_PORT] [--transcribe_only]
+  usage: live-translate-server [-h] [--silence_threshold SILENCE_THRESHOLD] [--vad_aggressiveness {0,1,2,3,4,5,6,7,8,9}] [--max_buffer_duration {5,6,7,8,9,10}] [--device {cpu,cuda}]
+                              [--whisper_model {tiny,base,small,medium,large,large-v2,large-v3,large-v3-turbo}] [--trans_model {Helsinki-NLP/opus-mt,Helsinki-NLP/opus-mt-tc-big}]
+                              [--src_lang SRC_LANG] [--tgt_lang TGT_LANG] [--log {print,file}] [--ws_port WS_PORT] [--transcribe_only] [--version]
 
   Live Translation Server - Configure runtime settings.
 
@@ -108,8 +109,10 @@ python -c "import live_translation; print('live-translation installed successful
                           Default is 7 seconds.
     --device {cpu,cuda}   Device for processing ('cpu', 'cuda').
                           Default is 'cpu'.
-    --whisper_model {tiny,base,small,medium,large,large-v2}
-                          Whisper model size ('tiny', 'base', 'small', 'medium', 'large', 'large-v2').
+    --whisper_model {tiny,base,small,medium,large,large-v2,large-v3,large-v3-turbo}
+                          Whisper model size ('tiny', 'base', 'small', 'medium', 'large', 'large-v2', 'large-v3', 'large-v3-turbo). 
+                          NOTE: Running large models like 'large-v3', or 'large-v3-turbo' might require a decent GPU with CUDA support for reasonable performance. 
+                          NOTE: large-v3-turbo has great accuracy while being significantly faster than the original large-v3 model. see: https://github.com/openai/whisper/discussions/2363 
                           Default is 'base'.
     --trans_model {Helsinki-NLP/opus-mt,Helsinki-NLP/opus-mt-tc-big}
                           Translation model ('Helsinki-NLP/opus-mt', 'Helsinki-NLP/opus-mt-tc-big'). 
@@ -126,6 +129,7 @@ python -c "import live_translation; print('live-translation installed successful
     --ws_port WS_PORT     WebSocket port the of the server.
                           Used to listen for client audio and publishe output (e.g., 8765).
     --transcribe_only     Transcribe only mode. No translations are performed.
+    --version             Print version and exit.
   ```
 
 * **client** can be run directly from the command line:
@@ -135,14 +139,14 @@ python -c "import live_translation; print('live-translation installed successful
 
   **[OPTIONS]**
   ```bash
-  usage: live-translate-client [-h] --server SERVER
+  usage: live-translate-client [-h] [--server SERVER] [--version]
 
   Live Translation Client - Stream audio to the server.
 
   options:
     -h, --help       show this help message and exit
     --server SERVER  WebSocket URI of the server (e.g., ws://localhost:8765)
-
+    --version        Print version and exit.
   ```
 
 ### API
@@ -182,21 +186,30 @@ For more detailed examples showing **non-blocking** and **asynchronous** workflo
   ```python
   from live_translation import LiveTranslationClient, ClientConfig
 
-  def parser_callback(entry):
-      """ Callback function to parse the output from the server. """
+  def parser_callback(entry, *args, **kwargs):
+      """Callback function to parse the output from the server.
+
+      Args:
+          entry (dict): The message from the server.
+          *args: Optional positional args passed from the client.
+          **kwargs: Optional keyword args passed from the client.
+      """
       print(f"📝 {entry['transcription']}")
       print(f"🌍 {entry['translation']}")
-      
+
       # Returning True signals the client to shutdown
       return False
 
   def main():
-      config = ClientConfig(
-          server_uri="ws://localhost:8765"
-      )
+      config = ClientConfig(server_uri="ws://localhost:8765")
 
       client = LiveTranslationClient(config)
-      client.run(callback=parser_callback, blocking=True)
+      client.run(
+          callback=parser_callback,
+          callback_args=(),  # Optional: positional args to pass
+          callback_kwargs={},  # Optional: keyword args to pass
+          blocking=True,
+      )
 
   if __name__ == "__main__":
       main()
@@ -261,16 +274,21 @@ This project was tested and developed on the following system configuration:
 - **Python Version**: 3.12.7
 - **Processor**: 13th Gen Intel(R) Core(TM) i9-13900HX
 - **GPU**: GeForce RTX 4070 Max-Q / Mobile [^1]
+- **NVIDIA Driver Version**: 560.35.03  
+- **CUDA Toolkit Version**: 12.1  
+- **cuDNN Version**: 9.7.1
 - **RAM**: 32GB DDR5
 - **Dependencies**: All required dependencies are listed in `requirements.txt` and [Prerequisites](#prerequisites)
 
-[^1]: CUDA not utilized, as the `DEVICE` configuration is set to `"cpu"`. Additional **Nvidia drivers**, **CUDA**, **cuDNN** installation needed if option `"cuda"` were to be used.
+[^1]: CUDA as the `DEVICE` is probably needed for heavier models like `large-v3-turbo` for Whisper. **Nvidia drivers**, **CUDA Toolkit**, **cuDNN** installation needed if option `"cuda"` was to be used.
 
 ## Improvements
 
 - **ARM64 Support**: Ensure support for ARM64 based systems.
 - **Concurrency Design Check**: Review and optimize the threading design to ensure thread safety and prevent issues like race conditions or deadlocks, etc., revisit the current design of ***WebSocketIO*** being a thread while ***AudioProcessor***, ***Transcriber***, and ***Translator*** being processes.
 - **Logging**: Integrate detailed logging to track system activity, errors, and performance metrics using a more formal logging framework.
+- **Translation Models**: Some of the models downloaded in ***Translator*** from [OpusMT's Hugging Face](https://huggingface.co/Helsinki-NLP) are not the best performing when compared with top models in [Opus-MT's Leaderboard](https://opus.nlpl.eu/dashboard/). Find a way to automatically download best performing models using the user's input of `src_lang` and `tgt_lang` as it's currently done. 
+- **System Profiling & Resource Guidelines**: Benchmark and document CPU, memory, and GPU usage across all multiprocessing components. For example, "~35% CPU usage on 24-core **Intel i9-13900HX**", or "GPU load ~20% on **Nvidia RTX 4070** with `large-v3-turbo` Whisper model"). This will help with hardware requirements and deployment decisions.
 
 ## Citations
  ```bibtex

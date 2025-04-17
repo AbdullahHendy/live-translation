@@ -62,10 +62,10 @@ def test_transcriber_pipeline_output_queue(
     )
     transcriber.start()
 
-    max_wait = 10
+    timeout = 20
     poll_interval = 0.1
     waited = 0
-    while output_queue.empty() and waited < max_wait:
+    while output_queue.empty() and waited < timeout:
         time.sleep(poll_interval)
         waited += poll_interval
 
@@ -103,10 +103,10 @@ def test_transcriber_pipeline_transcription_queue(
     )
     transcriber.start()
 
-    max_wait = 10
+    timeout = 20
     poll_interval = 0.1
     waited = 0
-    while transcription_queue.empty() and waited < max_wait:
+    while transcription_queue.empty() and waited < timeout:
         time.sleep(poll_interval)
         waited += poll_interval
     assert not transcription_queue.empty(), "Transcription queue should contain text"

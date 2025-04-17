@@ -43,22 +43,29 @@ class LiveTranslationClient:
             pa.terminate()
             print("\n🛑 Audio streaming stopped.")
 
-    async def _receive_output(self, websocket, callback):
+    async def _receive_output(
+        self, websocket, callback, callback_args, callback_kwargs
+    ):
         try:
             async for message in websocket:
                 try:
                     entry = json.loads(message)
-                    # If callback returns True, exit the loop
-                    if callback and callback(entry) is True:
-                        print("🛑 Callback requested client stopping.")
-                        self.stop()
-                        break
+                    if callback:
+                        should_stop = callback(
+                            entry,
+                            *(callback_args or ()),
+                            **(callback_kwargs or {}),
+                        )
+                        if should_stop is True:
+                            print("🛑 Callback requested client stopping.")
+                            self.stop()
+                            break
                 except json.JSONDecodeError as e:
                     print(f"❌ Failed to parse server message: {e}")
         except websockets.ConnectionClosed as e:
             print(f"🔌 WebSocket closed: {e}")
 
-    def run(self, callback, blocking=True):
+    def run(self, callback, callback_args=(), callback_kwargs=None, blocking=True):
         async def _connect_loop():
             while not self._exit_requested:
                 try:
@@ -67,7 +74,9 @@ class LiveTranslationClient:
                         print("✅ Connected to server.")
                         await asyncio.gather(
                             self._send_audio(websocket),
-                            self._receive_output(websocket, callback),
+                            self._receive_output(
+                                websocket, callback, callback_args, callback_kwargs
+                            ),
                         )
                 except Exception as e:
                     print(f"🔌 Connection failed: {e}. Retrying in 2 seconds...")

@@ -1,5 +1,6 @@
 # server/cli.py
 
+from live_translation import __version__ as package_version
 from .server import LiveTranslationServer
 from .config import Config
 from ._args import get_args
@@ -9,6 +10,10 @@ def main():
     """CLI entry point."""
 
     args = get_args()
+
+    if args.version:
+        print("live-translate-server ", package_version)
+        return
 
     # Define the configuration object based on CLI arguments
     cfg = Config(

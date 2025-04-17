@@ -13,8 +13,14 @@ def get_args():
     parser.add_argument(
         "--server",
         type=str,
-        required=True,
         help="WebSocket URI of the server (e.g., ws://localhost:8765)",
+    )
+
+    # Version
+    parser.add_argument(
+        "--version",
+        action="store_true",
+        help="Print version and exit.",
     )
 
     return parser.parse_args()

@@ -37,7 +37,7 @@ format:
 lint:
 	@echo "🔍 Running Ruff linter..."
 	$(ACTIVATE) && ruff check . || \
-		(echo "\033[0;31mLinting failed. Fix the issues shown above.\033[0m" && exit 1)
+		(echo "\033[0;31mLinting failed. Run 'ruff check --fix .' to possibly fix the issues shown above.\033[0m" && exit 1)
 	@echo "\033[0;32m✅ Linting passed.\033[0m"
 
 # Clean up build artifacts and transcripts/

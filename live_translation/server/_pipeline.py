@@ -54,16 +54,19 @@ class PipelineManager:
             self._output_queue,
         )
 
-        self._translator = Translator(
-            self._transcription_queue,
-            self._stop_event,
-            self._cfg,
-            self._output_queue,
-        )
+        if not self._cfg.TRANSCRIBE_ONLY:
+            self._translator = Translator(
+                self._transcription_queue,
+                self._stop_event,
+                self._cfg,
+                self._output_queue,
+            )
 
         # List of pipeline components
         self._threads = [self.ws_io]
-        self._processes = [self._audio_processor, self._transcriber, self._translator]
+        self._processes = [self._audio_processor, self._transcriber]
+        if not self._cfg.TRANSCRIBE_ONLY:
+            self._processes.append(self._translator)
 
     def signal_handler(self, sig, frame):
         """Handle Ctrl+C: Parent process only should handles it."""

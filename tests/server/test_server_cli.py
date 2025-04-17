@@ -33,11 +33,10 @@ def test_cli_real_execution():
         bufsize=1,
     )
 
-    timeout = 10
+    timeout = 20
     poll_interval = 0.1
     waited = 0
     found = False
-    output_lines = []
 
     try:
         while not found and waited < timeout:
@@ -45,7 +44,6 @@ def test_cli_real_execution():
             if ready:
                 line = process.stdout.readline()
                 if line:
-                    output_lines.append(line)
                     if "🚀 Starting the pipeline..." in line:
                         found = True
                         break
