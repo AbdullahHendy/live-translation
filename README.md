@@ -87,8 +87,9 @@ python -c "import live_translation; print('live-translation installed successful
 
   **[OPTIONS]**
   ```bash
-  usage: live-translate-server [-h] [--silence_threshold SILENCE_THRESHOLD] [--vad_aggressiveness {0,1,2,3,4,5,6,7,8,9}] [--max_buffer_duration {5,6,7,8,9,10}] [--device {cpu,cuda}] [--whisper_model {tiny,base,small,medium,large,large-v2}]
-                              [--trans_model {Helsinki-NLP/opus-mt,Helsinki-NLP/opus-mt-tc-big}] [--src_lang SRC_LANG] [--tgt_lang TGT_LANG] [--log {print,file}] [--ws_port WS_PORT] [--transcribe_only]
+  usage: live-translate-server [-h] [--silence_threshold SILENCE_THRESHOLD] [--vad_aggressiveness {0,1,2,3,4,5,6,7,8,9}] [--max_buffer_duration {5,6,7,8,9,10}] [--device {cpu,cuda}]
+                              [--whisper_model {tiny,base,small,medium,large,large-v2,large-v3,large-v3-turbo}] [--trans_model {Helsinki-NLP/opus-mt,Helsinki-NLP/opus-mt-tc-big}] [--src_lang SRC_LANG]
+                              [--tgt_lang TGT_LANG] [--log {print,file}] [--ws_port WS_PORT] [--transcribe_only]
 
   Live Translation Server - Configure runtime settings.
 
@@ -108,8 +109,8 @@ python -c "import live_translation; print('live-translation installed successful
                           Default is 7 seconds.
     --device {cpu,cuda}   Device for processing ('cpu', 'cuda').
                           Default is 'cpu'.
-    --whisper_model {tiny,base,small,medium,large,large-v2}
-                          Whisper model size ('tiny', 'base', 'small', 'medium', 'large', 'large-v2').
+    --whisper_model {tiny,base,small,medium,large,large-v2,large-v3,large-v3-turbo}
+                          Whisper model size ('tiny', 'base', 'small', 'medium', 'large', 'large-v2', 'large-v3', 'large-v3-turbo).
                           Default is 'base'.
     --trans_model {Helsinki-NLP/opus-mt,Helsinki-NLP/opus-mt-tc-big}
                           Translation model ('Helsinki-NLP/opus-mt', 'Helsinki-NLP/opus-mt-tc-big'). 
@@ -270,16 +271,20 @@ This project was tested and developed on the following system configuration:
 - **Python Version**: 3.12.7
 - **Processor**: 13th Gen Intel(R) Core(TM) i9-13900HX
 - **GPU**: GeForce RTX 4070 Max-Q / Mobile [^1]
+- **NVIDIA Driver Version**: 560.35.03  
+- **CUDA Toolkit Version**: 12.1  
+- **cuDNN Version**: 9.7.1
 - **RAM**: 32GB DDR5
 - **Dependencies**: All required dependencies are listed in `requirements.txt` and [Prerequisites](#prerequisites)
 
-[^1]: CUDA not utilized, as the `DEVICE` configuration is set to `"cpu"`. Additional **Nvidia drivers**, **CUDA**, **cuDNN** installation needed if option `"cuda"` were to be used.
+[^1]: CUDA as the `DEVICE` is probably needed for heavier models like `large-v3-turbo` for Whisper. **Nvidia drivers**, **CUDA Toolkit**, **cuDNN** installation needed if option `"cuda"` were to be used.
 
 ## Improvements
 
 - **ARM64 Support**: Ensure support for ARM64 based systems.
 - **Concurrency Design Check**: Review and optimize the threading design to ensure thread safety and prevent issues like race conditions or deadlocks, etc., revisit the current design of ***WebSocketIO*** being a thread while ***AudioProcessor***, ***Transcriber***, and ***Translator*** being processes.
 - **Logging**: Integrate detailed logging to track system activity, errors, and performance metrics using a more formal logging framework.
+- **Translation Models**: Some of the models downloaded in ***Translator*** from [OpusMT's Hugging Face](https://huggingface.co/Helsinki-NLP) are not the best performing when compared with top models in [Opus-MT's Leaderboard](https://opus.nlpl.eu/dashboard/). Find a way to automatically donwload best performing models using the user's input of `src_lang` and `tgt_lang` as it's currently done. 
 
 ## Citations
  ```bibtex

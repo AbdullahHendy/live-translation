@@ -15,7 +15,8 @@ class Config:
         device (str): Device for processing ('cpu', 'cuda'). Default is 'cpu'.
 
         whisper_model (str): Whisper model size ('tiny', 'base', 'small',
-            'medium', 'large', 'large-v2'). Default is 'base'.
+            'medium', 'large', 'large-v2', 'large-v3', 'large-v3-turbo').
+            Default is 'base'.
 
         trans_model (str): Translation model ('Helsinki-NLP/opus-mt',
             'Helsinki-NLP/opus-mt-tc-big'). NOTE: Don't include source and
@@ -164,10 +165,13 @@ class Config:
             "medium",
             "large",
             "large-v2",
+            "large-v3",
+            "large-v3-turbo",
         ]:
             raise ValueError(
                 "🚨 'whisper_model' must be one of the following: 'tiny', "
-                "'base', 'small', 'medium', 'large', 'large-v2'."
+                "'base', 'small', 'medium', 'large', 'large-v2', 'large-v3', "
+                "'large-v3-turbo'."
             )
 
         # Validate translation model
