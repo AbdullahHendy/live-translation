@@ -277,7 +277,7 @@ This project was tested and developed on the following system configuration:
 - **RAM**: 32GB DDR5
 - **Dependencies**: All required dependencies are listed in `requirements.txt` and [Prerequisites](#prerequisites)
 
-[^1]: CUDA as the `DEVICE` is probably needed for heavier models like `large-v3-turbo` for Whisper. **Nvidia drivers**, **CUDA Toolkit**, **cuDNN** installation needed if option `"cuda"` were to be used.
+[^1]: CUDA as the `DEVICE` is probably needed for heavier models like `large-v3-turbo` for Whisper. **Nvidia drivers**, **CUDA Toolkit**, **cuDNN** installation needed if option `"cuda"` was to be used.
 
 ## Improvements
 
