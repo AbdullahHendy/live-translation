@@ -111,7 +111,7 @@ python -c "import live_translation; print(f'live-translation installed successfu
                           Default is 'cpu'.
     --whisper_model {tiny,base,small,medium,large,large-v2,large-v3,large-v3-turbo}
                           Whisper model size ('tiny', 'base', 'small', 'medium', 'large', 'large-v2', 'large-v3', 'large-v3-turbo). 
-                          NOTE: Running large models like 'large-v3', or 'large-v3-turbo' might require a decent GPU with CUDA support for resonable performance. 
+                          NOTE: Running large models like 'large-v3', or 'large-v3-turbo' might require a decent GPU with CUDA support for reasonable performance. 
                           NOTE: large-v3-turbo has great accuracy while being significantly faster than the original large-v3 model. see: https://github.com/openai/whisper/discussions/2363 
                           Default is 'base'.
     --trans_model {Helsinki-NLP/opus-mt,Helsinki-NLP/opus-mt-tc-big}
