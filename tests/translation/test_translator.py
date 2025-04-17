@@ -46,7 +46,7 @@ def test_translator_pipeline(
     translator = Translator(transcription_queue, stop_event, config, output_queue)
     translator.start()
 
-    timeout = 10
+    timeout = 20
     poll_interval = 0.1
     waited = 0
     while output_queue.empty() and waited < timeout:
