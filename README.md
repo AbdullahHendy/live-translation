@@ -288,6 +288,7 @@ This project was tested and developed on the following system configuration:
 - **Concurrency Design Check**: Review and optimize the threading design to ensure thread safety and prevent issues like race conditions or deadlocks, etc., revisit the current design of ***WebSocketIO*** being a thread while ***AudioProcessor***, ***Transcriber***, and ***Translator*** being processes.
 - **Logging**: Integrate detailed logging to track system activity, errors, and performance metrics using a more formal logging framework.
 - **Translation Models**: Some of the models downloaded in ***Translator*** from [OpusMT's Hugging Face](https://huggingface.co/Helsinki-NLP) are not the best performing when compared with top models in [Opus-MT's Leaderboard](https://opus.nlpl.eu/dashboard/). Find a way to automatically download best performing models using the user's input of `src_lang` and `tgt_lang` as it's currently done. 
+- **System Profiling & Resource Guidelines**: Benchmark and document CPU, memory, and GPU usage across all multiprocessing components. For example, "~35% CPU usage on 24-core **Intel i9-13900HX**", or "GPU load ~20% on **Nvidia RTX 4070** with `large-v3-turbo` Whisper model"). This will help with hardware requirements and deployment decisions.
 
 ## Citations
  ```bibtex
