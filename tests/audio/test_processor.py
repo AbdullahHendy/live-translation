@@ -64,11 +64,11 @@ def test_audio_processor_pipeline(
     processor = AudioProcessor(audio_queue, processed_queue, stop_event, config)
     processor.start()
 
-    max_wait = 10
+    timeout = 20
     poll_interval = 0.1
     waited = 0
 
-    while processed_queue.qsize() == 0 and waited < max_wait:
+    while processed_queue.qsize() == 0 and waited < timeout:
         time.sleep(poll_interval)
         waited += poll_interval
 

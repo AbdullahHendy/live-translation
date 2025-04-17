@@ -46,10 +46,10 @@ def test_translator_pipeline(
     translator = Translator(transcription_queue, stop_event, config, output_queue)
     translator.start()
 
-    max_wait = 10
+    timeout = 10
     poll_interval = 0.1
     waited = 0
-    while output_queue.empty() and waited < max_wait:
+    while output_queue.empty() and waited < timeout:
         time.sleep(poll_interval)
         waited += poll_interval
 

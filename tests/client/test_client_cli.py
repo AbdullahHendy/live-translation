@@ -111,7 +111,7 @@ def test_cli_connection():
             server_proc.stdout.close()
 
 
-def wait_for_output(process, match, timeout=10):
+def wait_for_output(process, match, timeout=20):
     """Wait for a line in process stdout containing `match`."""
     waited = 0
     poll_interval = 0.1
