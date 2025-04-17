@@ -43,10 +43,10 @@ def test_pipeline():
                 for expected in EXPECTED_LOGS:
                     if expected in line:
                         found_logs.add(expected)
-                    
+
                 if len(found_logs) == len(EXPECTED_LOGS):
                     break
-                    
+
         waited += poll_interval
 
     parent = psutil.Process(process.pid)
