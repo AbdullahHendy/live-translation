@@ -127,7 +127,7 @@ python -c "import live_translation; print(f'live-translation installed successfu
                             - 'print': Print each result to stdout.
                           Default is None (no logging).
     --ws_port WS_PORT     WebSocket port the of the server.
-                          Used to listen for client audio and publishe output (e.g., 8765).
+                          Used to listen for client audio and publish output (e.g., 8765).
     --transcribe_only     Transcribe only mode. No translations are performed.
     --version             Print version and exit.
   ```
@@ -235,10 +235,10 @@ python -m venv .venv
 source .venv/bin/activate 
 ```
 
-**Install** Dependencies:
+**Install** the package and its dependencies in ***editable mode***:
 ```bash
 pip install --upgrade pip
-pip install -r requirements.txt
+pip install -e .[dev,examples]  # Install with optional examples dependencies
 ```
 
 **Test** the package:
@@ -254,11 +254,13 @@ make build
 
 > **NOTE**: Building generates a ***.whl*** file that can be ***pip*** installed in a new environment for testing
 
-**If needed**, run the server and the client within the virtual environment:
+**For quick testing**, run the server and the client within the virtual environment:
 ```bash
-python -m live_translation.server.cli [OPTIONS]
-python -m live_translation.client.cli [OPTIONS]
+live-translate-server [OPTIONS]
+live-translate-client [OPTIONS]
 ```
+> **NOTE**: Since the package was installed in editable mode, any changes will be reflected when the cli tools are run
+
 **For contribution**:
 - Make your changes in a feature branch
 - Ensure all tests pass
@@ -278,9 +280,9 @@ This project was tested and developed on the following system configuration:
 - **CUDA Toolkit Version**: 12.1  
 - **cuDNN Version**: 9.7.1
 - **RAM**: 32GB DDR5
-- **Dependencies**: All required dependencies are listed in `requirements.txt` and [Prerequisites](#prerequisites)
+- **Dependencies**: All required dependencies are listed in `pyproject.toml` and [Prerequisites](#prerequisites)
 
-[^1]: CUDA as the `DEVICE` is probably needed for heavier models like `large-v3-turbo` for Whisper. **Nvidia drivers**, **CUDA Toolkit**, **cuDNN** installation needed if option `"cuda"` was to be used.
+[^1]: CUDA as the `DEVICE` is probably needed for heavier models like `large-v3-turbo` for Whisper. [**Nvidia drivers**](https://www.nvidia.com/drivers/), [**CUDA Toolkit**](https://developer.nvidia.com/cuda-downloads), [**cuDNN**](https://developer.nvidia.com/cudnn-downloads) installation needed if option `"cuda"` was to be used.
 
 ## Improvements
 
