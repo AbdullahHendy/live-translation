@@ -1,6 +1,12 @@
 # Examples
 
-Simple scripts that demonstrate different ways to use `live_translation`.
+Simple scripts that demonstrate different ways to use `live_translation`. The following commands assume current directory to be `live-translation/examples`
+
+* **Install** examples dependencies:
+    ```bash
+    pip install --upgrade pip
+    pip install .[examples]
+    ```
 
 ## [Magic Word](magic_word.py)
 
@@ -8,7 +14,7 @@ Example of using `live_translation` with WebSocket to listen for an English phra
 
 **Run:** 
 ```bash
-python -m examples.magic_word
+python magic_word
 ```
 
 ## [Augmented Reality (AR) OpenCV](ar_opencv.py)
@@ -20,7 +26,7 @@ Example of using `live_translation` with OpenCV to overlay translated or transcr
 
 **Run:** 
 ```bash
-python -m examples.ar_opencv [OPTIONS]
+python ar_opencv [OPTIONS]
 ```
 - **OPTIONS:**
     ```bash
