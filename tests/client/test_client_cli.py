@@ -11,7 +11,7 @@ SERVER_COMMAND = [
     "live_translation.server.cli",
     "--transcribe_only",
     "--ws_port",
-    "8765",
+    "8764",
 ]
 
 CLIENT_COMMAND = [
@@ -20,7 +20,7 @@ CLIENT_COMMAND = [
     "-m",
     "live_translation.client.cli",
     "--server",
-    "ws://localhost:8765",
+    "ws://localhost:8764",
 ]
 
 

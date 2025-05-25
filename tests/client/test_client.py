@@ -7,7 +7,7 @@ from live_translation.client.config import Config
 
 @pytest.fixture
 def config():
-    return Config(server_uri="ws://localhost:8765")
+    return Config(server_uri="ws://localhost:8764")
 
 
 @pytest.mark.asyncio
@@ -111,7 +111,7 @@ async def test_send_audio_streams_once(monkeypatch):
     """Test that audio is read and sent once from the microphone."""
 
     # Setup client with a test config
-    cfg = Config(server_uri="ws://localhost:8765")
+    cfg = Config(server_uri="ws://localhost:8764")
     client = LiveTranslationClient(cfg)
 
     # Trick to force early exit after 1 send (not the main use case of _exit_requested)
