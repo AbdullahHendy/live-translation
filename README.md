@@ -93,7 +93,14 @@ python -c "import live_translation; print(f'live-translation installed successfu
 > JackShmReadWritePtr::~JackShmReadWritePtr - Init not done for -1, skipping unlock
 >
 
-### CLI 
+### CLI
+* **demo** can be run directly from the command line:
+  > **NOTE**: This is a convenience demo cli tool to run both the **server** and the **client** with ***default*** configs. It should only be used for a quick demo. It's ***highly recommended*** to start a separate server and client for full customization as shown below.  
+  >
+  ```bash
+  live-translate-demo
+  ```
+
 * **server** can be run directly from the command line:
   > **NOTE**: Running the server for the first time will download the required models in the **Cache** folder (e.g. `~/.cache` on linux). The downloading process in the first run might clutter the terminal view leading to scattered and unpredicted locations of the **initial server logs**. It is advised to rerun the server after all models finish downloading for better view of the **initial server logs**.
   >
