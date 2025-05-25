@@ -172,7 +172,7 @@ For more detailed examples showing **non-blocking** and **asynchronous** workflo
 
 > **NOTE**: The examples below assumes the ***live_translation*** package has been installed as shown in the [Installation](#installation).
 >
-> **NOTE**: To run a provided example using the ***Pyhton API***, see instructions in the `./examples/` directory.
+> **NOTE**: To run a provided example using the ***Python API***, see instructions in the `./examples/` directory.
 
 - **Server**
   ```python
