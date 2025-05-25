@@ -9,15 +9,20 @@ This project provides a real-time speech-to-text translation system built on a m
 
 The program can be used both as a **command-line tool** or as a **Python API** in other applications, with full support for non-blocking and asynchronous workflows.
 
+---
+
 #### 🖥️🌍 Server-Client Demo
 
 <a href="https://github.com/AbdullahHendy/live-translation/blob/main/doc/demo.gif?raw=true" target="_blank">
   <img src="https://github.com/AbdullahHendy/live-translation/blob/main/doc/demo.gif?raw=true" alt="Server-Client Demo" />
 </a>
 
+---
+
 ## Architecture Overview
 <img src="https://github.com/AbdullahHendy/live-translation/blob/main/doc/live-translation-pipeline.png?raw=true" alt="Architecture Diagram" />
 
+---
 
 ## Features
 
@@ -33,16 +38,23 @@ The program can be used both as a **command-line tool** or as a **Python API** i
 - Designed for both:
   - Simple **CLI** usage (***live-translate-server***, ***live-translate-client***)
   - **Python API** usage (***LiveTranslationServer***, ***LiveTranslationClient***) with Asynchronous support for embedding in larger systems
+
+---
+
 ## Prerequisites
 
 Before running the project, you need to install the following system dependencies:
-
-- **PortAudio** (for audio input handling)
-- **FFmpeg** (for audio and video processing)
-    - On Ubuntu/Debian-based systems, you can install it with:
-      ```bash
-      sudo apt-get install portaudio19-dev ffmpeg
-      ```
+### **Debian**
+- [**PortAudio**](https://www.portaudio.com/) (for audio input handling)
+  ```bash
+  sudo apt-get install portaudio19-dev
+  ```
+### **MacOS**
+- [**PortAudio**](https://www.portaudio.com/) (for audio input handling)
+  ```bash
+  brew install portaudio
+  ```
+---
 
 ## Installation
 
@@ -61,6 +73,8 @@ pip install live-translation
 ```bash
 python -c "import live_translation; print(f'live-translation installed successfully\n{live_translation.__version__}')"
 ```
+
+---
 
 ## Usage
 
@@ -81,6 +95,8 @@ python -c "import live_translation; print(f'live-translation installed successfu
 
 ### CLI 
 * **server** can be run directly from the command line:
+  > **NOTE**: Running the server for the first time will download the required models in the **Cache** folder (e.g. `~/.cache` on linux). The downloading process in the first run might clutter the terminal view leading to scattered and unpredicted locations of the **inital server logs**. It is advised to rerun the server after all models finish downloading for better view of the **inital server logs**.
+  >
   ```bash
   live-translate-server [OPTIONS]
   ```
@@ -149,16 +165,14 @@ python -c "import live_translation; print(f'live-translation installed successfu
     --version        Print version and exit.
   ```
 
-### API
+### Python API
 You can also import and use ***live_translation*** directly in your Python code.
 The following is ***simple*** examples of running ***live_translation***'s server and client in a **blocking** fashion.
 For more detailed examples showing **non-blocking** and **asynchronous** workflows, see [examples/](/examples/).
 
 > **NOTE**: The examples below assumes the ***live_translation*** package has been installed as shown in the [Installation](#installation).
 >
-> **NOTE**: One can run a provided example in [examples/](./examples/) as **`python -m examples.<example_name>`**. For example: **`python -m examples.magic_word`** 
-> Running the example this way from inside the repository assume a development environment has been set up, see [## Development & Contribution](#development--contribution) in the next section.
->
+> **NOTE**: To run a provided example using the ***Pyhton API***, see instructions in the `./examples/` directory.
 
 - **Server**
   ```python
@@ -216,6 +230,37 @@ For more detailed examples showing **non-blocking** and **asynchronous** workflo
 
   ```
 
+### Non-Python Integration
+If you're writing a custom client or integrating this system into another application, you can interact with the server directly using the WebSocket protocol.
+### Protocol Overview
+
+The server listens on a WebSocket endpoint (default: `ws://localhost:8765`) and expects the client to:
+
+- **Send**: raw ***PCM*** audio in fixed-size chunks
+  - Format: 16-bit signed integer (`int16`)
+  - Sample Rate: 16,000 Hz
+  - Channels: Mono (1 channel)
+  - Chunk Size: 512 samples = 1024 bytes per message
+  - Each chunk should be sent immediately over the WebSocket
+
+- **Receive**: structured ***JSON*** messages with timestamp, transcription and translation fields
+  ```json
+  {
+    "timestamp": "2025-05-25T12:58:35.259085+00:00",
+    "transcription": "Good morning, I hope everyone's doing great.",
+    "translation": "Buenos días, espero que todo el mundo esté bien"
+  }
+
+### Client Examples
+For fully working examples in multiple languages, see the `./examples/clients` directory. 
+Supported Examples:
+- **Node.js**
+- **Browser JS**
+- **Go**
+- **C#**
+
+---
+
 ## Development & Contribution
 
 To contribute or modify this project, these steps might be helpful:
@@ -266,6 +311,8 @@ live-translate-client [OPTIONS]
 - Ensure all tests pass
 - Open a Pull Request (PR) with a clear description of your changes
 
+---
+
 ## Tested Environment
 
 This project was tested and developed on the following system configuration:
@@ -284,6 +331,8 @@ This project was tested and developed on the following system configuration:
 
 [^1]: CUDA as the `DEVICE` is probably needed for heavier models like `large-v3-turbo` for Whisper. [**Nvidia drivers**](https://www.nvidia.com/drivers/), [**CUDA Toolkit**](https://developer.nvidia.com/cuda-downloads), [**cuDNN**](https://developer.nvidia.com/cudnn-downloads) installation needed if option `"cuda"` was to be used.
 
+---
+
 ## Improvements
 
 - **ARM64 Support**: Ensure support for ARM64 based systems.
@@ -291,6 +340,8 @@ This project was tested and developed on the following system configuration:
 - **Logging**: Integrate detailed logging to track system activity, errors, and performance metrics using a more formal logging framework.
 - **Translation Models**: Some of the models downloaded in ***Translator*** from [OpusMT's Hugging Face](https://huggingface.co/Helsinki-NLP) are not the best performing when compared with top models in [Opus-MT's Leaderboard](https://opus.nlpl.eu/dashboard/). Find a way to automatically download best performing models using the user's input of `src_lang` and `tgt_lang` as it's currently done. 
 - **System Profiling & Resource Guidelines**: Benchmark and document CPU, memory, and GPU usage across all multiprocessing components. For example, "~35% CPU usage on 24-core **Intel i9-13900HX**", or "GPU load ~20% on **Nvidia RTX 4070** with `large-v3-turbo` Whisper model"). This will help with hardware requirements and deployment decisions.
+
+---
 
 ## Citations
  ```bibtex
