@@ -15,7 +15,7 @@
  * Uses node-record-lpcm16 + ws for broad compatibility.
  */
 
-const WebSocket = require('./node_modules/ws');
+const WebSocket = require('ws');
 const record = require('node-record-lpcm16');
 
 // --- CONFIG ---

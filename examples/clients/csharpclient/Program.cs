@@ -49,7 +49,22 @@ class Program
                 Console.WriteLine("❌ JSON parse error: " + err.Message);
             }
         };
-        ws.Connect();
+        try
+        {
+            ws.Connect();
+            if (!ws.IsAlive)
+            {
+                Console.WriteLine("❌ Failed to connect to WebSocket server. Exiting...");
+                Console.WriteLine("❓ Make sure the server is running...");
+
+                return;
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("❌ WebSocket connection error: " + ex.Message);
+            return;
+        }
         Console.WriteLine("✅ Connected");
 
         PortAudio.Initialize();
@@ -81,7 +96,10 @@ class Program
             {
                 byte[] toSend = new byte[ChunkBytes];
                 Buffer.BlockCopy(buffer, 0, toSend, 0, ChunkBytes);
-                ws.Send(toSend);
+                if (ws != null && ws.IsAlive)
+                {
+                    ws.Send(toSend);
+                }
 
                 filled -= ChunkBytes;
                 Buffer.BlockCopy(buffer, ChunkBytes, buffer, 0, filled);
