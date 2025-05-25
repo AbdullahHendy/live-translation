@@ -79,7 +79,9 @@ class WebSocketIO(threading.Thread):
         server = None
         try:
             server = await websockets.serve(handler, "0.0.0.0", self._port)
-            print(f"🌐 WebSocketIO: Listening on ws://0.0.0.0:{self._port}")
+            print(
+                f"🌐 WebSocketIO: Listening on \033[91mws://0.0.0.0:{self._port}\033[0m"
+            )
             async with server:
                 while not self._stop_event.is_set():
                     await asyncio.sleep(0.1)
