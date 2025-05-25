@@ -1,4 +1,4 @@
-# Node.js Client
+# Go Client
 
 Simple CLI Go client for sending microphone audio to the live-translation server over WebSocket. It streams **raw PCM** audio in real time and logs server responses (transcription and translation).
 

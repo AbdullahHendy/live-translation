@@ -1,4 +1,4 @@
-# Node.js Client
+# C# Client
 
 Simple CLI C# client for sending microphone audio to the live-translation server over WebSocket. It streams **raw PCM** audio in real time and logs server responses (transcription and translation).
 
@@ -32,7 +32,7 @@ Simple CLI C# client for sending microphone audio to the live-translation server
 ## Installation
 
 ```bash
-cd examples/cd clients/csharpclient
+cd clients/csharpclient
 dotnet restore
 ```
 

@@ -34,5 +34,7 @@ Minimal browser-based client for sending microphone audio to the live-translatio
     ```
     - **Node.js**
     ```bash
-    npx serve .
+    cd examples/clients/browser_js
+    npx serve . -l 8000
+    # then open http://localhost:8000
     ```
