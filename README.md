@@ -1,13 +1,32 @@
-# Real-time Speech-to-Text Translation
+<div align="center">
 
-This project provides a real-time speech-to-text translation system built on a modular server–client architecture.
+# Live-Translation
 
-- The **client** streams microphone audio to the server and receives structured results in real time over a full-duplex WebSocket.
-- The **server** performs transcription using **Whisper** and optional translation using **Opus-MT**, with **Silero VAD** for voice activity detection.
-- Transcription and translation results are returned to the client in real time.
-- The server can optionally log results to stdout or a **JSONL** file.
-
-The program can be used both as a **command-line tool** or as a **Python API** in other applications, with full support for non-blocking and asynchronous workflows.
+**A real-time speech-to-text translation system built on a modular server–client architecture.**
+[![Build](https://github.com/AbdullahHendy/live-translation/actions/workflows/ci.yml/badge.svg)](https://github.com/AbdullahHendy/live-translation/actions/workflows/ci.yml)
+[![PyPI](https://img.shields.io/pypi/v/live-translation)](https://pypi.org/project/live-translation/)
+[![License](https://img.shields.io/github/license/AbdullahHendy/live-translation.svg)](https://github.com/AbdullahHendy/live-translation/blob/main/LICENSE)
+</br>
+![WebSocket](https://img.shields.io/badge/Protocol-WebSocket-brightgreen?logo=websocket)
+![Audio](https://img.shields.io/badge/Audio-16bit_PCM@16kHz-brightgreen?logo=sound)
+![Streaming](https://img.shields.io/badge/Streaming-Real--time-brightgreen?logo=livejournal)
+</br>
+[![Last Commit](https://img.shields.io/github/last-commit/AbdullahHendy/live-translation)](https://github.com/AbdullahHendy/live-translation/commits/main)
+[![Issues](https://img.shields.io/github/issues/AbdullahHendy/live-translation)](https://github.com/AbdullahHendy/live-translation/issues)
+[![Stars](https://img.shields.io/github/stars/AbdullahHendy/live-translation?style=social)](https://github.com/AbdullahHendy/live-translation)
+</br>
+[![Code Style: ruff](https://img.shields.io/badge/code%20style-ruff-000000.svg)](https://github.com/charliermarsh/ruff)
+</br>
+![Client Examples](https://img.shields.io/badge/Client_Examples-Included-blueviolet?logo=github)
+[![Node.js](https://img.shields.io/badge/Examples-Node.js-green?logo=node.js)](https://github.com/AbdullahHendy/live-translation/tree/main/examples/clients/nodejs)
+[![Browser JS](https://img.shields.io/badge/Examples-Browser_JS-yellow?logo=javascript)](https://github.com/AbdullahHendy/live-translation/tree/main/examples/clients/browser_js)
+[![C#](https://img.shields.io/badge/Examples-C%23-239120?logo=c-sharp&logoColor=white)](https://github.com/AbdullahHendy/live-translation/tree/main/examples/clients/csharpclient)
+[![Go](https://img.shields.io/badge/Examples-Go-00ADD8?logo=go)](https://github.com/AbdullahHendy/live-translation/tree/main/examples/clients/go_client)
+</br>
+[![Powered by Opus-MT](https://img.shields.io/badge/Powered%20by-Opus--MT-blue)](https://huggingface.co/Helsinki-NLP)
+[![Powered by Whisper](https://img.shields.io/badge/Powered%20by-Whisper-green)](https://github.com/openai/whisper)
+[![Made with Python](https://img.shields.io/badge/Made%20with-Python-1f425f.svg)](https://www.python.org/)
+</div>
 
 ---
 
