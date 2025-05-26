@@ -12,7 +12,7 @@
 ![Audio](https://img.shields.io/badge/Audio-16bit_PCM@16kHz-brightgreen?logo=sound)
 ![Streaming](https://img.shields.io/badge/Streaming-Real--time-brightgreen?logo=livejournal)
 </br>
-[![Last Commit](https://img.shields.io/github/last-commit/AbdullahHendy/live-translation)](https://github.com/AbdullahHendy/live-translation/commits/main)
+[![Last Commit](https://img.shields.io/github/last-commit/AbdullahHendy/live-translation.svg)](https://github.com/AbdullahHendy/live-translation/commits/main)
 [![Issues](https://img.shields.io/github/issues/AbdullahHendy/live-translation)](https://github.com/AbdullahHendy/live-translation/issues)
 [![Stars](https://img.shields.io/github/stars/AbdullahHendy/live-translation?style=social)](https://github.com/AbdullahHendy/live-translation)
 </br>
