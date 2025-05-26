@@ -46,7 +46,7 @@ classifiers = [
 dependencies = [
     "torch==2.6.0",
     "torchaudio==2.6.0",
-    "transformers==4.49.0",
+    "transformers==4.50.0",
     "numpy==2.2.3",
     "pyaudio==0.2.14",
     "websockets==15.0.1",
