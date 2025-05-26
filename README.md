@@ -15,9 +15,9 @@
 [![Issues](https://img.shields.io/github/issues/AbdullahHendy/live-translation)](https://github.com/AbdullahHendy/live-translation/issues)
 [![Stars](https://img.shields.io/github/stars/AbdullahHendy/live-translation?style=social)](https://github.com/AbdullahHendy/live-translation)
 </br>
-[![Code Style: ruff](https://img.shields.io/badge/code%20style-ruff-000000.svg)](https://github.com/charliermarsh/ruff)
+[![Code Style: ruff](https://img.shields.io/badge/code%20style-ruff-000000.svg)](https://github.com/AbdullahHendy/live-translation/blob/main/ruff.toml)
 </br>
-![Client Examples](https://img.shields.io/badge/Client_Examples-Included-blueviolet?logo=github)
+[![Client Examples](https://img.shields.io/badge/Client_Examples-Included-blueviolet?logo=github)](https://github.com/AbdullahHendy/live-translation/tree/main/examples)
 [![Node.js](https://img.shields.io/badge/Examples-Node.js-green?logo=node.js)](https://github.com/AbdullahHendy/live-translation/tree/main/examples/clients/nodejs)
 [![Browser JS](https://img.shields.io/badge/Examples-Browser_JS-yellow?logo=javascript)](https://github.com/AbdullahHendy/live-translation/tree/main/examples/clients/browser_js)
 [![C#](https://img.shields.io/badge/Examples-C%23-239120?logo=c-sharp&logoColor=white)](https://github.com/AbdullahHendy/live-translation/tree/main/examples/clients/csharpclient)
