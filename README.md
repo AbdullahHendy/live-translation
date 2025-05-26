@@ -1,13 +1,36 @@
-# Real-time Speech-to-Text Translation
+<div align="center">
 
-This project provides a real-time speech-to-text translation system built on a modular server–client architecture.
+# Live-Translation
 
-- The **client** streams microphone audio to the server and receives structured results in real time over a full-duplex WebSocket.
-- The **server** performs transcription using **Whisper** and optional translation using **Opus-MT**, with **Silero VAD** for voice activity detection.
-- Transcription and translation results are returned to the client in real time.
-- The server can optionally log results to stdout or a **JSONL** file.
+**A real-time speech-to-text translation system built on a modular server–client architecture.**
 
-The program can be used both as a **command-line tool** or as a **Python API** in other applications, with full support for non-blocking and asynchronous workflows.
+[![Build](https://github.com/AbdullahHendy/live-translation/actions/workflows/ci.yml/badge.svg)](https://github.com/AbdullahHendy/live-translation/actions/workflows/ci.yml)
+[![PyPI](https://img.shields.io/pypi/v/live-translation)](https://pypi.org/project/live-translation/)
+[![License](https://img.shields.io/github/license/AbdullahHendy/live-translation.svg)](https://github.com/AbdullahHendy/live-translation/blob/main/LICENSE)
+</br>
+![WebSocket](https://img.shields.io/badge/Protocol-WebSocket-brightgreen?logo=websocket)
+![Audio](https://img.shields.io/badge/Audio-16bit_PCM@16kHz-brightgreen?logo=sound)
+![Streaming](https://img.shields.io/badge/Streaming-Real--time-brightgreen?logo=livejournal)
+</br>
+[![Last Commit](https://img.shields.io/github/last-commit/AbdullahHendy/live-translation.svg)](https://github.com/AbdullahHendy/live-translation/commits/main)
+[![Issues](https://img.shields.io/github/issues/AbdullahHendy/live-translation)](https://github.com/AbdullahHendy/live-translation/issues)
+[![Stars](https://img.shields.io/github/stars/AbdullahHendy/live-translation?style=social)](https://github.com/AbdullahHendy/live-translation)
+</br>
+[![Code Style: ruff](https://img.shields.io/badge/code%20style-ruff-000000.svg)](https://github.com/AbdullahHendy/live-translation/blob/main/ruff.toml)
+</br>
+[![Client Examples](https://img.shields.io/badge/Client_Examples-Included-blueviolet?logo=github)](https://github.com/AbdullahHendy/live-translation/tree/main/examples)
+[![Node.js](https://img.shields.io/badge/Examples-Node.js-green?logo=node.js)](https://github.com/AbdullahHendy/live-translation/tree/main/examples/clients/nodejs)
+[![Browser JS](https://img.shields.io/badge/Examples-Browser_JS-yellow?logo=javascript)](https://github.com/AbdullahHendy/live-translation/tree/main/examples/clients/browser_js)
+[![C#](https://img.shields.io/badge/Examples-C%23-239120?logo=c-sharp&logoColor=white)](https://github.com/AbdullahHendy/live-translation/tree/main/examples/clients/csharpclient)
+[![Go](https://img.shields.io/badge/Examples-Go-00ADD8?logo=go)](https://github.com/AbdullahHendy/live-translation/tree/main/examples/clients/go_client)
+[![Kotlin/Android](https://img.shields.io/badge/Examples-Kotlin%2FAndroid-3DDC84?logo=kotlin&logoColor=white)](https://github.com/AbdullahHendy/live-translation/tree/main/examples/clients/android)
+</br>
+[![Powered by Opus-MT](https://img.shields.io/badge/Powered%20by-Opus--MT-blue)](https://huggingface.co/Helsinki-NLP)
+[![Powered by Whisper](https://img.shields.io/badge/Powered%20by-Whisper-green)](https://github.com/openai/whisper)
+[![Made with Python](https://img.shields.io/badge/Made%20with-Python-1f425f.svg)](https://www.python.org/)
+</div>
+
+---
 
 #### 🖥️🌍 Server-Client Demo
 
@@ -15,9 +38,12 @@ The program can be used both as a **command-line tool** or as a **Python API** i
   <img src="https://github.com/AbdullahHendy/live-translation/blob/main/doc/demo.gif?raw=true" alt="Server-Client Demo" />
 </a>
 
+---
+
 ## Architecture Overview
 <img src="https://github.com/AbdullahHendy/live-translation/blob/main/doc/live-translation-pipeline.png?raw=true" alt="Architecture Diagram" />
 
+---
 
 ## Features
 
@@ -33,16 +59,23 @@ The program can be used both as a **command-line tool** or as a **Python API** i
 - Designed for both:
   - Simple **CLI** usage (***live-translate-server***, ***live-translate-client***)
   - **Python API** usage (***LiveTranslationServer***, ***LiveTranslationClient***) with Asynchronous support for embedding in larger systems
+
+---
+
 ## Prerequisites
 
 Before running the project, you need to install the following system dependencies:
-
-- **PortAudio** (for audio input handling)
-- **FFmpeg** (for audio and video processing)
-    - On Ubuntu/Debian-based systems, you can install it with:
-      ```bash
-      sudo apt-get install portaudio19-dev ffmpeg
-      ```
+### **Debian**
+- [**PortAudio**](https://www.portaudio.com/) (for audio input handling)
+  ```bash
+  sudo apt-get install portaudio19-dev
+  ```
+### **MacOS**
+- [**PortAudio**](https://www.portaudio.com/) (for audio input handling)
+  ```bash
+  brew install portaudio
+  ```
+---
 
 ## Installation
 
@@ -62,6 +95,8 @@ pip install live-translation
 python -c "import live_translation; print(f'live-translation installed successfully\n{live_translation.__version__}')"
 ```
 
+---
+
 ## Usage
 
 > **NOTE**: One can safely ignore similar warnings that might appear on **Linux** systems when running the client as it tries to open the mic:
@@ -79,8 +114,17 @@ python -c "import live_translation; print(f'live-translation installed successfu
 > JackShmReadWritePtr::~JackShmReadWritePtr - Init not done for -1, skipping unlock
 >
 
-### CLI 
+### CLI
+* **demo** can be run directly from the command line:
+  > **NOTE**: This is a convenience demo cli tool to run both the **server** and the **client** with ***default*** configs. It should only be used for a quick demo. It's ***highly recommended*** to start a separate server and client for full customization as shown below.  
+  >
+  ```bash
+  live-translate-demo
+  ```
+
 * **server** can be run directly from the command line:
+  > **NOTE**: Running the server for the first time will download the required models in the **Cache** folder (e.g. `~/.cache` on linux). The downloading process in the first run might clutter the terminal view leading to scattered and unpredicted locations of the **initial server logs**. It is advised to rerun the server after all models finish downloading for better view of the **initial server logs**.
+  >
   ```bash
   live-translate-server [OPTIONS]
   ```
@@ -127,7 +171,7 @@ python -c "import live_translation; print(f'live-translation installed successfu
                             - 'print': Print each result to stdout.
                           Default is None (no logging).
     --ws_port WS_PORT     WebSocket port the of the server.
-                          Used to listen for client audio and publishe output (e.g., 8765).
+                          Used to listen for client audio and publish output (e.g., 8765).
     --transcribe_only     Transcribe only mode. No translations are performed.
     --version             Print version and exit.
   ```
@@ -149,16 +193,14 @@ python -c "import live_translation; print(f'live-translation installed successfu
     --version        Print version and exit.
   ```
 
-### API
+### Python API
 You can also import and use ***live_translation*** directly in your Python code.
 The following is ***simple*** examples of running ***live_translation***'s server and client in a **blocking** fashion.
 For more detailed examples showing **non-blocking** and **asynchronous** workflows, see [examples/](/examples/).
 
 > **NOTE**: The examples below assumes the ***live_translation*** package has been installed as shown in the [Installation](#installation).
 >
-> **NOTE**: One can run a provided example in [examples/](./examples/) as **`python -m examples.<example_name>`**. For example: **`python -m examples.magic_word`** 
-> Running the example this way from inside the repository assume a development environment has been set up, see [## Development & Contribution](#development--contribution) in the next section.
->
+> **NOTE**: To run a provided example using the ***Python API***, see instructions in the `./examples/` directory.
 
 - **Server**
   ```python
@@ -216,6 +258,38 @@ For more detailed examples showing **non-blocking** and **asynchronous** workflo
 
   ```
 
+### Non-Python Integration
+If you're writing a custom client or integrating this system into another application, you can interact with the server directly using the WebSocket protocol.
+### Protocol Overview
+
+The server listens on a WebSocket endpoint (default: `ws://localhost:8765`) and expects the client to:
+
+- **Send**: raw ***PCM*** audio in fixed-size chunks
+  - Format: 16-bit signed integer (`int16`)
+  - Sample Rate: 16,000 Hz
+  - Channels: Mono (1 channel)
+  - Chunk Size: 512 samples = 1024 bytes per message
+  - Each chunk should be sent immediately over the WebSocket
+
+- **Receive**: structured ***JSON*** messages with timestamp, transcription and translation fields
+  ```json
+  {
+    "timestamp": "2025-05-25T12:58:35.259085+00:00",
+    "transcription": "Good morning, I hope everyone's doing great.",
+    "translation": "Buenos días, espero que todo el mundo esté bien"
+  }
+
+### Client Examples
+For fully working examples in multiple languages, see the `./examples/clients` directory. 
+Available Examples:
+- **Node.js**
+- **Browser JS**
+- **Go**
+- **C#**
+- **Kotlin/Android**
+
+---
+
 ## Development & Contribution
 
 To contribute or modify this project, these steps might be helpful:
@@ -235,10 +309,10 @@ python -m venv .venv
 source .venv/bin/activate 
 ```
 
-**Install** Dependencies:
+**Install** the package and its dependencies in ***editable mode***:
 ```bash
 pip install --upgrade pip
-pip install -r requirements.txt
+pip install -e .[dev,examples]  # Install with optional examples dependencies
 ```
 
 **Test** the package:
@@ -254,15 +328,19 @@ make build
 
 > **NOTE**: Building generates a ***.whl*** file that can be ***pip*** installed in a new environment for testing
 
-**If needed**, run the server and the client within the virtual environment:
+**For quick testing**, run the server and the client within the virtual environment:
 ```bash
-python -m live_translation.server.cli [OPTIONS]
-python -m live_translation.client.cli [OPTIONS]
+live-translate-server [OPTIONS]
+live-translate-client [OPTIONS]
 ```
+> **NOTE**: Since the package was installed in editable mode, any changes will be reflected when the cli tools are run
+
 **For contribution**:
 - Make your changes in a feature branch
 - Ensure all tests pass
 - Open a Pull Request (PR) with a clear description of your changes
+
+---
 
 ## Tested Environment
 
@@ -278,9 +356,11 @@ This project was tested and developed on the following system configuration:
 - **CUDA Toolkit Version**: 12.1  
 - **cuDNN Version**: 9.7.1
 - **RAM**: 32GB DDR5
-- **Dependencies**: All required dependencies are listed in `requirements.txt` and [Prerequisites](#prerequisites)
+- **Dependencies**: All required dependencies are listed in `pyproject.toml` and [Prerequisites](#prerequisites)
 
-[^1]: CUDA as the `DEVICE` is probably needed for heavier models like `large-v3-turbo` for Whisper. **Nvidia drivers**, **CUDA Toolkit**, **cuDNN** installation needed if option `"cuda"` was to be used.
+[^1]: CUDA as the `DEVICE` is probably needed for heavier models like `large-v3-turbo` for Whisper. [**Nvidia drivers**](https://www.nvidia.com/drivers/), [**CUDA Toolkit**](https://developer.nvidia.com/cuda-downloads), [**cuDNN**](https://developer.nvidia.com/cudnn-downloads) installation needed if option `"cuda"` was to be used.
+
+---
 
 ## Improvements
 
@@ -289,6 +369,8 @@ This project was tested and developed on the following system configuration:
 - **Logging**: Integrate detailed logging to track system activity, errors, and performance metrics using a more formal logging framework.
 - **Translation Models**: Some of the models downloaded in ***Translator*** from [OpusMT's Hugging Face](https://huggingface.co/Helsinki-NLP) are not the best performing when compared with top models in [Opus-MT's Leaderboard](https://opus.nlpl.eu/dashboard/). Find a way to automatically download best performing models using the user's input of `src_lang` and `tgt_lang` as it's currently done. 
 - **System Profiling & Resource Guidelines**: Benchmark and document CPU, memory, and GPU usage across all multiprocessing components. For example, "~35% CPU usage on 24-core **Intel i9-13900HX**", or "GPU load ~20% on **Nvidia RTX 4070** with `large-v3-turbo` Whisper model"). This will help with hardware requirements and deployment decisions.
+
+---
 
 ## Citations
  ```bibtex

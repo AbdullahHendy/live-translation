@@ -113,7 +113,7 @@ class PipelineManager:
                 )
                 process.terminate()
 
-        print("✅ All processes stopped.")
+        print("✅ All server pipeline processes stopped.")
 
     def run(self):
         """Run the pipeline manager and handle shutdown signals."""

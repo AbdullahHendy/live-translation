@@ -5,6 +5,9 @@ build-backend = "setuptools.build_meta"
 [tool.setuptools.dynamic]
 version = {attr = "live_translation.__version__"}
 
+[tool.setuptools.packages.find]
+include = ["live_translation*"]
+
 [project]
 name = "live-translation"
 dynamic = ["version"]
@@ -15,6 +18,31 @@ authors = [
 license-files = ["LICENSE"]
 readme = "README.md"
 requires-python = ">=3.8"
+classifiers = [
+    "Development Status :: 4 - Beta",
+
+    "Intended Audience :: Developers",
+    "Intended Audience :: Education",
+    "Intended Audience :: Science/Research",
+
+    "Natural Language :: English",
+
+    "Topic :: Multimedia :: Sound/Audio :: Analysis",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Software Development :: Libraries",
+    "Topic :: Utilities",
+
+    "Environment :: Console",
+
+    "License :: OSI Approved :: MIT License",
+
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
 dependencies = [
     "torch==2.6.0",
     "torchaudio==2.6.0",
@@ -37,3 +65,21 @@ Repository = "https://github.com/AbdullahHendy/live-translation"
 [project.scripts]
 live-translate-server = "live_translation.server.cli:main"
 live-translate-client = "live_translation.client.cli:main"
+live-translate-demo = "live_translation.tools.demo:main"
+
+[project.optional-dependencies]
+dev = [
+    "psutil==7.0.0",
+    "ruff==0.11.1",
+    "pytest==8.3.5",
+    "pytest-cov==6.1.1",
+    "pytest-asyncio==0.25.3",
+    "soundfile==0.13.1",
+    "build==1.2.2.post1",
+    "twine==6.1.0"
+]
+
+examples = [
+    "opencv-python==4.11.0.86",
+    "pillow==11.2.1"
+]

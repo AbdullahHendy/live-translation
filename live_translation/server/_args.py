@@ -135,7 +135,7 @@ def get_args():
         default=8765,
         help=(
             "WebSocket port the of the server.\n"
-            "Used to listen for client audio and publishe output (e.g., 8765)."
+            "Used to listen for client audio and publish output (e.g., 8765)."
         ),
     )
 

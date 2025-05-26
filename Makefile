@@ -5,6 +5,7 @@ ACTIVATE = . $(VENV)/bin/activate
 
 # Paths
 TRANSCRIPTS_DIR = transcripts/
+COVERAGE_DIR = htmlcov/
 
 # Default target: build package
 all: build
@@ -12,19 +13,24 @@ all: build
 build: clean format lint
 	@echo "👨‍🔧 Building package..."
 	$(ACTIVATE) && $(PYTHON) -m build
-	@echo "✅ Build complete."
+	@echo "\033[0;32m✅ Build complete.\033[0m"
 
 # Run tests
 test:
-	@echo "🏃 Running tests..."
-	$(ACTIVATE) && $(PYTHON) -m pytest -rsv tests/
-	@echo "✅ Tests completed."
+	@echo "🏃 Running tests with coverage..."
+	$(ACTIVATE) && $(PYTHON) -m pytest \
+		--cov=live_translation \
+		--cov-report=term \
+		--cov-report=html \
+		--cov-report=xml \
+		-rsv tests/
+	@echo "\033[0;32m✅ Testing completed.\033[0m"
 
 # Publish package to PyPI (expects credentials in ~/.pypirc)
 publish: build
 	@echo "🚀 Uploading package to PyPI..."
 	$(ACTIVATE) && twine upload dist/*
-	@echo "✅ Publish complete."
+	@echo "\033[0;32m✅ Publish complete.\033[0m"
 
 # Format check (fails if code is not formatted)
 format:
@@ -40,9 +46,10 @@ lint:
 		(echo "\033[0;31mLinting failed. Run 'ruff check --fix .' to possibly fix the issues shown above.\033[0m" && exit 1)
 	@echo "\033[0;32m✅ Linting passed.\033[0m"
 
-# Clean up build artifacts and transcripts/
+# Clean up build artifacts and transcripts/ and test coverage files
 clean:
 	@echo "🧹 Cleaning up build artifacts..."
 	rm -rf dist/ build/ *.egg-info/
 	rm -rf $(TRANSCRIPTS_DIR)
-	@echo "✅ Cleanup complete."
+	rm -rf .coverage .coverage.* $(COVERAGE_DIR)
+	@echo "\033[0;32m✅ Cleanup complete.\033[0m"

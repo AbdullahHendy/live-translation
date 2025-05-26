@@ -17,7 +17,7 @@ class VoiceActivityDetector:
             The aggressiveness of the VAD model. The value is in [0, 9]
         """
         self._model, _ = torch.hub.load(
-            repo_or_dir="snakers4/silero-vad", model="silero_vad"
+            repo_or_dir="snakers4/silero-vad", model="silero_vad", trust_repo=True
         )
         self._aggressiveness = aggressiveness / 10
 

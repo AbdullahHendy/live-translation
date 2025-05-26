@@ -31,5 +31,5 @@ class LiveTranslationServer:
 
     def stop(self):
         """Stops the translation pipeline."""
-        print("🛑 Stopping live-translation...")
+        print("🛑 Stopping server...")
         self.pipeline_manager.stop()

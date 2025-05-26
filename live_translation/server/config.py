@@ -154,7 +154,11 @@ class Config:
         if self.DEVICE == "cuda" and not torch.cuda.is_available():
             raise ValueError(
                 "🚨 'cuda' device is not available. "
-                "Please use 'cpu' or check your CUDA installation."
+                "Please use 'cpu' or check your CUDA installation.\n"
+                "If on Windows and a `cuda` device is available, "
+                "reinstall pytorch using the command:\n"
+                "`pip install torch==2.6.0 torchaudio==2.6.0 --index-url "
+                "https://download.pytorch.org/whl/cu126`"
             )
 
         # Validate whisper model

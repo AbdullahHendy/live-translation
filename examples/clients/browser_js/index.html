@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>Live Translation Client</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            margin: 2rem;
+        }
+
+        button {
+            margin-right: 1rem;
+        }
+
+        #output {
+            margin-top: 2rem;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+
+<body>
+    <h2>🎤 Live Translation Client 🎤</h2>
+    <button id="start">Start</button>
+    <button id="stop" disabled>Stop</button>
+    <span id="status"></span>
+    <div id="output"></div>
+    <script type="module" src="./client.js"></script>
+</body>
+
+</html>
