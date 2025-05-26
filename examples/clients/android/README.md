@@ -24,7 +24,7 @@ Before running the project, you need to install the following system dependencie
 ## Installation
 
 ```bash
-cd examples/clients/go_client
+cd examples/clients/android
 ```
 Open this project, `android`, in **Android Studio** and let it sync the Gradle files.
 
@@ -40,3 +40,8 @@ Open this project, `android`, in **Android Studio** and let it sync the Gradle f
     > **NOTE**: **Extended Controls** is usually the `three dots (⋮)` above the emulator window 
     >
 - Run the app
+
+---
+
+## Security Notice
+This app enable `cleartext traffic` in the [**AndroidManifest.xml**](./app/src/main/AndroidManifest.xml) via `android:usesCleartextTraffic="true"`.
