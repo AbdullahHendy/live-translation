@@ -22,6 +22,7 @@
 [![Browser JS](https://img.shields.io/badge/Examples-Browser_JS-yellow?logo=javascript)](https://github.com/AbdullahHendy/live-translation/tree/main/examples/clients/browser_js)
 [![C#](https://img.shields.io/badge/Examples-C%23-239120?logo=c-sharp&logoColor=white)](https://github.com/AbdullahHendy/live-translation/tree/main/examples/clients/csharpclient)
 [![Go](https://img.shields.io/badge/Examples-Go-00ADD8?logo=go)](https://github.com/AbdullahHendy/live-translation/tree/main/examples/clients/go_client)
+[![Kotlin/Android](https://img.shields.io/badge/Examples-Kotlin%2FAndroid-3DDC84?logo=kotlin&logoColor=white)](https://github.com/AbdullahHendy/live-translation/tree/main/examples/clients/android)
 </br>
 [![Powered by Opus-MT](https://img.shields.io/badge/Powered%20by-Opus--MT-blue)](https://huggingface.co/Helsinki-NLP)
 [![Powered by Whisper](https://img.shields.io/badge/Powered%20by-Whisper-green)](https://github.com/openai/whisper)
@@ -279,11 +280,12 @@ The server listens on a WebSocket endpoint (default: `ws://localhost:8765`) and 
 
 ### Client Examples
 For fully working examples in multiple languages, see the `./examples/clients` directory. 
-Supported Examples:
+Available Examples:
 - **Node.js**
 - **Browser JS**
 - **Go**
 - **C#**
+- **Kotlin/Android**
 
 ---
 
