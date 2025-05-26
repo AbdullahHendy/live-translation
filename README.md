@@ -3,6 +3,7 @@
 # Live-Translation
 
 **A real-time speech-to-text translation system built on a modular server–client architecture.**
+
 [![Build](https://github.com/AbdullahHendy/live-translation/actions/workflows/ci.yml/badge.svg)](https://github.com/AbdullahHendy/live-translation/actions/workflows/ci.yml)
 [![PyPI](https://img.shields.io/pypi/v/live-translation)](https://pypi.org/project/live-translation/)
 [![License](https://img.shields.io/github/license/AbdullahHendy/live-translation.svg)](https://github.com/AbdullahHendy/live-translation/blob/main/LICENSE)
