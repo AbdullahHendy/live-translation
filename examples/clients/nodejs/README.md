@@ -4,6 +4,12 @@ Simple CLI client for sending microphone audio to the live-translation server ov
 
 ---
 
+<a href="../../../doc/nodejs.gif.gif.gif" target="_blank">
+  <img src="../../../doc/nodejs.gif" alt="Nodejs-Client Demo" />
+</a>
+
+---
+
 ## Features
 
 - Streams audio from the default system microphone

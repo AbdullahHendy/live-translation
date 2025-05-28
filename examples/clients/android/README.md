@@ -4,6 +4,12 @@ Simple andorid/kotlin app for sending microphone audio to the live-translation s
 
 ---
 
+<a href="../../../doc/android.gif" target="_blank">
+  <img src="../../../doc/android.gif" alt="Android-Client Demo" />
+</a>
+
+---
+
 ## Features
 
 - Streams audio from the default system microphone
