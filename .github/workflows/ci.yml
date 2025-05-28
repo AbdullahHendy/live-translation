@@ -6,6 +6,9 @@ on:
   pull_request:
     branches: ["**"]  # Trigger on all PRs
 
+permissions:
+  contents: read  # Minimally scoped permissions for GITHUB_TOKEN
+
 jobs:
   build:
     runs-on: ubuntu-24.04
