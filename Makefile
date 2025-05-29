@@ -51,5 +51,5 @@ clean:
 	@echo "🧹 Cleaning up build artifacts..."
 	rm -rf dist/ build/ *.egg-info/
 	rm -rf $(TRANSCRIPTS_DIR)
-	rm -rf .coverage .coverage.* $(COVERAGE_DIR)
+	rm -rf .coverage .coverage.* coverage.xml $(COVERAGE_DIR)
 	@echo "\033[0;32m✅ Cleanup complete.\033[0m"
