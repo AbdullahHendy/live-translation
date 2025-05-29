@@ -1,6 +1,7 @@
 # clinet/client.py
 
 import asyncio
+import time
 import websockets
 import pyaudio
 import json
@@ -41,7 +42,7 @@ class LiveTranslationClient:
             stream.stop_stream()
             stream.close()
             pa.terminate()
-            print("\n🛑 Audio streaming stopped.")
+            print("🛑 Audio streaming stopped.")
 
     async def _receive_output(
         self, websocket, callback, callback_args, callback_kwargs
@@ -71,6 +72,11 @@ class LiveTranslationClient:
                 try:
                     print(f"🌐 Connecting to {self.cfg.SERVER_URI}...")
                     async with websockets.connect(self.cfg.SERVER_URI) as websocket:
+                        # First thing to do is ping to check if the connection is alive.
+                        # This is useful to check if the server closed the connection in
+                        # the case of a second client trying to connect
+                        await websocket.ping()
+
                         print("✅ Connected to server.")
                         await asyncio.gather(
                             self._send_audio(websocket),
@@ -78,6 +84,10 @@ class LiveTranslationClient:
                                 websocket, callback, callback_args, callback_kwargs
                             ),
                         )
+
+                except websockets.ConnectionClosedError as e:
+                    print(f"🔌 Connection failed: {e.rcvd}.")
+                    return
                 except Exception as e:
                     print(f"🔌 Connection failed: {e}. Retrying in 2 seconds...")
                     await asyncio.sleep(2)
@@ -86,11 +96,21 @@ class LiveTranslationClient:
             try:
                 asyncio.run(_connect_loop())
             except KeyboardInterrupt:
-                pass
+                self.stop()
         else:
             return _connect_loop()
 
     def stop(self):
         """Request the client to stop streaming."""
+        if self._exit_requested:
+            # If already stopping, do nothing
+            # One use case is in examples/magic_word.py. stop() is called
+            # when the magic word is detected, then in the finally block causing stop()
+            # to be called again. The stop() in the finally block is needed in the case
+            # of KeyboardInterrupt.
+            return
         print("🛑 Stopping client...")
+        # Allow time for server to flush any remaining queues, preventing the scenario
+        # where a new client connects while the server is still flushing old queues.
+        time.sleep(2)
         self._exit_requested = True
