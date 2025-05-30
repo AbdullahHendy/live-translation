@@ -47,6 +47,15 @@ jobs:
         run: |
           make test
 
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          fail_ci_if_error: true
+          flags: unittests
+          name: codecov-live-translation
+          files: coverage.xml
+          verbose: true
+
       - name: Clean build artifacts
         run: |
           make clean

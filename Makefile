@@ -39,6 +39,7 @@ test:
 		--cov-report=term \
 		--cov-report=html \
 		--cov-report=xml \
+		--cov-fail-under=70 \
 		-rsv tests/
 	@echo "\033[0;32m✅ Testing completed.\033[0m"
 
