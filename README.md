@@ -299,7 +299,7 @@ Available Examples:
 To contribute or modify this project, these steps might be helpful:
 > **NOTE**: This workflow below is developed with Linux-based systems with typical build tools installed e.g. ***Make*** in mind. One might need to install ***Make*** and possibly other tools on other systems. However, one can still do things manually without ***Make***, for example, run test manually using `python -m pytest -s tests/` instead of `make test`. 
 > See **Makefile** for more details.
-
+>
 
 **Fork & Clone** the repository:
 ```bash
@@ -318,6 +318,10 @@ source .venv/bin/activate
 pip install --upgrade pip
 pip install -e .[dev,examples]  # Install with optional examples dependencies
 ```
+This is **equivalent** to:
+```bash
+make install
+```
 
 **Test** the package:
 ```bash
@@ -331,6 +335,11 @@ make build
 > **NOTE**: Building does ***lint*** and checks for ***formatting*** using [ruff](https://docs.astral.sh/ruff/). One can do that seprately using `make format` and `make lint`. For linting and formatting rules, see the [ruff config](https://github.com/AbdullahHendy/live-translation/blob/main/ruff.toml).
 
 > **NOTE**: Building generates a ***.whl*** file that can be ***pip*** installed in a new environment for testing
+
+**Check** more available ***make*** commands
+```bash
+make help
+```
 
 **For quick testing**, run the server and the client within the virtual environment:
 ```bash

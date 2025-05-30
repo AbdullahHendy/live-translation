@@ -22,6 +22,14 @@ jobs:
         with:
           python-version: "3.12"
 
+      - name: Cache pip
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/pyproject.toml') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
       - name: Install system dependencies
         run: |
           sudo apt-get update
@@ -29,25 +37,16 @@ jobs:
 
       - name: Install Python dependencies
         run: |
-          python -m pip install --upgrade pip
-          pip install .[dev]
+          make install EDITABLE=false INSTALL_EXTRAS=dev
 
-      - name: Check formatting with Ruff
+      - name: Build package (clean + format + lint)
         run: |
-          ruff format --check .
-
-      - name: Lint with Ruff
-        run: |
-          ruff check .
-
-      - name: Build package
-        run: |
-          python -m build
+          make build
 
       - name: Run tests
         run: |
-          python -m pytest -s tests/
+          make test
 
       - name: Clean build artifacts
         run: |
-          rm -rf dist/ build/ *.egg-info/ transcripts/
+          make clean
