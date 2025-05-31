@@ -4,6 +4,12 @@ Simple CLI Go client for sending microphone audio to the live-translation server
 
 ---
 
+<a href="https://github.com/AbdullahHendy/live-translation/blob/main/doc/go.gif?raw=true" target="_blank">
+  <img src="https://github.com/AbdullahHendy/live-translation/blob/main/doc/go.gif?raw=true" alt="Go-Client Demo" />
+</a>
+
+---
+
 ## Features
 
 - Streams audio from the default system microphone

@@ -17,6 +17,7 @@
 [![Stars](https://img.shields.io/github/stars/AbdullahHendy/live-translation?style=social)](https://github.com/AbdullahHendy/live-translation)
 </br>
 [![Code Style: ruff](https://img.shields.io/badge/code%20style-ruff-000000.svg)](https://github.com/AbdullahHendy/live-translation/blob/main/ruff.toml)
+[![codecov](https://codecov.io/gh/AbdullahHendy/live_translation/branch/main/graph/badge.svg)](https://codecov.io/gh/AbdullahHendy/live_translation)
 </br>
 [![Client Examples](https://img.shields.io/badge/Client_Examples-Included-blueviolet?logo=github)](https://github.com/AbdullahHendy/live-translation/tree/main/examples)
 [![Node.js](https://img.shields.io/badge/Examples-Node.js-green?logo=node.js)](https://github.com/AbdullahHendy/live-translation/tree/main/examples/clients/nodejs)
@@ -40,12 +41,15 @@
 
 ---
 
-## Architecture Overview
+## 👷🏼‍♂️ Architecture Overview
+
+***The diagram ommits finer details***
+
 <img src="https://github.com/AbdullahHendy/live-translation/blob/main/doc/live-translation-pipeline.png?raw=true" alt="Architecture Diagram" />
 
 ---
 
-## Features
+## ⭐ Features
 
 - Real-time speech capture using **PyAudio**
 - Voice Activity Detection (VAD) using **Silero** for more efficient processing
@@ -62,7 +66,7 @@
 
 ---
 
-## Prerequisites
+## 📜 Prerequisites
 
 Before running the project, you need to install the following system dependencies:
 ### **Debian**
@@ -77,7 +81,7 @@ Before running the project, you need to install the following system dependencie
   ```
 ---
 
-## Installation
+## 📥 Installation
 
 **(RECOMMENDED)**: install this package inside a virtual environment to avoid dependency conflicts.
 ```bash
@@ -97,7 +101,7 @@ python -c "import live_translation; print(f'live-translation installed successfu
 
 ---
 
-## Usage
+## 🚀 Usage
 
 > **NOTE**: One can safely ignore similar warnings that might appear on **Linux** systems when running the client as it tries to open the mic:
 >
@@ -196,11 +200,11 @@ python -c "import live_translation; print(f'live-translation installed successfu
 ### Python API
 You can also import and use ***live_translation*** directly in your Python code.
 The following is ***simple*** examples of running ***live_translation***'s server and client in a **blocking** fashion.
-For more detailed examples showing **non-blocking** and **asynchronous** workflows, see [examples/](/examples/).
+For more detailed examples showing **non-blocking** and **asynchronous** workflows, see [./examples/](https://github.com/AbdullahHendy/live-translation/tree/main/examples).
 
 > **NOTE**: The examples below assumes the ***live_translation*** package has been installed as shown in the [Installation](#installation).
 >
-> **NOTE**: To run a provided example using the ***Python API***, see instructions in the `./examples/` directory.
+> **NOTE**: To run a provided example using the ***Python API***, see instructions in the [./examples/](https://github.com/AbdullahHendy/live-translation/tree/main/examples) directory.
 
 - **Server**
   ```python
@@ -280,7 +284,8 @@ The server listens on a WebSocket endpoint (default: `ws://localhost:8765`) and 
   }
 
 ### Client Examples
-For fully working examples in multiple languages, see the `./examples/clients` directory. 
+For fully working, ***yet simple***, examples in multiple languages, see [./examples/clients](https://github.com/AbdullahHendy/live-translation/tree/main/examples/clients)
+To create more complex clients, look at the [python client](https://github.com/AbdullahHendy/live-translation/blob/main/live_translation/client/client.py) for guidance.  
 Available Examples:
 - **Node.js**
 - **Browser JS**
@@ -290,12 +295,12 @@ Available Examples:
 
 ---
 
-## Development & Contribution
+## 🤝 Development & Contribution
 
 To contribute or modify this project, these steps might be helpful:
 > **NOTE**: This workflow below is developed with Linux-based systems with typical build tools installed e.g. ***Make*** in mind. One might need to install ***Make*** and possibly other tools on other systems. However, one can still do things manually without ***Make***, for example, run test manually using `python -m pytest -s tests/` instead of `make test`. 
 > See **Makefile** for more details.
-
+>
 
 **Fork & Clone** the repository:
 ```bash
@@ -314,6 +319,10 @@ source .venv/bin/activate
 pip install --upgrade pip
 pip install -e .[dev,examples]  # Install with optional examples dependencies
 ```
+This is **equivalent** to:
+```bash
+make install
+```
 
 **Test** the package:
 ```bash
@@ -324,9 +333,14 @@ make test
 ```bash
 make build
 ```
-> **NOTE**: Building does ***lint*** and checks for ***formatting*** using [ruff](https://docs.astral.sh/ruff/). One can do that seprately using `make format` and `make lint`. For linting and formatting rules, see the [ruff config](/ruff.toml).
+> **NOTE**: Building does ***lint*** and checks for ***formatting*** using [ruff](https://docs.astral.sh/ruff/). One can do that seprately using `make format` and `make lint`. For linting and formatting rules, see the [ruff config](https://github.com/AbdullahHendy/live-translation/blob/main/ruff.toml).
 
 > **NOTE**: Building generates a ***.whl*** file that can be ***pip*** installed in a new environment for testing
+
+**Check** more available ***make*** commands
+```bash
+make help
+```
 
 **For quick testing**, run the server and the client within the virtual environment:
 ```bash
@@ -342,7 +356,7 @@ live-translate-client [OPTIONS]
 
 ---
 
-## Tested Environment
+## 🌱 Tested Environments
 
 This project was tested and developed on the following system configuration:
 
@@ -362,7 +376,7 @@ This project was tested and developed on the following system configuration:
 
 ---
 
-## Improvements
+## 📈 Improvements
 
 - **ARM64 Support**: Ensure support for ARM64 based systems.
 - **Concurrency Design Check**: Review and optimize the threading design to ensure thread safety and prevent issues like race conditions or deadlocks, etc., revisit the current design of ***WebSocketIO*** being a thread while ***AudioProcessor***, ***Transcriber***, and ***Translator*** being processes.
@@ -372,7 +386,7 @@ This project was tested and developed on the following system configuration:
 
 ---
 
-## Citations
+## 📚 Citations
  ```bibtex
   @article{Whisper,
     title = {Robust Speech Recognition via Large-Scale Weak Supervision},

@@ -25,6 +25,7 @@ class WebSocketIO(threading.Thread):
         self._stop_event = stop_event
         self._loop = None
         self._logger = OutputLogger(cfg) if cfg.LOG else None
+        self._connection_lock = asyncio.Lock()
 
     def run(self):
         self._loop = asyncio.new_event_loop()
@@ -39,41 +40,70 @@ class WebSocketIO(threading.Thread):
 
     async def _start_server(self):
         async def handler(websocket):
-            print("🔌 WebSocketIO: Client connected.")
-
-            async def receive_audio():
-                async for message in websocket:
-                    if isinstance(message, bytes):
-                        audio = np.frombuffer(message, dtype=np.int16)
-                        self._audio_queue.put(audio)
-
-            async def send_output():
-                while not self._stop_event.is_set():
-                    if not self._output_queue.empty():
-                        entry = self._output_queue.get()
-                        await websocket.send(json.dumps(entry, ensure_ascii=False))
-                        if self._logger:
-                            self._logger.write(entry)
-                    await asyncio.sleep(0.01)
-
-            async def heartbeat():
-                try:
-                    while not self._stop_event.is_set():
-                        await websocket.ping()
-                        await asyncio.sleep(5)
-                except websockets.ConnectionClosed:
-                    print("🔌 WebSocketIO: Client disconnected.")
-
-            try:
-                await asyncio.gather(
-                    receive_audio(),
-                    send_output(),
-                    heartbeat(),
+            if self._connection_lock.locked():
+                print("🔒 WebSocketIO: Rejecting extra client.")
+                await websocket.close(
+                    code=1008, reason="\033[91mOnly one client allowed!\033[0m"
                 )
-            except websockets.ConnectionClosedError as e:
-                print(f"🔌 WebSocketIO: Client disconnected with error: {e}")
-            except Exception as e:
-                print(f"🚨 WebSocketIO handler error: {e}")
+                return
+
+            async with self._connection_lock:
+                print("🔌 WebSocketIO: Client connected.")
+
+                async def receive_audio():
+                    try:
+                        async for message in websocket:
+                            if isinstance(message, bytes):
+                                audio = np.frombuffer(message, dtype=np.int16)
+                                self._audio_queue.put(audio)
+                    except Exception as e:
+                        print(f"🚨 WebSocketIO: receive_audio() error: {e}")
+
+                async def send_output():
+                    try:
+                        while not self._stop_event.is_set():
+                            if not self._output_queue.empty():
+                                entry = self._output_queue.get()
+                                try:
+                                    await websocket.send(
+                                        json.dumps(entry, ensure_ascii=False)
+                                    )
+                                    if self._logger:
+                                        self._logger.write(entry)
+                                except websockets.ConnectionClosed:
+                                    print(
+                                        "🚨 WebSocketIO: Trying to send output on "
+                                        "a closed connection"
+                                    )
+                                    break
+                            await asyncio.sleep(0.01)
+                    except Exception as e:
+                        print(f"🚨 WebSocketIO: send_output() error: {e}")
+
+                async def heartbeat():
+                    try:
+                        while not self._stop_event.is_set():
+                            await websocket.ping()
+                            await asyncio.sleep(5)
+                    except websockets.ConnectionClosed:
+                        print(
+                            "🔌 WebSocketIO: Client disconnected. Flushing all queues."
+                        )
+                        while not self._output_queue.empty():
+                            _ = self._output_queue.get()
+                        while not self._audio_queue.empty():
+                            _ = self._audio_queue.get()
+
+                try:
+                    await asyncio.gather(
+                        receive_audio(),
+                        send_output(),
+                        heartbeat(),
+                    )
+                except websockets.ConnectionClosedError as e:
+                    print(f"🔌 WebSocketIO: Client disconnected with error: {e}")
+                except Exception as e:
+                    print(f"🚨 WebSocketIO handler error: {e}")
 
         # Start the WebSocket server and log immediately after successful bind
         server = None
