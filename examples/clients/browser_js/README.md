@@ -4,8 +4,8 @@ Minimal browser-based client for sending microphone audio to the live-translatio
 
 ---
 
-<a href="../../../doc/browser_js.gif.gif" target="_blank">
-  <img src="../../../doc/browser_js.gif" alt="Browser-Client Demo" />
+<a href="https://github.com/AbdullahHendy/live-translation/blob/main/doc/browser_js.gif?raw=true" target="_blank">
+  <img src="https://github.com/AbdullahHendy/live-translation/blob/main/doc/browser_js.gif?raw=true" alt="Browser-Client Demo" />
 </a>
 
 ---

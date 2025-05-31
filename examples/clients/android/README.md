@@ -4,8 +4,8 @@ Simple andorid/kotlin app for sending microphone audio to the live-translation s
 
 ---
 
-<a href="../../../doc/android.gif" target="_blank">
-  <img src="../../../doc/android.gif" alt="Android-Client Demo" />
+<a href="https://github.com/AbdullahHendy/live-translation/blob/main/doc/android.gif?raw=true" target="_blank">
+  <img src="https://github.com/AbdullahHendy/live-translation/blob/main/doc/android.gif?raw=true" alt="Android-Client Demo" />
 </a>
 
 ---

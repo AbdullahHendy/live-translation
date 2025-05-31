@@ -4,8 +4,8 @@ Simple CLI C# client for sending microphone audio to the live-translation server
 
 ---
 
-<a href="../../../doc/csharp.gif.gif" target="_blank">
-  <img src="../../../doc/csharp.gif" alt="C#-Client Demo" />
+<a href="https://github.com/AbdullahHendy/live-translation/blob/main/doc/csharp.gif?raw=true" target="_blank">
+  <img src="https://github.com/AbdullahHendy/live-translation/blob/main/doc/csharp.gif?raw=true" alt="C#-Client Demo" />
 </a>
 
 ---

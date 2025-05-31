@@ -4,8 +4,8 @@ Simple CLI Go client for sending microphone audio to the live-translation server
 
 ---
 
-<a href="../../../doc/go.gif.gif" target="_blank">
-  <img src="../../../doc/go.gif" alt="Go-Client Demo" />
+<a href="https://github.com/AbdullahHendy/live-translation/blob/main/doc/go.gif?raw=true" target="_blank">
+  <img src="https://github.com/AbdullahHendy/live-translation/blob/main/doc/go.gif?raw=true" alt="Go-Client Demo" />
 </a>
 
 ---
