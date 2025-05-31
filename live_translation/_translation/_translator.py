@@ -37,13 +37,12 @@ class Translator(mp.Process):
         self._tokenizer = MarianTokenizer.from_pretrained(self._model_name)
 
     def run(self):
-        self.model = MarianMTModel.from_pretrained(
-            self._model_name, torch_dtype=torch.float32
-        ).to(self._cfg.DEVICE)
-
-        print("🌍 Translator: Ready to translate text...")
-
         try:
+            self.model = MarianMTModel.from_pretrained(
+                self._model_name, torch_dtype=torch.float32
+            ).to(self._cfg.DEVICE)
+            print("🌍 Translator: Ready to translate text...")
+
             while not (self._stop_event.is_set() and self._transcription_queue.empty()):
                 # Get transcription from the queue
                 try:
