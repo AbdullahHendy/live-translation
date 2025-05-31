@@ -17,7 +17,7 @@
 [![Stars](https://img.shields.io/github/stars/AbdullahHendy/live-translation?style=social)](https://github.com/AbdullahHendy/live-translation)
 </br>
 [![Code Style: ruff](https://img.shields.io/badge/code%20style-ruff-000000.svg)](https://github.com/AbdullahHendy/live-translation/blob/main/ruff.toml)
-[![codecov](https://codecov.io/gh/AbdullahHendy/live_translation/branch/main/graph/badge.svg)](https://codecov.io/gh/AbdullahHendy/live_translation)
+[![codecov](https://codecov.io/github/AbdullahHendy/live-translation/graph/badge.svg)](https://codecov.io/github/AbdullahHendy/live-translation)
 </br>
 [![Client Examples](https://img.shields.io/badge/Client_Examples-Included-blueviolet?logo=github)](https://github.com/AbdullahHendy/live-translation/tree/main/examples)
 [![Node.js](https://img.shields.io/badge/Examples-Node.js-green?logo=node.js)](https://github.com/AbdullahHendy/live-translation/tree/main/examples/clients/nodejs)
