@@ -37,13 +37,14 @@ class Transcriber(mp.Process):
     def run(self):
         """Load the Whisper model and transcribe audio segments."""
 
-        print("🔄 Transcriber: Loading Whisper model...")
-        self.whisper_model = WhisperModel(
-            self._cfg.WHISPER_MODEL, compute_type="float32", device=self._cfg.DEVICE
-        )
-        print("📝 Transcriber: Ready to transcribe audio...")
         self._stop_event = self._stop_event
         try:
+            print("🔄 Transcriber: Loading Whisper model...")
+            self.whisper_model = WhisperModel(
+                self._cfg.WHISPER_MODEL, compute_type="float32", device=self._cfg.DEVICE
+            )
+            print("📝 Transcriber: Ready to transcribe audio...")
+
             while not (self._stop_event.is_set() and self._audio_queue.empty()):
                 # Get audio segment from the queue
                 try:
@@ -73,7 +74,7 @@ class Transcriber(mp.Process):
                 except Exception as e:
                     print(f"🚨 Transcriber Error: {e}")
         except Exception as e:
-            print(f"❌ Critical Transcriber Error: {e}")
+            print(f"🚨 Critical Transcriber Error: {e}")
         except KeyboardInterrupt:
             pass
         finally:
