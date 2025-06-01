@@ -47,3 +47,26 @@ def test_logger_file():
     assert last["translation"] == "Hola"
 
     os.remove(path)
+
+
+def test_logger_skip_file_when_log_none(tmp_path):
+    cfg = Config(log=None)
+
+    class TempLogger(OutputLogger):
+        def _next_available_path(self, directory="transcripts"):
+            # Redirect to tmp_path instead of real transcripts/ to avoid conflicts
+            # with possible existing transcripts/ directory.
+            return tmp_path / "transcript_test.jsonl"
+
+    logger = TempLogger(cfg)
+
+    entry = {
+        "timestamp": "2025-04-10T00:00:00Z",
+        "transcription": "Hello",
+        "translation": "Hola",
+    }
+
+    logger.write(entry)
+    logger.close()
+    print("temp_path:", tmp_path)
+    assert not any(tmp_path.iterdir()), "Logger should not write when log=None"

@@ -43,3 +43,11 @@ def test_vad_detects_silence(vad, real_silence):
     """Test if VAD detects silence correctly."""
     result = vad.is_speech(real_silence, sample_rate=16000)
     assert result is False, "VAD should detect silence"
+
+
+def test_vad_non_float32(vad):
+    """Ensure VAD raises ValueError if input is not float32."""
+    fake_audio = np.zeros(512, dtype=np.int16)  # wrong dtype
+
+    with pytest.raises(ValueError, match="must be of type float32"):
+        vad.is_speech(fake_audio, sample_rate=16000)
