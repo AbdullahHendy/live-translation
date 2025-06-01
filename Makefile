@@ -37,13 +37,15 @@ build: clean format lint
 	@echo "\033[0;32m✅ Build complete.\033[0m"
 
 # Run tests
+# Continue of faliure for coverage report to allow for html generation for debugging.
+# coverage xml will fail if coverage threshold is not met anyways.
 test:
 	@echo "🏃 Running tests with coverage..."
 	$(COVERAGE) run -m pytest -rsv tests/
 	$(COVERAGE) combine
+	-$(COVERAGE) report -m
 	$(COVERAGE) html
 	$(COVERAGE) xml
-	$(COVERAGE) report -m
 	@echo "\033[0;32m✅ Testing completed.\033[0m"
 
 # Publish package to PyPI (expects credentials in ~/.pypirc)
