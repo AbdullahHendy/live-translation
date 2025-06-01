@@ -21,7 +21,7 @@ def test_config_rejects_invalid_uri():
         Config(server_uri="http://localhost:8765")
 
 
-def test_config_fields_are_immutable(config):
+def test_config_immutable_fields(config):
     """Ensure critical audio config fields cannot be modified."""
     with pytest.raises(AttributeError):
         config.SAMPLE_RATE = 8000

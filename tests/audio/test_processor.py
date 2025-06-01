@@ -1,3 +1,4 @@
+from unittest import mock
 import pytest
 import numpy as np
 import wave
@@ -64,11 +65,17 @@ def test_audio_processor_pipeline(
     processor = AudioProcessor(audio_queue, processed_queue, stop_event, config)
     processor.start()
 
-    timeout = 20
+    timeout = 25  # Audio file 'sample_long.wav' is about 17 seconds long
     poll_interval = 0.1
     waited = 0
 
-    while processed_queue.qsize() == 0 and waited < timeout:
+    # Allow for the whole audio to be processed (audio_queue must be empty)
+    # This allows for coverage of more complex scenarios like silence detection and
+    # trimming long buffers.
+    # The test sample has more than SILENCE_THRESHOLD towards the end for silence
+    # detection coverage.
+    # The test sample has more than MAX_BUFFER_DURATION for buffer trimming coverage.
+    while (not audio_queue.empty() or processed_queue.empty()) and waited < timeout:
         time.sleep(poll_interval)
         waited += poll_interval
 
@@ -87,3 +94,38 @@ def test_audio_processor_pipeline(
     assert (
         isinstance(processed_data, np.ndarray) and processed_data.dtype == np.float32
     ), "Processed audio format is incorrect!"
+
+
+def test_audio_processor_empty_queue(audio_queue, processed_queue, stop_event, config):
+    """Test processor with an empty audio queue."""
+    processor = AudioProcessor(audio_queue, processed_queue, stop_event, config)
+    processor.start()
+
+    # Allow some time for the processor to run so that it gets to the point of checking
+    # the empty queue to cover the `except queue.Empty:` case in the processor code.
+    time.sleep(5)
+
+    stop_event.set()
+    processor.join(timeout=3)
+    processor._cleanup()
+
+    if processor.is_alive():
+        processor.terminate()
+
+    assert processed_queue.empty(), "Processed queue should be empty for no input"
+
+
+def test_audio_processor_cleanup_exception(capfd):
+    """Test _cleanup handles exceptions during queue close."""
+    config = Config()
+    processor = AudioProcessor(None, None, None, config)
+
+    # Replace processed_queue with a mock that raises on close
+    processor._processed_queue = mock.Mock()
+    processor._processed_queue.close.side_effect = RuntimeError("fail on close")
+
+    # Should not raise
+    processor._cleanup()
+
+    out, _ = capfd.readouterr()
+    assert "🚨 AudioProcessor Cleanup Error: fail on close" in out

@@ -1,65 +1,116 @@
-import subprocess
-import psutil
-import select
+# tests/server/test_server_cli.py
 
-CLI_COMMAND = ["python", "-u", "-m", "live_translation.server.cli"]
-
-
-def test_cli_help():
-    """Test if `live_translation.cli` runs with --help."""
-    result = subprocess.run(CLI_COMMAND + ["--help"], capture_output=True, text=True)
-
-    assert result.returncode == 0, "CLI command failed."
-    assert "usage:" in result.stdout.lower(), "CLI command help not found."
+import pytest
+from unittest import mock
+from live_translation.server import cli
+from live_translation import __version__ as package_version
 
 
-def test_cli_invalid_argument():
-    """Test invalid CLI argument handling."""
-    result = subprocess.run(CLI_COMMAND + ["--invalid"], capture_output=True, text=True)
+def test_server_cli_prints_version(monkeypatch, capsys):
+    monkeypatch.setattr("sys.argv", ["server", "--version"])
+    cli.main()
+    out, _ = capsys.readouterr()
+    assert f"live-translate-server  {package_version}" in out
 
-    assert result.returncode != 0, "CLI command should fail."
-    assert "unrecognized arguments" in result.stderr.lower(), (
-        "Invalid argument error not found."
+
+def test_server_cli_runs_with_defaults(monkeypatch):
+    """Test CLI runs with default and required args."""
+    monkeypatch.setattr(
+        "sys.argv",
+        [
+            "server",
+            "--whisper_model",
+            "base",
+            "--trans_model",
+            "Helsinki-NLP/opus-mt",
+            "--src_lang",
+            "en",
+            "--tgt_lang",
+            "es",
+            "--log",
+            "print",
+        ],
     )
 
+    with mock.patch("live_translation.server.cli.LiveTranslationServer") as MockServer:
+        instance = MockServer.return_value
+        cli.main()
+        instance.run.assert_called_once()
 
-def test_cli_real_execution():
-    """Test CLI execution."""
-    process = subprocess.Popen(
-        CLI_COMMAND,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.STDOUT,  # Combine stderr for full output
-        text=True,
-        bufsize=1,
+
+def test_server_cli_with_all_args(monkeypatch):
+    """Test CLI with all arguments explicitly set."""
+    monkeypatch.setattr(
+        "sys.argv",
+        [
+            "server",
+            "--device",
+            "cpu",
+            "--whisper_model",
+            "tiny",
+            "--trans_model",
+            "Helsinki-NLP/opus-mt-tc-big",
+            "--src_lang",
+            "fr",
+            "--tgt_lang",
+            "de",
+            "--log",
+            "file",
+            "--ws_port",
+            "8888",
+            "--silence_threshold",
+            "40",
+            "--vad_aggressiveness",
+            "5",
+            "--max_buffer_duration",
+            "10",
+            "--transcribe_only",
+        ],
     )
 
-    timeout = 20
-    poll_interval = 0.1
-    waited = 0
-    found = False
+    with mock.patch("live_translation.server.cli.LiveTranslationServer") as MockServer:
+        instance = MockServer.return_value
+        cli.main()
+        instance.run.assert_called_once()
 
-    try:
-        while not found and waited < timeout:
-            ready, _, _ = select.select([process.stdout], [], [], poll_interval)
-            if ready:
-                line = process.stdout.readline()
-                if line:
-                    if "🚀 Starting the pipeline..." in line:
-                        found = True
-                        break
-            waited += poll_interval
 
-        assert found, "CLI didn't start properly"
+def test_server_cli_help(monkeypatch, capsys):
+    monkeypatch.setattr("sys.argv", ["server", "--help"])
+    with pytest.raises(SystemExit):
+        cli.main()
+    out, _ = capsys.readouterr()
+    assert "usage:" in out
+    assert "--silence_threshold" in out
+    assert "--vad_aggressiveness" in out
+    assert "--max_buffer_duration" in out
+    assert "--device" in out
+    assert "--whisper_model" in out
+    assert "--trans_model" in out
+    assert "--src_lang" in out
+    assert "--tgt_lang" in out
+    assert "--log" in out
+    assert "--ws_port" in out
+    assert "--transcribe_only" in out
+    assert "--version" in out
 
-    finally:
-        try:
-            parent = psutil.Process(process.pid)
-            for child in parent.children(recursive=True):
-                child.terminate()
-            process.terminate()
-            process.wait(timeout=5)
-        except Exception as e:
-            print(f"⚠️ Process cleanup failed: {e}")
 
-        if process.stdout:
-            process.stdout.close()
+def test_server_cli_invalid_choice(monkeypatch):
+    """Test invalid choice for --device raises a SystemExit."""
+    monkeypatch.setattr(
+        "sys.argv",
+        [
+            "server",
+            "--device",
+            "invalid",  # not in ["cpu", "cuda"]
+            "--whisper_model",
+            "base",
+            "--trans_model",
+            "Helsinki-NLP/opus-mt",
+            "--src_lang",
+            "en",
+            "--tgt_lang",
+            "es",
+        ],
+    )
+    with pytest.raises(SystemExit):
+        cli.main()

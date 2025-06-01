@@ -1,3 +1,4 @@
+from unittest import mock
 import pytest
 from live_translation.server.config import Config
 
@@ -51,6 +52,16 @@ def test_config_modifiable_attributes():
     assert cfg.TRANSCRIBE_ONLY is True
 
 
+def test_config_immutable_defaults():
+    cfg = Config()
+    assert cfg.CHUNK_SIZE == 512
+    assert cfg.SAMPLE_RATE == 16000
+    assert cfg.CHANNELS == 1
+    assert cfg.ENQUEUE_THRESHOLD == 1
+    assert cfg.TRIM_FACTOR == 0.75
+    assert cfg.SOFT_SILENCE_THRESHOLD == 16
+
+
 def test_config_immutable_attributes():
     """Test if immutable attributes remain unchanged."""
     cfg = Config()
@@ -69,13 +80,49 @@ def test_config_validate():
     invalid_configs = [
         {"device": "gpu"},
         {"whisper_model": "super"},
+        # transcibe_only=True to avoid early ValueError on RepositoryNotFoundError
+        {"trans_model": "Helsinki-NLP/random", "transcribe_only": True},
         {"trans_model": "Helsinki-NLP/random"},
         {"log": "random"},
         {"vad_aggressiveness": 10},
         {"max_buffer_duration": 4},
+        {"silence_threshold": 10},
     ]
 
     for config in invalid_configs:
         with pytest.raises(ValueError):
             # Try to instantiate Config with the invalid configuration
             Config(**config)
+
+
+def test_config_invalid_ws_port():
+    with pytest.raises(ValueError, match="WebSocket port is required"):
+        Config(ws_port=None)
+
+
+def test_config_cuda_not_available(monkeypatch):
+    monkeypatch.setattr("torch.cuda.is_available", lambda: False)
+    with pytest.raises(ValueError, match="cuda' device is not available"):
+        Config(device="cuda")
+
+
+def test_config_transcribe_only_skips_model_check():
+    """Ensure _validate skips Hugging Face check when transcribe_only=True"""
+    # patch hf_hub.model_info to explode if called (to prove it's skipped)
+    with mock.patch(
+        "huggingface_hub.model_info", side_effect=RuntimeError("should not be called")
+    ):
+        Config(transcribe_only=True)
+
+
+def test_general_exception():
+    with mock.patch(
+        "live_translation.server.config.hf_hub.model_info"
+    ) as mock_model_info:
+        mock_model_info.side_effect = Exception("network timeout")
+
+        with pytest.raises(
+            ValueError,
+            match="🚨 An error when verifying the translation model: network timeout",
+        ):
+            Config(transcribe_only=False)
