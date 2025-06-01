@@ -9,9 +9,12 @@ def test_server_initialization():
     assert isinstance(server.pipeline_manager, object)
 
 
+@mock.patch("torch.cuda.is_available", return_value=True)
 @mock.patch("multiprocessing.set_start_method")
 @mock.patch("live_translation.server.server.PipelineManager")
-def test_server_set_spawn_on_cuda(MockPipelineManager, mock_set_start_method):
+def test_server_set_spawn_on_cuda(
+    MockPipelineManager, mock_set_start_method, mock_cuda_available
+):
     cfg = Config(device="cuda")
 
     server = LiveTranslationServer(cfg)
