@@ -37,7 +37,7 @@ build: clean format lint
 	@echo "\033[0;32m✅ Build complete.\033[0m"
 
 # Run tests
-# Continue of faliure for coverage report to allow for html generation for debugging.
+# Continue of failure for coverage report to allow for html generation for debugging.
 # coverage xml will fail if coverage threshold is not met anyways.
 test:
 	@echo "🏃 Running tests with coverage..."
