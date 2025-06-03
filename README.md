@@ -144,10 +144,10 @@ python -c "import live_translation; print(f'live-translation installed successfu
   options:
     -h, --help            show this help message and exit
     --silence_threshold SILENCE_THRESHOLD
-                          Number of consecutive 32ms silent chunks to detect SILENCE.
+                          Number of consecutive seconds to detect SILENCE.
                           SILENCE clears the audio buffer for transcription/translation.
-                          NOTE: Minimum value is 16.
-                          Default is 65 (~ 2s).
+                          NOTE: Minimum value is 1.5.
+                          Default is 2.
     --vad_aggressiveness {0,1,2,3,4,5,6,7,8,9}
                           Voice Activity Detection (VAD) aggressiveness level (0-9).
                           Higher values mean VAD has to be more confident to detect speech vs silence.

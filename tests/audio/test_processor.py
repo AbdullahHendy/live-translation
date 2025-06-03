@@ -129,3 +129,15 @@ def test_audio_processor_cleanup_exception(capfd):
 
     out, _ = capfd.readouterr()
     assert "🚨 AudioProcessor Cleanup Error: fail on close" in out
+
+
+def test_audio_processor_seconds_to_chunks(config):
+    """Test that seconds-to-chunks conversion is accurate."""
+    processor = AudioProcessor(None, None, None, config)
+
+    config._CHUNK_SIZE = 512
+    config._SAMPLE_RATE = 16000
+    seconds = 1
+    expected_chunks = int(round(seconds / (512 / 16000)))
+    actual_chunks = processor._seconds_to_chunks(seconds)
+    assert actual_chunks == expected_chunks

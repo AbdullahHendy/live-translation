@@ -43,9 +43,10 @@ class Config:
         ws_port (int): Server WebSocket port.
             Default is 8765.
 
-        silence_threshold (int): Number of consecutive 32ms silent chunks to
-            detect SILENCE. SILENCE clears the audio buffer for
-            transcription/translation. Default is 65 (~ 2s).
+        silence_threshold (int): Number of consecutive seconds to detect SILENCE.
+            SILENCE clears the audio buffer for transcription/translation.
+            NOTE: The minimum value is 1.5.
+            Default is 2.
 
         vad_aggressiveness (int): Voice Activity Detection (VAD) aggressiveness
             level (0-9). Higher values mean VAD has to be more confident to
@@ -67,7 +68,7 @@ class Config:
         tgt_lang: str = "es",
         log: str = None,
         ws_port: int = 8765,
-        silence_threshold: int = 65,
+        silence_threshold: float = 2,
         vad_aggressiveness: int = 8,
         max_buffer_duration: int = 7,
         transcribe_only: bool = False,
@@ -91,8 +92,7 @@ class Config:
         # Soft silence threshold to detect the end of short speech that might
         # not have exceeded ENQUEUE_THRESHOLD. For example, the end of speech
         # or a short speech segment like "yes" or "no".
-        # 16 * 32ms ~ 0.5s
-        self._SOFT_SILENCE_THRESHOLD = 16
+        self._SOFT_SILENCE_THRESHOLD = 0.5  # seconds
 
         # Mutable Settings
         self.DEVICE = device
@@ -130,10 +130,10 @@ class Config:
                     f"🚨 An error when verifying the translation model: {str(e)}"
                 )
 
-        # Validate silence_threshold (must be greater than 16)
-        if self.SILENCE_THRESHOLD <= 16:
+        # Validate silence_threshold (must be greater than or equal 1.5)
+        if self.SILENCE_THRESHOLD < 1.5:
             raise ValueError(
-                "🚨 'silence_threshold' must be greater than 16 (~ 0.5s). "
+                "🚨 'silence_threshold' must be greater than or equal 1.5s. "
             )
 
         # Validate vad_aggressiveness (must be within the range 0-9)
