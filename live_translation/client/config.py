@@ -12,12 +12,15 @@ class Config:
 
     """
 
-    def __init__(self, server_uri: str):
+    def __init__(self, server_uri: str, codec: str = "opus"):
         # Required
         self.SERVER_URI = server_uri
 
+        # Optional
+        self.CODEC = codec
+
         # Immutable audio settings (must match server)
-        self._CHUNK_SIZE = 512  # ~32ms of audio
+        self._CHUNK_SIZE = 640  # 40 ms of audio at 16 kHz
         self._SAMPLE_RATE = 16000  # Hz
         self._CHANNELS = 1  # Mono
 
@@ -33,6 +36,9 @@ class Config:
             self.SERVER_URI.startswith("ws://") or self.SERVER_URI.startswith("wss://")
         ):
             raise ValueError("🚨 'server_uri' must start with 'ws://' or 'wss://'")
+
+        if self.CODEC not in ["pcm", "opus"]:
+            raise ValueError("🚨 'codec' must be either 'pcm' or 'opus'. ")
 
     @property
     def CHUNK_SIZE(self):

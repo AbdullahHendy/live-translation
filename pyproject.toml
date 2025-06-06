@@ -53,6 +53,7 @@ dependencies = [
     "sacremoses==0.1.1",
     "faster-whisper==1.1.1",
     "sentencepiece==0.2.0",
+    "opuslib==3.0.1",
 ]
 keywords = ["translation", "transcription", "speech-to-text", "real-time translation", "whisper", "marianMT", "Opus-MT", "live transcription"]
 

@@ -6,6 +6,7 @@ import websockets
 import pyaudio
 import json
 from .config import Config
+from .._audio._codec import OpusCodec
 
 
 class LiveTranslationClient:
@@ -18,6 +19,7 @@ class LiveTranslationClient:
 
     def __init__(self, cfg: Config):
         self.cfg = cfg
+        self.opus = OpusCodec(self.cfg) if self.cfg.CODEC == "opus" else None
         self._exit_requested = False
 
     async def _send_audio(self, websocket):
@@ -34,6 +36,13 @@ class LiveTranslationClient:
         try:
             while not self._exit_requested:
                 data = stream.read(self.cfg.CHUNK_SIZE, exception_on_overflow=False)
+                # If using Opus codec, encode the audio data from PCM to Opus format
+                if self.opus:
+                    try:
+                        data = self.opus.encode(data)
+                    except Exception as e:
+                        print(f"🚨 Opus encoding error: {e}")
+
                 await websocket.send(data)
                 await asyncio.sleep(0.01)
         except Exception as e:

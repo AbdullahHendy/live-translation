@@ -63,7 +63,7 @@ class AudioProcessor(mp.Process):
                 - Reset the buffer (since speech has clearly stopped).
                 - Reset `last_sent_len` and `silence_chunks_count`.
         """
-        self._vad = VoiceActivityDetector(self._cfg.VAD_AGGRESSIVENESS)
+        self._vad = VoiceActivityDetector(self._cfg)
         silence_chunks_count = 0  # Track consecutive silence
         last_sent_len = 0  # Track last enqueue position
         # Track the buffer start length to calculate buffer duration from
@@ -81,7 +81,7 @@ class AudioProcessor(mp.Process):
                 audio_data_f32 = self._int2float(audio_data)
 
                 # Run _VAD
-                has_speech = self._vad.is_speech(audio_data_f32, self._cfg.SAMPLE_RATE)
+                has_speech = self._vad.is_speech(audio_data_f32)
 
                 if has_speech:
                     silence_chunks_count = 0

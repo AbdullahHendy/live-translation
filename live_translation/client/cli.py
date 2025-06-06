@@ -19,7 +19,7 @@ def main():
         print("live-translate-client ", package_version)
         return
 
-    cfg = Config(server_uri=args.server)
+    cfg = Config(server_uri=args.server, codec=args.codec)
     client = LiveTranslationClient(cfg)
 
     client.run(callback=print_output)

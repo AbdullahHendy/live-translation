@@ -47,6 +47,17 @@ def get_args():
         ),
     )
 
+    parser.add_argument(
+        "--codec",
+        type=str,
+        choices=["pcm", "opus"],
+        default="opus",
+        help=(
+            "Audio codec for WebSocket communication ('pcm', 'opus').\n"
+            "Default is 'opus'."
+        ),
+    )
+
     # Models Settings
     parser.add_argument(
         "--device",

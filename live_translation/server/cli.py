@@ -28,6 +28,7 @@ def main():
         vad_aggressiveness=args.vad_aggressiveness,
         max_buffer_duration=args.max_buffer_duration,
         transcribe_only=args.transcribe_only,
+        codec=args.codec,
     )
 
     # Run the app with the CLI configuration

@@ -57,6 +57,9 @@ class Config:
 
         transcribe_only (bool): Whether to only transcribe without translation.
             If set, no translations are performed.
+
+        codec (str): Audio codec for WebSocket communication ('pcm', 'opus').
+            Default is 'pcm'.
     """
 
     def __init__(
@@ -72,6 +75,7 @@ class Config:
         vad_aggressiveness: int = 8,
         max_buffer_duration: int = 7,
         transcribe_only: bool = False,
+        codec: str = "opus",
     ):
         """
         Initialize the configuration.
@@ -79,7 +83,7 @@ class Config:
 
         # Immutable Settings
         # Audio Settings, not all are modifiable for now
-        self._CHUNK_SIZE = 512  # 32 ms of audio at 16 kHz
+        self._CHUNK_SIZE = 640  # 40 ms of audio at 16 kHz
         self._SAMPLE_RATE = 16000  # 16 kHz
         self._CHANNELS = 1  # Mono
         # Audio Processing Settings, not modifiable for now
@@ -106,6 +110,7 @@ class Config:
         self.VAD_AGGRESSIVENESS = vad_aggressiveness
         self.MAX_BUFFER_DURATION = max_buffer_duration
         self.TRANSCRIBE_ONLY = transcribe_only
+        self.CODEC = codec
 
         # Validate
         self._validate()
@@ -198,6 +203,10 @@ class Config:
                 "🚨 WebSocket port is required. "
                 "Please specify the port using the '--ws_port' argument."
             )
+
+        # Validate codec
+        if self.CODEC not in ["pcm", "opus"]:
+            raise ValueError("🚨 'codec' must be one of the following: 'pcm', 'opus'. ")
 
     @property
     def CHUNK_SIZE(self):
