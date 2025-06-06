@@ -1,6 +1,5 @@
-import asyncio
 import pytest
-from unittest import mock
+from unittest.mock import AsyncMock, patch, MagicMock
 from live_translation.client.client import LiveTranslationClient
 from live_translation.client.config import Config
 
@@ -21,7 +20,7 @@ async def test_receive_output_callback_exit(config):
     ]
 
     # Mock websocket that simulates receiving messages
-    mock_websocket = mock.AsyncMock()
+    mock_websocket = AsyncMock()
     mock_websocket.__aiter__.return_value = iter(messages)
 
     called_entries = []
@@ -53,7 +52,7 @@ async def test_receive_output_callback_with_args_kwargs():
     ]
 
     # Mock websocket that behaves like async iterable
-    mock_websocket = mock.AsyncMock()
+    mock_websocket = AsyncMock()
     mock_websocket.__aiter__.return_value = iter(messages)
 
     received = []
@@ -91,7 +90,7 @@ async def test_receive_output_handles_json_error(config):
         '{"transcription": "again", "translation": "otra vez"}',
     ]
 
-    mock_websocket = mock.AsyncMock()
+    mock_websocket = AsyncMock()
     mock_websocket.__aiter__.return_value = iter(messages)
 
     seen = []
@@ -107,38 +106,109 @@ async def test_receive_output_handles_json_error(config):
 
 
 @pytest.mark.asyncio
-async def test_send_audio_streams_once(monkeypatch):
-    """Test that audio is read and sent once from the microphone."""
+async def test_send_audio_streams_once():
+    """Test that audio is read and sent once from the microphone when using PCM."""
 
-    # Setup client with a test config
-    cfg = Config(server_uri="ws://localhost:8764", codec="pcm")
-    client = LiveTranslationClient(cfg)
-
-    # Trick to force early exit after 1 send (not the main use case of _exit_requested)
-    client._exit_requested = False
-
-    async def stop_after_delay():
-        await asyncio.sleep(0.02)
-        client._exit_requested = True
-
-    # Mock PyAudio and stream
-    mock_stream = mock.MagicMock()
+    # Set up mocks
+    mock_stream = MagicMock()
     mock_stream.read.return_value = b"fake-audio-bytes"
 
-    mock_pa = mock.MagicMock()
+    mock_pa = MagicMock()
     mock_pa.open.return_value = mock_stream
 
-    monkeypatch.setattr("pyaudio.PyAudio", lambda: mock_pa)
+    mock_websocket = AsyncMock()
 
-    # Mock websocket to collect what was sent
-    mock_websocket = mock.AsyncMock()
+    # Patch before client instantiation
+    with patch("pyaudio.PyAudio", return_value=mock_pa):
+        cfg = Config(server_uri="ws://localhost:8764", codec="pcm")
+        client = LiveTranslationClient(cfg)
 
-    asyncio.create_task(stop_after_delay())
+        # Force early exit after first send
+        async def send_side_effect(data):
+            client._exit_requested = True
+            return None
 
-    # Method under test
-    await client._send_audio(mock_websocket)
+        mock_websocket.send.side_effect = send_side_effect
 
-    # Assert audio was read
-    mock_stream.read.assert_called()
-    # Assert something was sent over websocket
-    mock_websocket.send.assert_called_with(b"fake-audio-bytes")
+        await client._send_audio(mock_websocket)
+
+    # Assertions
+    mock_stream.read.assert_called_once()
+    mock_websocket.send.assert_called_once_with(b"fake-audio-bytes")
+
+
+@pytest.mark.asyncio
+async def test_send_audio_opus_encoding():
+    """Test that Opus codec is used and encode() is called when codec is 'opus'."""
+
+    # Setup mocks
+    mock_codec = MagicMock()
+    mock_codec.encode.return_value = b"encoded-audio"
+
+    mock_stream = MagicMock()
+    mock_stream.read.return_value = b"pcm-audio"
+
+    mock_pa = MagicMock()
+    mock_pa.open.return_value = mock_stream
+
+    mock_websocket = AsyncMock()
+
+    # Patch OpusCodec and PyAudio before instantiation
+    with (
+        patch("live_translation.client.client.OpusCodec", return_value=mock_codec),
+        patch("pyaudio.PyAudio", return_value=mock_pa),
+    ):
+        cfg = Config(server_uri="ws://localhost:8765", codec="opus")
+        client = LiveTranslationClient(cfg)
+
+        # Make websocket.send() stop the loop after first call
+        async def send_side_effect(data):
+            client._exit_requested = True
+            return None
+
+        mock_websocket.send.side_effect = send_side_effect
+
+        await client._send_audio(mock_websocket)
+
+    # Assertions
+    mock_codec.encode.assert_called_once_with(b"pcm-audio")
+    mock_websocket.send.assert_called_once_with(b"encoded-audio")
+
+
+@pytest.mark.asyncio
+async def test_audio_opus_encoding_exception(capfd):
+    """Test that Opus encoding errors are caught and logged."""
+
+    # Setup mocks
+    mock_codec = MagicMock()
+    mock_codec.encode.side_effect = RuntimeError("fake encoding failure")
+
+    mock_stream = MagicMock()
+    mock_stream.read.return_value = b"pcm-audio"
+
+    mock_pa = MagicMock()
+    mock_pa.open.return_value = mock_stream
+
+    mock_websocket = AsyncMock()
+
+    # Patch before client instantiation
+    with (
+        patch("live_translation.client.client.OpusCodec", return_value=mock_codec),
+        patch("pyaudio.PyAudio", return_value=mock_pa),
+    ):
+        cfg = Config(server_uri="ws://localhost:8765", codec="opus")
+        client = LiveTranslationClient(cfg)
+
+        # Exit after first iteration
+        async def send_side_effect(data):
+            client._exit_requested = True
+            return None
+
+        mock_websocket.send.side_effect = send_side_effect
+
+        await client._send_audio(mock_websocket)
+
+    # Check printed error log
+    captured = capfd.readouterr()
+    assert "🚨 Opus encoding error: fake encoding failure" in captured.out
+    mock_codec.encode.assert_called_once_with(b"pcm-audio")

@@ -80,13 +80,14 @@ def test_config_validate():
     invalid_configs = [
         {"device": "gpu"},
         {"whisper_model": "super"},
-        # transcibe_only=True to avoid early ValueError on RepositoryNotFoundError
+        # transcribe_only=True to avoid early ValueError on RepositoryNotFoundError
         {"trans_model": "Helsinki-NLP/random", "transcribe_only": True},
         {"trans_model": "Helsinki-NLP/random"},
         {"log": "random"},
         {"vad_aggressiveness": 10},
         {"max_buffer_duration": 4},
         {"silence_threshold": 1},
+        {"codec": "random"},
     ]
 
     for config in invalid_configs:
