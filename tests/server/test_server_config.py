@@ -54,7 +54,7 @@ def test_config_modifiable_attributes():
 
 def test_config_immutable_defaults():
     cfg = Config()
-    assert cfg.CHUNK_SIZE == 512
+    assert cfg.CHUNK_SIZE == 640
     assert cfg.SAMPLE_RATE == 16000
     assert cfg.CHANNELS == 1
     assert cfg.ENQUEUE_THRESHOLD == 1
@@ -67,7 +67,7 @@ def test_config_immutable_attributes():
     cfg = Config()
     with pytest.raises(AttributeError):
         # @property immutables
-        cfg.CHUNK_SIZE = 1024
+        cfg.CHUNK_SIZE = 1280
         cfg.SAMPLE_RATE = 44100
         cfg.CHANNELS = 2
         cfg.ENQUEUE_THRESHOLD = 2

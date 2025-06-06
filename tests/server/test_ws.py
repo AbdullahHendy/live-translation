@@ -16,7 +16,7 @@ async def test_websocketio_end_to_end():
     stop_event = mp.Event()
     audio_queue = mp.Queue()
     output_queue = mp.Queue()
-    cfg = Config(ws_port=port)
+    cfg = Config(ws_port=port, codec="pcm")
 
     # Start the WebSocketIO thread
     ws_io = WebSocketIO(port, audio_queue, output_queue, stop_event, cfg)

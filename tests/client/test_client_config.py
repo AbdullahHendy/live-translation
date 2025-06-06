@@ -10,7 +10,7 @@ def config():
 def test_config_fields(config):
     """Verify client config default fields."""
     assert config.SERVER_URI == "ws://localhost:8765"
-    assert config.CHUNK_SIZE == 512
+    assert config.CHUNK_SIZE == 640
     assert config.SAMPLE_RATE == 16000
     assert config.CHANNELS == 1
 
@@ -25,5 +25,5 @@ def test_config_immutable_fields(config):
     """Ensure critical audio config fields cannot be modified."""
     with pytest.raises(AttributeError):
         config.SAMPLE_RATE = 8000
-        config.CHUNK_SIZE = 1024
+        config.CHUNK_SIZE = 1280
         config.CHANNELS = 2

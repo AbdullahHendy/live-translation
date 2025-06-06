@@ -57,7 +57,7 @@ def test_audio_processor_pipeline(
 ):
     """Send audio to audio_queue and check processed_queue."""
 
-    chunk_size = 512
+    chunk_size = 640
     for i in range(0, len(real_speech) - chunk_size + 1, chunk_size):
         chunk = real_speech[i : i + chunk_size]
         audio_queue.put(chunk)
@@ -135,9 +135,9 @@ def test_audio_processor_seconds_to_chunks(config):
     """Test that seconds-to-chunks conversion is accurate."""
     processor = AudioProcessor(None, None, None, config)
 
-    config._CHUNK_SIZE = 512
+    config._CHUNK_SIZE = 640
     config._SAMPLE_RATE = 16000
     seconds = 1
-    expected_chunks = int(round(seconds / (512 / 16000)))
+    expected_chunks = int(round(seconds / (config._CHUNK_SIZE / 16000)))
     actual_chunks = processor._seconds_to_chunks(seconds)
     assert actual_chunks == expected_chunks
