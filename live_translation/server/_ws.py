@@ -145,6 +145,7 @@ class WebSocketIO(threading.Thread):
             self._audio_queue.get()
         print("🧹 Queues flushed.")
 
+
 class ClientDisconnected(Exception):
     """Exception raised when a client disconnects during a WebSocket operation."""
 
