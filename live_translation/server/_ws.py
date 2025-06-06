@@ -99,7 +99,6 @@ class WebSocketIO(threading.Thread):
                 )
                 return
 
-            # await self._connection_lock.acquire()
             async with self._connection_lock:
                 print("🔌 WebSocketIO: Client connected.")
 
