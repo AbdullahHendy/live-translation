@@ -1,6 +1,6 @@
 # Browser JS Client
 
-Minimal browser-based client for sending microphone audio to the live-translation server over WebSocket. It streams **raw PCM** audio in real time and logs server responses (transcription and translation).
+Minimal browser-based client for sending microphone audio to the live-translation server over WebSocket. It captures **raw PCM audio** (16-bit, mono, 16kHz), **encodes it to Opus** using WebAssembly in real time, and streams compressed packets to the server. Transcription and translation responses are logged live in the browser.
 
 ---
 
@@ -13,10 +13,11 @@ Minimal browser-based client for sending microphone audio to the live-translatio
 ## Features
 
 - Captures microphone audio in the browser
-- Streams raw PCM audio in 16-bit, mono, 16kHz format
-- Buffers and sends 512-sample (1024-byte) chunks
+- Captures raw 640, 16-bit PCM, audio chunks (mono, 16kHz) and encodes it to Opus in-browser before streaming
+- Streams compressed Opus packets
 - Receives and logs transcription and translation from the server
 - Uses [`AudioWorklet`](https://developer.mozilla.org/en-US/docs/Web/API/AudioWorklet) for low-latency audio processing
+- Uses [`libopusjs`](https://github.com/ImagicTheCat/libopusjs) for WebAssembly-based Opus encoding
 
 ---
 

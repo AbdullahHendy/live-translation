@@ -16,6 +16,17 @@ def get_args():
         help="WebSocket URI of the server (e.g., ws://localhost:8765)",
     )
 
+    parser.add_argument(
+        "--codec",
+        type=str,
+        choices=["pcm", "opus"],
+        default="opus",
+        help=(
+            "Audio codec for WebSocket communication ('pcm', 'opus').\n"
+            "Default is 'opus'."
+        ),
+    )
+
     # Version
     parser.add_argument(
         "--version",

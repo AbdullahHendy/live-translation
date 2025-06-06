@@ -43,9 +43,10 @@ class Config:
         ws_port (int): Server WebSocket port.
             Default is 8765.
 
-        silence_threshold (int): Number of consecutive 32ms silent chunks to
-            detect SILENCE. SILENCE clears the audio buffer for
-            transcription/translation. Default is 65 (~ 2s).
+        silence_threshold (int): Number of consecutive seconds to detect SILENCE.
+            SILENCE clears the audio buffer for transcription/translation.
+            NOTE: The minimum value is 1.5.
+            Default is 2.
 
         vad_aggressiveness (int): Voice Activity Detection (VAD) aggressiveness
             level (0-9). Higher values mean VAD has to be more confident to
@@ -56,6 +57,9 @@ class Config:
 
         transcribe_only (bool): Whether to only transcribe without translation.
             If set, no translations are performed.
+
+        codec (str): Audio codec for WebSocket communication ('pcm', 'opus').
+            Default is 'pcm'.
     """
 
     def __init__(
@@ -67,10 +71,11 @@ class Config:
         tgt_lang: str = "es",
         log: str = None,
         ws_port: int = 8765,
-        silence_threshold: int = 65,
+        silence_threshold: float = 2,
         vad_aggressiveness: int = 8,
         max_buffer_duration: int = 7,
         transcribe_only: bool = False,
+        codec: str = "opus",
     ):
         """
         Initialize the configuration.
@@ -78,7 +83,7 @@ class Config:
 
         # Immutable Settings
         # Audio Settings, not all are modifiable for now
-        self._CHUNK_SIZE = 512  # 32 ms of audio at 16 kHz
+        self._CHUNK_SIZE = 640  # 40 ms of audio at 16 kHz
         self._SAMPLE_RATE = 16000  # 16 kHz
         self._CHANNELS = 1  # Mono
         # Audio Processing Settings, not modifiable for now
@@ -91,8 +96,7 @@ class Config:
         # Soft silence threshold to detect the end of short speech that might
         # not have exceeded ENQUEUE_THRESHOLD. For example, the end of speech
         # or a short speech segment like "yes" or "no".
-        # 16 * 32ms ~ 0.5s
-        self._SOFT_SILENCE_THRESHOLD = 16
+        self._SOFT_SILENCE_THRESHOLD = 0.5  # seconds
 
         # Mutable Settings
         self.DEVICE = device
@@ -106,6 +110,7 @@ class Config:
         self.VAD_AGGRESSIVENESS = vad_aggressiveness
         self.MAX_BUFFER_DURATION = max_buffer_duration
         self.TRANSCRIBE_ONLY = transcribe_only
+        self.CODEC = codec
 
         # Validate
         self._validate()
@@ -130,10 +135,10 @@ class Config:
                     f"🚨 An error when verifying the translation model: {str(e)}"
                 )
 
-        # Validate silence_threshold (must be greater than 16)
-        if self.SILENCE_THRESHOLD <= 16:
+        # Validate silence_threshold (must be greater than or equal 1.5)
+        if self.SILENCE_THRESHOLD < 1.5:
             raise ValueError(
-                "🚨 'silence_threshold' must be greater than 16 (~ 0.5s). "
+                "🚨 'silence_threshold' must be greater than or equal 1.5s. "
             )
 
         # Validate vad_aggressiveness (must be within the range 0-9)
@@ -198,6 +203,10 @@ class Config:
                 "🚨 WebSocket port is required. "
                 "Please specify the port using the '--ws_port' argument."
             )
+
+        # Validate codec
+        if self.CODEC not in ["pcm", "opus"]:
+            raise ValueError("🚨 'codec' must be one of the following: 'pcm', 'opus'. ")
 
     @property
     def CHUNK_SIZE(self):

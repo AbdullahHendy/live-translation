@@ -1,6 +1,6 @@
 # C# Client
 
-Simple CLI C# client for sending microphone audio to the live-translation server over WebSocket. It streams **raw PCM** audio in real time and logs server responses (transcription and translation).
+Simple CLI C# client for sending microphone audio to the live-translation server over WebSocket. It captures **raw PCM** audio from the microphone, encodes it to **Opus** in real time, and streams the compressed packets to the server. Transcription and translation responses are logged to the console.
 
 ---
 
@@ -13,10 +13,11 @@ Simple CLI C# client for sending microphone audio to the live-translation server
 ## Features
 
 - Streams audio from the default system microphone
-- Streams raw PCM audio in 16-bit, mono, 16kHz format
-- Buffers and sends 512-sample (1024-byte) chunks
+- Captures raw 640, 16-bit PCM, audio chunks (mono, 16kHz) and encodes it to Opus before streaming
+- Streams compressed Opus packets
 - Receives and logs transcription and translation from the server
-- Cross-platform support via `PortAudioSharp2` (miniaudio) and `WebSocketSharp`
+- Cross-platform support via [`PortAudioSharp2`](https://www.nuget.org/packages/PortAudioSharp2) (miniaudio) and [`WebSocketSharp`](https://www.nuget.org/packages/WebSocketSharp)
+- Uses [`Concentus`](https://www.nuget.org/packages/Concentus) for native-compatible Opus encoding
 
 ---
 

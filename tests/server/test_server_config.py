@@ -18,7 +18,7 @@ def test_config_defaults(default_config):
     assert default_config.TGT_LANG == "es"
     assert default_config.LOG is None
     assert default_config.WS_PORT == 8765
-    assert default_config.SILENCE_THRESHOLD == 65
+    assert default_config.SILENCE_THRESHOLD == 2
     assert default_config.VAD_AGGRESSIVENESS == 8
     assert default_config.MAX_BUFFER_DURATION == 7
     assert default_config.TRANSCRIBE_ONLY is False
@@ -34,7 +34,7 @@ def test_config_modifiable_attributes():
         tgt_lang="hi",
         log="print",
         ws_port=8080,
-        silence_threshold=70,
+        silence_threshold=4,
         vad_aggressiveness=5,
         max_buffer_duration=10,
         transcribe_only=True,
@@ -46,7 +46,7 @@ def test_config_modifiable_attributes():
     assert cfg.TGT_LANG == "hi"
     assert cfg.LOG == "print"
     assert cfg.WS_PORT == 8080
-    assert cfg.SILENCE_THRESHOLD == 70
+    assert cfg.SILENCE_THRESHOLD == 4
     assert cfg.VAD_AGGRESSIVENESS == 5
     assert cfg.MAX_BUFFER_DURATION == 10
     assert cfg.TRANSCRIBE_ONLY is True
@@ -54,12 +54,12 @@ def test_config_modifiable_attributes():
 
 def test_config_immutable_defaults():
     cfg = Config()
-    assert cfg.CHUNK_SIZE == 512
+    assert cfg.CHUNK_SIZE == 640
     assert cfg.SAMPLE_RATE == 16000
     assert cfg.CHANNELS == 1
     assert cfg.ENQUEUE_THRESHOLD == 1
     assert cfg.TRIM_FACTOR == 0.75
-    assert cfg.SOFT_SILENCE_THRESHOLD == 16
+    assert cfg.SOFT_SILENCE_THRESHOLD == 0.5
 
 
 def test_config_immutable_attributes():
@@ -67,12 +67,12 @@ def test_config_immutable_attributes():
     cfg = Config()
     with pytest.raises(AttributeError):
         # @property immutables
-        cfg.CHUNK_SIZE = 1024
+        cfg.CHUNK_SIZE = 1280
         cfg.SAMPLE_RATE = 44100
         cfg.CHANNELS = 2
         cfg.ENQUEUE_THRESHOLD = 2
         cfg.TRIM_FACTOR = 0.5
-        cfg.SOFT_SILENCE_THRESHOLD = 32
+        cfg.SOFT_SILENCE_THRESHOLD = 1.5
 
 
 def test_config_validate():
@@ -80,13 +80,14 @@ def test_config_validate():
     invalid_configs = [
         {"device": "gpu"},
         {"whisper_model": "super"},
-        # transcibe_only=True to avoid early ValueError on RepositoryNotFoundError
+        # transcribe_only=True to avoid early ValueError on RepositoryNotFoundError
         {"trans_model": "Helsinki-NLP/random", "transcribe_only": True},
         {"trans_model": "Helsinki-NLP/random"},
         {"log": "random"},
         {"vad_aggressiveness": 10},
         {"max_buffer_duration": 4},
-        {"silence_threshold": 10},
+        {"silence_threshold": 1},
+        {"codec": "random"},
     ]
 
     for config in invalid_configs:

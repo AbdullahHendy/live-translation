@@ -7,6 +7,7 @@ import time
 import numpy as np
 import websockets
 from ._logger import OutputLogger
+from .._audio._codec import OpusCodec
 
 
 class WebSocketIO(threading.Thread):
@@ -25,6 +26,7 @@ class WebSocketIO(threading.Thread):
         self._stop_event = stop_event
         self._loop = None
         self._logger = OutputLogger(cfg) if cfg.LOG else None
+        self._opus = OpusCodec(cfg) if cfg.CODEC == "opus" else None
         self._connection_lock = asyncio.Lock()
 
     def run(self):
@@ -54,7 +56,17 @@ class WebSocketIO(threading.Thread):
                     try:
                         async for message in websocket:
                             if isinstance(message, bytes):
-                                audio = np.frombuffer(message, dtype=np.int16)
+                                # Decode the audio message if opus codec is used
+                                if self._opus:
+                                    try:
+                                        pcm_bytes = self._opus.decode(message)
+                                        audio = np.frombuffer(pcm_bytes, dtype=np.int16)
+                                    except Exception as e:
+                                        print(f"🚨 WebSocketIO: Opus decode error: {e}")
+                                else:
+                                    # Default to raw PCM audio
+                                    audio = np.frombuffer(message, dtype=np.int16)
+
                                 self._audio_queue.put(audio)
                     except Exception as e:
                         print(f"🚨 WebSocketIO: receive_audio() error: {e}")

@@ -59,7 +59,7 @@ def test_server_cli_with_all_args(monkeypatch):
             "--ws_port",
             "8888",
             "--silence_threshold",
-            "40",
+            "4",
             "--vad_aggressiveness",
             "5",
             "--max_buffer_duration",

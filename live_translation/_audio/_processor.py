@@ -38,7 +38,7 @@ class AudioProcessor(mp.Process):
         1. Receive raw audio chunks from sent by `AudioRecorder`.
         2. Apply VAD to check if speech is present.
         3. If speech is detected:
-            - Reset `silence_count` (since we are in active speech).
+            - Reset `silence_chunks_count` (since we are in active speech).
             - Append the new chunk to `audio_buffer` (context accumulation).
             - Check if we have at least `ENQUEUE_THRESHOLD` seconds of
             new speech:
@@ -53,18 +53,18 @@ class AudioProcessor(mp.Process):
                 - Adjust `last_sent_len` to ensure proper tracking after
                 trimming.
         4. If silence is detected:
-            - Increment `silence_count` to track consecutive silent chunks.
-            - If `silence_count` reaches `SOFT_SILENCE_THRESHOLD`:
+            - Increment `silence_chunks_count` to track consecutive silent chunks.
+            - If `silence_chunks_count` reaches `SOFT_SILENCE_THRESHOLD` in chunks:
                 - If there is any speech in the buffer (new speech that hasn't exceeded
                 ENQUEUE_THRESHOLD yet to get enqueued normally):
                     - Concatenate the buffer and send it to `processed_queue`.
                     - Update `last_sent_len` to track how much has been sent.
-            - If silence persists beyond `SILENCE_THRESHOLD`:
+            - If silence_chunks_count reaches `SILENCE_THRESHOLD` in chunks:
                 - Reset the buffer (since speech has clearly stopped).
-                - Reset `last_sent_len` and `silence_count`.
+                - Reset `last_sent_len` and `silence_chunks_count`.
         """
-        self._vad = VoiceActivityDetector(self._cfg.VAD_AGGRESSIVENESS)
-        silence_count = 0  # Track consecutive silence
+        self._vad = VoiceActivityDetector(self._cfg)
+        silence_chunks_count = 0  # Track consecutive silence
         last_sent_len = 0  # Track last enqueue position
         # Track the buffer start length to calculate buffer duration from
         _audio_buffer_start_len = 0
@@ -81,10 +81,10 @@ class AudioProcessor(mp.Process):
                 audio_data_f32 = self._int2float(audio_data)
 
                 # Run _VAD
-                has_speech = self._vad.is_speech(audio_data_f32, self._cfg.SAMPLE_RATE)
+                has_speech = self._vad.is_speech(audio_data_f32)
 
                 if has_speech:
-                    silence_count = 0
+                    silence_chunks_count = 0
 
                     # Append an audio chunk to the buffer
                     self._audio_buffer.append(audio_data_f32)
@@ -109,11 +109,12 @@ class AudioProcessor(mp.Process):
                         last_sent_len = max(0, last_sent_len - trim_size)
 
                 else:
-                    silence_count += 1
+                    silence_chunks_count += 1
 
                     # Enqueue short speech segments or end of speech
                     if (
-                        silence_count == self._cfg.SOFT_SILENCE_THRESHOLD
+                        silence_chunks_count
+                        == self._seconds_to_chunks(self._cfg.SOFT_SILENCE_THRESHOLD)
                         and self._audio_buffer
                     ):
                         audio_segment = np.concatenate(self._audio_buffer)
@@ -121,10 +122,12 @@ class AudioProcessor(mp.Process):
                         last_sent_len = len(self._audio_buffer)
 
                     # Reset buffer on long silence
-                    if silence_count >= self._cfg.SILENCE_THRESHOLD:
+                    if silence_chunks_count >= self._seconds_to_chunks(
+                        self._cfg.SILENCE_THRESHOLD
+                    ):
                         self._audio_buffer = []
                         last_sent_len = 0
-                        silence_count = 0
+                        silence_chunks_count = 0
 
                 time.sleep(0.01)
         except KeyboardInterrupt:
@@ -145,6 +148,11 @@ class AudioProcessor(mp.Process):
         return (
             (curr_length - start_length) * self._cfg.CHUNK_SIZE / self._cfg.SAMPLE_RATE
         )
+
+    def _seconds_to_chunks(self, seconds):
+        """Convert seconds to number of audio chunks."""
+        chunk_duration = self._cfg.CHUNK_SIZE / self._cfg.SAMPLE_RATE
+        return int(round(seconds / chunk_duration))
 
     @staticmethod
     def _int2float(sound):

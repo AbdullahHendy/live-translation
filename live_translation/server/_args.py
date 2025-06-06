@@ -13,13 +13,13 @@ def get_args():
     # Audio Settings
     parser.add_argument(
         "--silence_threshold",
-        type=int,
-        default=65,
+        type=float,
+        default=2,
         help=(
-            "Number of consecutive 32ms silent chunks to detect SILENCE.\n"
+            "Number of consecutive seconds to detect SILENCE.\n"
             "SILENCE clears the audio buffer for transcription/translation.\n"
-            "NOTE: Minimum value is 16.\n"
-            "Default is 65 (~ 2s)."
+            "NOTE: Minimum value is 1.5.\n"
+            "Default is 2."
         ),
     )
 
@@ -44,6 +44,17 @@ def get_args():
         help=(
             "Max audio buffer duration in seconds before trimming it.\n"
             "Default is 7 seconds."
+        ),
+    )
+
+    parser.add_argument(
+        "--codec",
+        type=str,
+        choices=["pcm", "opus"],
+        default="opus",
+        help=(
+            "Audio codec for WebSocket communication ('pcm', 'opus').\n"
+            "Default is 'opus'."
         ),
     )
 
