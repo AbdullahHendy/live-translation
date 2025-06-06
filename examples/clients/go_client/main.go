@@ -1,24 +1,26 @@
-/*
-* Live Translation Go Client
-*
-* This program captures raw PCM audio from the system microphone and streams it to a WebSocket server
-* for real-time transcription and translation.
-*
-* Server-side expectations:
-* - Format:       Raw PCM
-* - Sample Rate:  16,000 Hz
-* - Channels:     Mono (1 channel)
-* - Bit Depth:    16-bit (signed int16) → 2 bytes per sample
-* - Chunk Size:   512 samples of 16-bit mono audio (1024 bytes)
-*
-* Audio is buffered and transmitted in fixed-size 512-sample chunks, matching exactly what the server expects.
-* Uses malgo (miniaudio) for cross-platform microphone input, and gorilla/websocket for client-server communication.
-* Inspired by the malgo example: https://github.com/gen2brain/malgo/blob/master/_examples/capture/capture.go
+/**
+ * Live Translation Go Client
+ *
+ * This program captures raw PCM audio from the system microphone, encodes it
+ * using Opus (via hraban/opus), and streams it to a WebSocket server for real-time
+ * transcription and translation.
+ *
+ * Server-side expectations:
+ * - Receives Opus-encoded audio with the following original characteristics:
+ *   - Sample Rate:  16,000 Hz
+ *   - Channels:     Mono (1 channel)
+ *   - Bit Depth:    16-bit (signed int16) → 2 bytes per sample
+ *   - Frame Size:   640 samples (40 ms) per encoded packet
+ *
+ * Uses malgo (miniaudio) for cross-platform microphone input,
+ * github.com/hraban/opus for Opus encoding,
+ * and gorilla/websocket for client-server communication.
  */
 
 package main
 
 import (
+	"encoding/binary"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -27,6 +29,7 @@ import (
 
 	"github.com/gen2brain/malgo"
 	"github.com/gorilla/websocket"
+	"github.com/hraban/opus"
 )
 
 const (
@@ -35,7 +38,7 @@ const (
 	channels     = 1
 	format       = malgo.FormatS16
 	sampleSize   = 2 // 16-bit int
-	chunkSamples = 512
+	chunkSamples = 640
 )
 
 func main() {
@@ -90,6 +93,11 @@ func main() {
 		ctx.Free()
 	}()
 
+	encoder, err := opus.NewEncoder(sampleRate, channels, opus.Application(opus.AppVoIP))
+	if err != nil {
+		log.Fatalf("Opus encoder init error: %v", err)
+	}
+
 	deviceConfig := malgo.DefaultDeviceConfig(malgo.Capture)
 	deviceConfig.Capture.Format = format
 	deviceConfig.Capture.Channels = channels
@@ -101,6 +109,10 @@ func main() {
 	buffer := make([]byte, 0, chunkSizeBytes*2) // Arbitrary safe starting size
 
 	// mic data callback
+	var pcmFrame []int16
+	// Max size for Opus packet. 640 bytes is very conservative for encoding 640 samples (1280 bytes) at 16kHz
+	// not all 640 will be sent later. Slicing will be used based on encoder.Encode return value.
+	packetBuf := make([]byte, 640)
 	onRecv := func(_, inputSample []byte, frameCount uint32) {
 		buffer = append(buffer, inputSample...)
 
@@ -108,9 +120,22 @@ func main() {
 			chunk := buffer[:chunkSizeBytes]
 			buffer = buffer[chunkSizeBytes:]
 
-			err := conn.WriteMessage(websocket.BinaryMessage, chunk)
+			// []byte to []int16
+			pcmFrame = make([]int16, chunkSamples)
+			for i := 0; i < chunkSamples; i++ {
+				pcmFrame[i] = int16(binary.LittleEndian.Uint16(chunk[i*2 : i*2+2]))
+			}
+
+			// Encode with Opus
+			len, err := encoder.Encode(pcmFrame, packetBuf)
 			if err != nil {
-				log.Printf("❌ Failed to send chunk: %v", err)
+				log.Printf("❌ Opus encode error: %v", err)
+				continue
+			}
+
+			err = conn.WriteMessage(websocket.BinaryMessage, packetBuf[:len])
+			if err != nil {
+				log.Printf("❌ Failed to send packet: %v", err)
 			}
 		}
 	}

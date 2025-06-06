@@ -58,4 +58,5 @@ dependencies {
     debugImplementation(libs.androidx.ui.test.manifest)
 
     implementation(libs.okhttp)
+    implementation(files("libs/opus.aar"))
 }

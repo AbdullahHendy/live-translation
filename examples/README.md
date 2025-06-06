@@ -44,8 +44,10 @@ python ar_opencv [OPTIONS]
 
 ## [Client Examples](./clients/)
 
-This section provides minimal example clients in different environments (e.g. Node.js, C#, JavaScript, Go, Kotlin/Android) that demonstrate how to communicate with the live-translation server over **WebSocket** using the expected audio protocol:
-**raw PCM, 16-bit, mono, 16kHz, 512-sample chunks i.e. 1024-byte chunks**.
-Each client shows how to parse the server's **JSON responses**.
+This section provides minimal example clients in different environments (e.g. Node.js, C#, JavaScript, Go, Kotlin/Android) that demonstrate how to communicate with the live-translation server over **WebSocket** using the **expected audio protocol**:
+**Opus-decoded** raw PCM, 16-bit, mono, 16kHz, 640-sample chunks i.e. 1280-byte chunks.
+> **NOTE**: The example clients can be easily modified to remove the opus encoding code and just send the **raw PCM** in case the server is run with the ***--codec pcm*** option.
+>
+**Each client** shows how to parse the server's **JSON responses**.
 
 These examples focus purely on the communication protocol, and intentionally omit the complexities found in the main [**Python**](../live_translation/client/) implementation (e.g. callback chaining, concurrency control, async options). They are designed to help developers understand how to send audio to the server and receive transcription/translation responses.

@@ -20,22 +20,25 @@ import okhttp3.*
 import okio.ByteString.Companion.toByteString
 import org.json.JSONObject
 import java.util.concurrent.TimeUnit
+import com.theeasiestway.opus.Opus
+import com.theeasiestway.opus.Constants
 
 /**
- * Live Translation Kotlin/Android Client
+ * Live Translation Android Client
  *
- * This activity captures raw microphone audio using Android's AudioRecord API
- * and streams it to a WebSocket server for real-time transcription and translation.
+ * This activity captures raw PCM audio from the Android microphone, encodes it using Opus,
+ * and streams the compressed packets to a WebSocket server for real-time transcription
+ * and translation.
  *
  * Server-side expectations:
- * - Format:       Raw PCM
- * - Sample Rate:  16,000 Hz
- * - Channels:     Mono (1 channel)
- * - Bit Depth:    16-bit (signed int16) → 2 bytes per sample
- * - Chunk Size:   512 samples → 1024 bytes (512 × 2 bytes)
+ * - Receives Opus-encoded audio with the following original characteristics:
+ *   - Sample Rate:  16,000 Hz
+ *   - Channels:     Mono (1 channel)
+ *   - Bit Depth:    16-bit (signed int16) → 2 bytes per sample
+ *   - Frame Size:   640 samples (40 ms) per encoded packet
  *
- * Audio is captured and streamed in 1024-byte chunks, precisely matching the server's format.
- * Uses OkHttp's WebSocket client for lightweight and efficient real-time streaming.
+ * Audio is buffered into 1280-byte (640-sample) chunks, encoded using `com.theeasiestway.opus`,
+ * and streamed to the server via OkHttp's WebSocket client.
  */
 
 class MainActivity : ComponentActivity() {
@@ -43,12 +46,13 @@ class MainActivity : ComponentActivity() {
     companion object {
         private const val TAG = "LiveTranslationClient"
         private const val SAMPLE_RATE = 16000
-        private const val CHUNK_SIZE = 512
+        private const val CHUNK_SIZE = 640
         private const val CHUNK_SIZE_BYTES = CHUNK_SIZE * 2
-        private const val WEBSOCKET_URL = "ws://192.168.1.1:8765" // localhost doesn't work on emulators, use host IP.
+        private const val WEBSOCKET_URL = "ws://192.168.12.179:8765" // localhost doesn't work on emulators, use host IP.
     }
 
     private lateinit var audioRecord: AudioRecord
+    private lateinit var opus: Opus
     private var isRecording = false
     private var webSocket: WebSocket? = null
     private lateinit var micPermissionLauncher: ActivityResultLauncher<String>
@@ -121,6 +125,14 @@ class MainActivity : ComponentActivity() {
             bufferSize
         )
 
+        opus = Opus()
+        opus.encoderInit(
+            Constants.SampleRate._16000(),
+            Constants.Channels.mono(),
+            Constants.Application.voip()
+        )
+        opus.encoderSetBitrate(Constants.Bitrate.instance(30000))
+
         val client = OkHttpClient.Builder()
             .readTimeout(0, TimeUnit.MILLISECONDS)
             .build()
@@ -163,7 +175,10 @@ class MainActivity : ComponentActivity() {
             while (isRecording) {
                 val read = audioRecord.read(chunk, 0, CHUNK_SIZE_BYTES)
                 if (read == CHUNK_SIZE_BYTES) {
-                    webSocket?.send(chunk.toByteString(0, CHUNK_SIZE_BYTES))
+                    val encoded = opus.encode(chunk, Constants.FrameSize._640())
+                    if (encoded != null) {
+                        webSocket?.send(encoded.toByteString())
+                    }
                 }
             }
 

@@ -1,30 +1,39 @@
 /**
  * Live Translation Node.js Client
  *
- * This script captures raw audio from the microphone and streams it to a WebSocket server
- * for real-time transcription and translation.
+ * This script captures raw PCM audio from the system microphone, encodes it using Opus,
+ * and streams the compressed packets to a WebSocket server for real-time transcription
+ * and translation.
  *
  * Server-side expectations:
- * - Format:       Raw PCM
- * - Sample Rate:  16,000 Hz
- * - Channels:     Mono (1 channel)
- * - Bit Depth:    16-bit (signed int16) → 2 bytes per sample
- * - Chunk Size:   512 samples → 1024 bytes (512 × 2 bytes)
+ * - Receives Opus-encoded audio with the following original characteristics:
+ *   - Sample Rate:  16,000 Hz
+ *   - Channels:     Mono (1 channel)
+ *   - Bit Depth:    16-bit (signed int16) → 2 bytes per sample
+ *   - Frame Size:   640 samples (40 ms) per encoded packet
  *
- * Audio is buffered and sent in 1024-byte slices, exactly matching what the server's expects.
- * Uses node-record-lpcm16 + ws for broad compatibility.
+ * Audio is buffered into 1280-byte (640-sample) chunks, encoded using @discordjs/opus,
+ * and streamed to the server via WebSocket.
+ * Uses node-record-lpcm16 for microphone input and ws for WebSocket communication.
  */
 
 const WebSocket = require('ws');
 const record = require('node-record-lpcm16');
+const OpusEncoder = require('@discordjs/opus').OpusEncoder;
 
 // --- CONFIG ---
 const SERVER_URI = 'ws://localhost:8765';
 const SAMPLE_RATE = 16000;
-const CHUNK_SIZE_BYTES = 512 * 2; // 512 samples @ 16-bit mono
+const CHANNELS = 1;
+const CHUNK_SIZE_BYTES = 640 * 2; // 640 samples @ 16-bit mono
 
 // --- CONNECT TO SERVER ---
 const ws = new WebSocket(SERVER_URI);
+
+
+// --- OPUS ENCODER ---
+const encoder = new OpusEncoder(SAMPLE_RATE, CHANNELS);
+encoder.setBitrate(30000);
 
 ws.on('open', () => {
     console.log('🎤 Connected to live-translation server');
@@ -51,11 +60,19 @@ ws.on('open', () => {
         // Append new chunk to buffer
         buffer = Buffer.concat([buffer, chunk]);
 
-        // Send full 1024-byte chunks to the server
+        // Send full 1280-byte chunks to the server
         while (buffer.length >= CHUNK_SIZE_BYTES) {
             const slice = buffer.subarray(0, CHUNK_SIZE_BYTES);
+
+            // Encode the slice to Opus format
+            try {
+                const encoded = encoder.encode(slice);
+                ws.send(encoded);
+            } catch (err) {
+                console.error('❌ Opus encoding error:', err);
+            }
+
             buffer = buffer.subarray(CHUNK_SIZE_BYTES);
-            ws.send(slice);
         }
     });
 

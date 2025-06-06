@@ -1,29 +1,34 @@
 ﻿/**
- * Live Translation C# Client (PortAudioSharp2 + WebSocketSharp)
+ * Live Translation C# Client
  *
- * This program captures raw PCM audio from the system microphone and streams it
- * to a WebSocket server for real-time transcription and translation.
+ * This program captures raw PCM audio from the system microphone, encodes it
+ * using Opus (via Concentus), and streams it to a WebSocket server for real-time
+ * transcription and translation.
  *
  * Server-side expectations:
- * - Format:       Raw PCM
- * - Sample Rate:  16,000 Hz
- * - Channels:     Mono (1 channel)
- * - Bit Depth:    16-bit (signed int16) → 2 bytes per sample
- * - Chunk Size:   512 samples of 16-bit mono audio (1024 bytes)
+ * - Receives Opus-encoded audio with the following original characteristics:
+ *   - Sample Rate:  16,000 Hz
+ *   - Channels:     Mono (1 channel)
+ *   - Bit Depth:    16-bit (signed int16) → 2 bytes per sample
+ *   - Frame Size:   640 samples (40 ms) per encoded packet
  *
- * Audio is buffered and transmitted in fixed-size 512-sample chunks, matching exactly what the server expects.
- * Uses PortAudioSharp2 for cross-platform microphone input, and WebSocketSharp for client-server communication.
+ * Audio is captured in 640-sample chunks as raw PCM (16-bit, mono, 16kHz),
+ * encoded to Opus using Concentus, and transmitted as compressed Opus packets.
+ * Uses PortAudioSharp2 for cross-platform microphone input,
+ * and WebSocketSharp for client-server communication.
  */
 
 using System.Runtime.InteropServices;
 using PortAudioSharp;
 using WebSocketSharp;
+using Concentus;
+using Concentus.Enums;
 
 class Program
 {
     const int SampleRate = 16000;
     const int Channels = 1;
-    const int ChunkSamples = 512;
+    const int ChunkSamples = 640;
     const int ChunkBytes = ChunkSamples * 2;
 
     static byte[] buffer = new byte[ChunkBytes * 2];  // Initial safe size for buffering audio
@@ -67,6 +72,10 @@ class Program
         }
         Console.WriteLine("✅ Connected");
 
+        // Initalize opus encoder
+        var encoder = OpusCodecFactory.CreateEncoder(SampleRate, Channels, OpusApplication.OPUS_APPLICATION_VOIP);
+        encoder.Bitrate = 30000; // Set bitrate to 30 kbps
+
         PortAudio.Initialize();
 
         var device = PortAudio.DefaultInputDevice;
@@ -96,9 +105,21 @@ class Program
             {
                 byte[] toSend = new byte[ChunkBytes];
                 Buffer.BlockCopy(buffer, 0, toSend, 0, ChunkBytes);
-                if (ws != null && ws.IsAlive)
+
+                // Convert to short array for Opus encoding
+                short[] pcm = new short[ChunkSamples];
+                Buffer.BlockCopy(toSend, 0, pcm, 0, ChunkBytes);
+
+                // Encode to Opus
+                // Max size for Opus packet. 640 bytes is very conservative for encoding 640 samples (1280 bytes) at 16kHz
+                // not all 640 will be sent later. Slicing will be used based on encoder.Encode return value.
+                byte[] encoded = new byte[640];
+                int len = encoder.Encode(pcm.AsSpan(), ChunkSamples, encoded.AsSpan(), encoded.Length);
+
+                if (ws != null && ws.IsAlive && len > 0)
                 {
-                    ws.Send(toSend);
+                    ws.Send(encoded[..len]); // Slice the array to the actual length
+                    // or: ws.Send(encoded.Take(len).ToArray());
                 }
 
                 filled -= ChunkBytes;

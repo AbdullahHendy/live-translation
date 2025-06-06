@@ -1,6 +1,6 @@
 # Kotlin/Android Client
 
-Simple andorid/kotlin app for sending microphone audio to the live-translation server over WebSocket. It streams **raw PCM** audio in real time and logs server responses (transcription and translation).
+Simple Kotlin/Android app that captures microphone audio and sends it to the live-translation server over WebSocket. It streams **Opus-encoded** audio in real time and logs server responses (transcription and translation).
 
 ---
 
@@ -13,8 +13,8 @@ Simple andorid/kotlin app for sending microphone audio to the live-translation s
 ## Features
 
 - Streams audio from the default system microphone
-- Streams raw PCM audio in 16-bit, mono, 16kHz format
-- Buffers and sends 512-sample (1024-byte) chunks
+- Captures raw 640, 16-bit PCM, audio chunks (mono, 16kHz) and encodes it to Opus before streaming
+- Streams compressed Opus packets
 - Receives and logs transcription and translation from the server
 - Simple UI with Start and Stop buttons
 - Scrollable log view with color-coded output
