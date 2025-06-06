@@ -56,6 +56,7 @@
 - Speech-to-text transcription using OpenAI's **Whisper**
 - Translation of transcriptions using Helsinki-NLP's **OpusMT**
 - **Full-duplex WebSocket streaming** between client and server
+- Audio compression via **Opus** codec support for lower bandwidth usage
 - Multithreaded design for parallelized processing
 - Optional server logging:
   - Print to **stdout**
@@ -135,9 +136,10 @@ python -c "import live_translation; print(f'live-translation installed successfu
 
   **[OPTIONS]**
   ```bash
-  usage: live-translate-server [-h] [--silence_threshold SILENCE_THRESHOLD] [--vad_aggressiveness {0,1,2,3,4,5,6,7,8,9}] [--max_buffer_duration {5,6,7,8,9,10}] [--device {cpu,cuda}]
-                              [--whisper_model {tiny,base,small,medium,large,large-v2,large-v3,large-v3-turbo}] [--trans_model {Helsinki-NLP/opus-mt,Helsinki-NLP/opus-mt-tc-big}]
-                              [--src_lang SRC_LANG] [--tgt_lang TGT_LANG] [--log {print,file}] [--ws_port WS_PORT] [--transcribe_only] [--version]
+  usage: live-translate-server [-h] [--silence_threshold SILENCE_THRESHOLD] [--vad_aggressiveness {0,1,2,3,4,5,6,7,8,9}] [--max_buffer_duration {5,6,7,8,9,10}] [--codec {pcm,opus}]
+                              [--device {cpu,cuda}] [--whisper_model {tiny,base,small,medium,large,large-v2,large-v3,large-v3-turbo}]
+                              [--trans_model {Helsinki-NLP/opus-mt,Helsinki-NLP/opus-mt-tc-big}] [--src_lang SRC_LANG] [--tgt_lang TGT_LANG] [--log {print,file}] [--ws_port WS_PORT]
+                              [--transcribe_only] [--version]
 
   Live Translation Server - Configure runtime settings.
 
@@ -155,6 +157,8 @@ python -c "import live_translation; print(f'live-translation installed successfu
     --max_buffer_duration {5,6,7,8,9,10}
                           Max audio buffer duration in seconds before trimming it.
                           Default is 7 seconds.
+    --codec {pcm,opus}    Audio codec for WebSocket communication ('pcm', 'opus').
+                          Default is 'opus'.
     --device {cpu,cuda}   Device for processing ('cpu', 'cuda').
                           Default is 'cpu'.
     --whisper_model {tiny,base,small,medium,large,large-v2,large-v3,large-v3-turbo}
@@ -187,14 +191,16 @@ python -c "import live_translation; print(f'live-translation installed successfu
 
   **[OPTIONS]**
   ```bash
-  usage: live-translate-client [-h] [--server SERVER] [--version]
+  usage: live-translate-client [-h] [--server SERVER] [--codec {pcm,opus}] [--version]
 
   Live Translation Client - Stream audio to the server.
 
   options:
-    -h, --help       show this help message and exit
-    --server SERVER  WebSocket URI of the server (e.g., ws://localhost:8765)
-    --version        Print version and exit.
+    -h, --help          show this help message and exit
+    --server SERVER     WebSocket URI of the server (e.g., ws://localhost:8765)
+    --codec {pcm,opus}  Audio codec for WebSocket communication ('pcm', 'opus').
+                        Default is 'opus'.
+    --version           Print version and exit.
   ```
 
 ### Python API
@@ -216,6 +222,7 @@ For more detailed examples showing **non-blocking** and **asynchronous** workflo
           ws_port=8765,
           log="print",
           transcribe_only=False,
+          codec="opus",
       )
 
       server = LiveTranslationServer(config)
@@ -247,7 +254,10 @@ For more detailed examples showing **non-blocking** and **asynchronous** workflo
       return False
 
   def main():
-      config = ClientConfig(server_uri="ws://localhost:8765")
+      config = ClientConfig(
+          server_uri="ws://localhost:8765",
+          codec="opus",
+      )
 
       client = LiveTranslationClient(config)
       client.run(
@@ -263,17 +273,19 @@ For more detailed examples showing **non-blocking** and **asynchronous** workflo
   ```
 
 ### Non-Python Integration
-If you're writing a custom client or integrating this system into another application, you can interact with the server directly using the WebSocket protocol.
+If you're writing a **custom client** or integrating this system into another application, you can interact with the server directly using the WebSocket protocol.
 ### Protocol Overview
 
 The server listens on a WebSocket endpoint (default: `ws://localhost:8765`) and expects the client to:
 
-- **Send**: raw ***PCM*** audio in fixed-size chunks
+- **Send**: **encoded PCM** audio using the [**Opus codec**](https://en.wikipedia.org/wiki/Opus_(audio_format)) with the following specs:
   - Format: 16-bit signed integer (`int16`)
   - Sample Rate: 16,000 Hz
   - Channels: Mono (1 channel)
-  - Chunk Size: 512 samples = 1024 bytes per message
-  - Each chunk should be sent immediately over the WebSocket
+  - Chunk Size: 640 samples = 1280 bytes per message (40 ms)
+  - Each encoded chunk should be sent immediately over the WebSocket
+  > **NOTE**: The server also supports receiving **raw PCM** using the ***--codec pcm*** server option. The specs are identical to above, except not encoded.
+  >
 
 - **Receive**: structured ***JSON*** messages with timestamp, transcription and translation fields
   ```json
@@ -383,7 +395,7 @@ This project was tested and developed on the following system configuration:
 - **Logging**: Integrate detailed logging to track system activity, errors, and performance metrics using a more formal logging framework.
 - **Translation Models**: Some of the models downloaded in ***Translator*** from [OpusMT's Hugging Face](https://huggingface.co/Helsinki-NLP) are not the best performing when compared with top models in [Opus-MT's Leaderboard](https://opus.nlpl.eu/dashboard/). Find a way to automatically download best performing models using the user's input of `src_lang` and `tgt_lang` as it's currently done. 
 - **System Profiling & Resource Guidelines**: Benchmark and document CPU, memory, and GPU usage across all multiprocessing components. For example, "~35% CPU usage on 24-core **Intel i9-13900HX**", or "GPU load ~20% on **Nvidia RTX 4070** with `large-v3-turbo` Whisper model"). This will help with hardware requirements and deployment decisions.
-
+- **Proper Handshake Protocol**: Instead of duplicate server and clinet options (e.g. --codec), establish a handshake protocol where, for example, server advertises its capabilities and negotiate with client over what options to use.
 ---
 
 ## 📚 Citations
