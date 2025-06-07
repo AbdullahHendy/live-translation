@@ -7,7 +7,7 @@ import numpy as np
 import pytest
 import websockets
 import multiprocessing as mp
-from live_translation.server._ws import WebSocketIO
+from live_translation.server._ws import ClientDisconnected, WebSocketIO
 from live_translation.server.config import Config
 
 
@@ -214,3 +214,77 @@ async def test_websocketio_logger_called(capsys):
 
     stop_event.set()
     ws_io.join(timeout=2)
+
+
+@pytest.mark.asyncio
+async def test_websocketio_client_disconnected(capfd):
+    port = 8896
+    stop_event = mp.Event()
+    audio_queue = mp.Queue()
+    output_queue = mp.Queue()
+    cfg = Config(ws_port=port)
+
+    async def fake_start_server(self):
+        async def handler(_):
+            async with self._connection_lock:
+                print("🔌 WebSocketIO: Client connected.")
+                try:
+                    async with asyncio.TaskGroup() as tg:
+                        tg.create_task(asyncio.sleep(0))  # receive_audio
+                        tg.create_task(asyncio.sleep(0))  # send_output
+                        tg.create_task(self._simulate_heartbeat())  # heartbeat
+                except* ClientDisconnected:
+                    print("🔌 WebSocketIO: Client disconnected during operation.")
+                self._flush_queues()
+
+        await handler(None)
+        stop_event.set()
+
+    async def _simulate_heartbeat(self):
+        raise ClientDisconnected("simulated disconnect")
+
+    ws_io = WebSocketIO(port, audio_queue, output_queue, stop_event, cfg)
+    # Override the _start_server method with the fake one.
+    # __get__ binds the fake_start_server to the ws_io instance so it receives `self`
+    ws_io._start_server = fake_start_server.__get__(ws_io, WebSocketIO)
+    # __get__ binds the _simulate_heartbeat to the ws_io instance so it receives `self`
+    ws_io._simulate_heartbeat = _simulate_heartbeat.__get__(ws_io, WebSocketIO)
+    ws_io.daemon = True
+    ws_io.start()
+
+    await asyncio.sleep(1)
+    ws_io.join(timeout=2)
+
+    out, _ = capfd.readouterr()
+    assert "🔌 WebSocketIO: Client disconnected during operation." in out
+    assert "🧹 Flushing queues..." in out
+    assert "🧹 Queues flushed." in out
+
+
+def test_websocketio_flush_queues(capsys):
+    port = 89891
+    stop_event = mp.Event()
+    audio_queue = mp.Queue()
+    output_queue = mp.Queue()
+    cfg = Config(ws_port=port)
+
+    # Put dummy data into queues
+    for _ in range(3):
+        audio_queue.put(b"audio")
+        output_queue.put({"transcription": "dummy", "translation": "dummy"})
+
+    ws = WebSocketIO(port, audio_queue, output_queue, stop_event, cfg)
+
+    assert not audio_queue.empty()
+    assert not output_queue.empty()
+
+    ws._flush_queues()
+
+    # Validate queues are flushed
+    assert audio_queue.empty()
+    assert output_queue.empty()
+
+    # Capture and check printed output
+    out, _ = capsys.readouterr()
+    assert "🧹 Flushing queues..." in out
+    assert "🧹 Queues flushed." in out

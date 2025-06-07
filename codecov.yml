@@ -1,0 +1,27 @@
+codecov:
+  require_ci_to_pass: true  # Only submit coverage if CI passes
+
+coverage:
+  precision: 2              # Display 2 decimal places in reports
+  round: up                 # Round up coverage
+  range: 70..100            # UI slider range for coverage graphs
+
+  status:
+    project:
+      default:
+        target: 85%         # Require 85% overall coverage
+        threshold: 0%       # No drop allowed below 85%
+        base: auto          # Compare to base commit coverage
+    patch:
+      default:
+        target: 50%         # Require 50% coverage for new code
+        threshold: 5%       # Allow 5% drop in new code coverage
+        base: auto          # Compare to base commit coverage
+comment:
+  layout: "reach, diff, flags, files"  # Rich comment layout
+  behavior: default                    # Only post comment when coverage changes
+  require_changes: false               # Always show comment, even if no coverage changes
+
+ignore:
+  - "tests/*"                         # Optional: ignore test files
+  - "**/__init__.py"                 # Optional: ignore trivial init files
