@@ -7,14 +7,17 @@
 [![Build](https://github.com/AbdullahHendy/live-translation/actions/workflows/ci.yml/badge.svg)](https://github.com/AbdullahHendy/live-translation/actions/workflows/ci.yml)
 [![PyPI](https://img.shields.io/pypi/v/live-translation)](https://pypi.org/project/live-translation/)
 [![License](https://img.shields.io/github/license/AbdullahHendy/live-translation.svg)](https://github.com/AbdullahHendy/live-translation/blob/main/LICENSE)
+[![Python >= 3.11](https://img.shields.io/badge/Python-%3E=3.11-%231f425f?logo=python)](https://www.python.org/downloads/)
 </br>
-![WebSocket](https://img.shields.io/badge/Protocol-WebSocket-brightgreen?logo=websocket)
-![Audio](https://img.shields.io/badge/Audio-16bit_PCM@16kHz-brightgreen?logo=sound)
-![Streaming](https://img.shields.io/badge/Streaming-Real--time-brightgreen?logo=livejournal)
+[![Architecture](https://img.shields.io/badge/Architecture-Client--Server-informational)](https://en.wikipedia.org/wiki/Client%E2%80%93server_model)
+[![WebSocket](https://img.shields.io/badge/Protocol-WebSocket-brightgreen?logo=websocket)](https://en.wikipedia.org/wiki/WebSocket)
+[![Audio](https://img.shields.io/badge/Audio-16bit_PCM@16kHz-brightgreen?logo=sound)](https://en.wikipedia.org/wiki/Pulse-code_modulation)
+[![Streaming](https://img.shields.io/badge/Streaming-Real--time-brightgreen?logo=livejournal)](https://en.wikipedia.org/wiki/Streaming_media)
+[![Codec](https://img.shields.io/badge/Audio_Codec-Opus-blueviolet?logo=opus)](https://en.wikipedia.org/wiki/Opus_(audio_format))
 </br>
 [![Last Commit](https://img.shields.io/github/last-commit/AbdullahHendy/live-translation.svg)](https://github.com/AbdullahHendy/live-translation/commits/main)
 [![Issues](https://img.shields.io/github/issues/AbdullahHendy/live-translation)](https://github.com/AbdullahHendy/live-translation/issues)
-[![Stars](https://img.shields.io/github/stars/AbdullahHendy/live-translation?style=social)](https://github.com/AbdullahHendy/live-translation)
+[![Stars](https://img.shields.io/github/stars/AbdullahHendy/live-translation?style=social)](https://github.com/AbdullahHendy/live-translation/stargazers)
 </br>
 [![Code Style: ruff](https://img.shields.io/badge/code%20style-ruff-000000.svg)](https://github.com/AbdullahHendy/live-translation/blob/main/ruff.toml)
 [![codecov](https://codecov.io/github/AbdullahHendy/live-translation/graph/badge.svg)](https://codecov.io/github/AbdullahHendy/live-translation)
