@@ -43,8 +43,9 @@
 
 ### 🌐 Browser Client Experience
 
-*A javascript example client for the ***live translation*** server
-See [Under the Hood](#-under-the-hood)*
+*A javascript example client for the ***live translation*** server*
+
+*See [Under the Hood](#-under-the-hood)*
 
 <a href="https://github.com/AbdullahHendy/live-translation/blob/main/doc/browser_js.gif?raw=true" target="_blank">
   <img src="https://github.com/AbdullahHendy/live-translation/blob/main/doc/browser_js.gif?raw=true" alt="Browser-Client Demo" />
@@ -52,9 +53,11 @@ See [Under the Hood](#-under-the-hood)*
 
 ### 🪛 Under the Hood
 
-*On the left, the ***live translation*** [CLI](#cli) server
-On the right, the ***live translation*** [CLI](#cli) client
-For a deeper dive into more ways to use ***live translation*** server and clients, see the [Usage](#-usage) section*
+*On the left, the ***live translation*** [CLI](#cli) server*
+
+*On the right, the ***live translation*** [CLI](#cli) client*
+
+*For a deeper dive into more ways to use ***live translation*** server and clients, see the [Usage](#-usage) section*
 
 <a href="https://github.com/AbdullahHendy/live-translation/blob/main/doc/demo.gif?raw=true" target="_blank">
   <img src="https://github.com/AbdullahHendy/live-translation/blob/main/doc/demo.gif?raw=true" alt="Server-Client Demo" />
@@ -229,7 +232,7 @@ You can also import and use ***live_translation*** directly in your Python code.
 The following is ***simple*** examples of running ***live_translation***'s server and client in a **blocking** fashion.
 For more detailed examples showing **non-blocking** and **asynchronous** workflows, see [./examples/](https://github.com/AbdullahHendy/live-translation/tree/main/examples).
 
-> **NOTE**: The examples below assumes the ***live_translation*** package has been installed as shown in the [Installation](#installation).
+> **NOTE**: The examples below assumes the ***live_translation*** package has been installed as shown in the [Installation](#-installation).
 >
 > **NOTE**: To run a provided example using the ***Python API***, see instructions in the [./examples/](https://github.com/AbdullahHendy/live-translation/tree/main/examples) directory.
 
@@ -403,7 +406,7 @@ This project was tested and developed on the following system configuration:
 - **CUDA Toolkit Version**: 12.1  
 - **cuDNN Version**: 9.7.1
 - **RAM**: 32GB DDR5
-- **Dependencies**: All required dependencies are listed in `pyproject.toml` and [Prerequisites](#prerequisites)
+- **Dependencies**: All required dependencies are listed in `pyproject.toml` and [Prerequisites](#-prerequisites)
 
 [^1]: CUDA as the `DEVICE` is probably needed for heavier models like `large-v3-turbo` for Whisper. [**Nvidia drivers**](https://www.nvidia.com/drivers/), [**CUDA Toolkit**](https://developer.nvidia.com/cuda-downloads), [**cuDNN**](https://developer.nvidia.com/cudnn-downloads) installation needed if option `"cuda"` was to be used.
 
