@@ -8,29 +8,131 @@
         body {
             font-family: sans-serif;
             margin: 2rem;
+            padding-bottom: 180px;
+        }
+
+        h2 {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 1.5rem;
         }
 
         button {
-            margin-right: 1rem;
+            padding: 2rem 4rem;
+            font-size: 2rem;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 6px;
         }
 
-        #output {
-            margin-top: 2rem;
+        #start:hover {
+            background-color: #45a049;
+        }
+
+        #stop:hover {
+            background-color: #d32f2f;
+        }
+
+
+        .output-row {
+            display: flex;
+            justify-content: center;
+            gap: 3rem;
+            margin-top: 7.5rem;
+            flex-wrap: wrap;
+        }
+
+        .output-box {
+            border: 1px solid #ccc;
+            padding: 1rem;
+            width: min(90%, 35rem);
+            min-height: 80px;
+            background: #f0f0f0;
+            border-radius: 8px;
+        }
+
+        .output-title {
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+            text-align: center;
+            border-bottom: 1px solid #ccc;
+            padding-bottom: 0.25rem;
+        }
+
+        .output-text {
+            font-size: 1.6rem;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        #log {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 150px;
+            overflow-y: auto;
+            padding: 0.5rem 1rem;
+            border-top: 1px solid #ccc;
+            font-family: monospace;
+            background-color: #f9f9f9;
             white-space: pre-wrap;
+            z-index: 999;
+            display: flex;
+            flex-direction: column;
+        }
+
+        #log-content {
+            flex-grow: 1;
+            overflow-y: auto;
+            text-align: center;
+        }
+
+        .log-title {
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+            font-family: sans-serif;
+            border-bottom: 1px solid #ccc;
+            padding-bottom: 0.25rem;
+            text-align: center;
         }
     </style>
     <script>
-    window.LIBOPUS_WASM_URL = "./libopus.wasm";
+        window.LIBOPUS_WASM_URL = "./libopus.wasm";
     </script>
     <script src="./libopus.wasm.js"></script>
 </head>
 
 <body>
     <h2>🎤 Live Translation Client 🎤</h2>
-    <button id="start">Start</button>
-    <button id="stop" disabled>Stop</button>
-    <span id="status"></span>
-    <div id="output"></div>
+
+    <div class="controls">
+        <button id="start">Start</button>
+        <button id="stop" disabled>Stop</button>
+    </div>
+
+    <div class="output-row">
+    <div class="output-box">
+        <div class="output-title">📝 Transcription</div>
+        <div id="transcription" class="output-text"></div>
+    </div>
+    <div class="output-box">
+        <div class="output-title">🌍 Translation</div>
+        <div id="translation" class="output-text"></div>
+    </div>
+    </div>
+
+    <div id="log" class="log">
+        <div class="log-title">📄 Logs</div>
+        <div id="log-content"></div>
+    </div>
     <script type="module" src="./client.js"></script>
 </body>
 

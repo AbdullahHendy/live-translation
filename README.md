@@ -36,7 +36,25 @@
 
 ---
 
-#### 🖥️🌍 Server-Client Demo
+## Demos
+
+> **NOTE**: This project is ***not*** meant to be a plug-and-play translation app for web browsers. Instead, it serves as a ***foundational enabler*** for building [real-time translation experiences](https://github.com/AbdullahHendy/live-translation/tree/main/examples).
+>
+
+### 🌐 Browser Client Experience
+
+*A javascript example client for the ***live translation*** server
+See [Under the Hood](#-under-the-hood)*
+
+<a href="https://github.com/AbdullahHendy/live-translation/blob/main/doc/browser_js.gif?raw=true" target="_blank">
+  <img src="https://github.com/AbdullahHendy/live-translation/blob/main/doc/browser_js.gif?raw=true" alt="Browser-Client Demo" />
+</a>
+
+### 🪛 Under the Hood
+
+*On the left, the ***live translation*** [CLI](#cli) server
+On the right, the ***live translation*** [CLI](#cli) client
+For a deeper dive into more ways to use ***live translation*** server and clients, see the [Usage](#-usage) section*
 
 <a href="https://github.com/AbdullahHendy/live-translation/blob/main/doc/demo.gif?raw=true" target="_blank">
   <img src="https://github.com/AbdullahHendy/live-translation/blob/main/doc/demo.gif?raw=true" alt="Server-Client Demo" />
