@@ -23,10 +23,12 @@ const CHUNK_SIZE = 640;
 const CHUNK_SIZE_MS = (CHUNK_SIZE / SAMPLE_RATE) * 1000; // 40 ms
 const OPUS_BITRATE = 30000;
 const APPLICATION_VOIP = true;
-const log = (msg) => {
-    document.getElementById('output').textContent += msg + '\n';
-};
 
+const log = (msg) => {
+    const logDiv = document.getElementById('log-content');
+    logDiv.textContent += msg + '\n';
+    logDiv.scrollTop = logDiv.scrollHeight;
+};
 
 // Downsample buffer from inputRate to targetRate
 function downsampleBuffer(buffer, inputRate, targetRate) {
@@ -57,11 +59,10 @@ libopus.onload = () => {
 document.getElementById('start').onclick = async () => {
     const startBtn = document.getElementById('start');
     const stopBtn = document.getElementById('stop');
-    const status = document.getElementById('status');
 
     startBtn.disabled = true;
     stopBtn.disabled = false;
-    status.textContent = '⏳ Connecting...';
+    log('⏳ Connecting...');
 
     try {
         ws = new WebSocket(WS_URL);
@@ -70,14 +71,11 @@ document.getElementById('start').onclick = async () => {
             ws.onerror = () => rej(new Error('WebSocket connection failed'));
         });
 
-        status.textContent = '✅ Connected';
-        log('✅ WebSocket connected');
+        log('✅ Connected');
 
         stream = await navigator.mediaDevices.getUserMedia({ audio: true });
         context = new AudioContext({ sampleRate: SAMPLE_RATE });
         log(`🎤 AudioContext sample rate: ${context.sampleRate}`);
-        log(`--------------------------------------------`)
-        log(`--------------------------------------------`)
 
         await context.audioWorklet.addModule('worklet-processor.js');
         node = new AudioWorkletNode(context, 'pcm-processor');
@@ -110,7 +108,7 @@ document.getElementById('start').onclick = async () => {
                     // Send the encoded chunk to the server
                     ws.send(encoded);
                 } else {
-                    console.log('❌ Encoder output is empty');
+                    log('❌ Encoder output is empty');
                 }
                 // Encoding and sending the chunk - end
 
@@ -122,15 +120,17 @@ document.getElementById('start').onclick = async () => {
         ws.onmessage = (event) => {
             try {
                 const msg = JSON.parse(event.data);
-                if (msg.transcription) log('📝 ' + msg.transcription);
-                if (msg.translation) log('🌍 ' + msg.translation);
+                if (msg.transcription || msg.translation) {
+                    document.getElementById('transcription').textContent = msg.transcription;
+                    document.getElementById('translation').textContent = msg.translation; 
+                }
             } catch {
                 log('❌ Failed to parse message');
             }
         };
 
     } catch (err) {
-        status.textContent = '❌ Failed to connect';
+        log('❌ Failed to connect');
         log(err.message);
         startBtn.disabled = false;
         stopBtn.disabled = true;
@@ -145,10 +145,6 @@ document.getElementById('stop').onclick = () => {
 
     document.getElementById('start').disabled = false;
     document.getElementById('stop').disabled = true;
-    document.getElementById('status').textContent = '';
-    log(`--------------------------------------------`)
-    log(`--------------------------------------------`)
     log('🛑 Stopped');
-    log(`--------------------------------------------`)
     log(`--------------------------------------------`)
 };
