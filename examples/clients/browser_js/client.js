@@ -121,8 +121,8 @@ document.getElementById('start').onclick = async () => {
             try {
                 const msg = JSON.parse(event.data);
                 if (msg.transcription || msg.translation) {
-                    document.getElementById('transcription').textContent = msg.transcription;
-                    document.getElementById('translation').textContent = msg.translation; 
+                    document.getElementById('transcription').textContent = msg.transcription || '';
+                    document.getElementById('translation').textContent = msg.translation || ''; 
                 }
             } catch {
                 log('❌ Failed to parse message');
