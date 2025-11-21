@@ -5,6 +5,7 @@ on:
     branches: ["**"]  # Trigger on all branches
   pull_request:
     branches: ["**"]  # Trigger on all PRs
+  workflow_dispatch: # Allow manual triggering
 
 permissions:
   contents: read  # Minimally scoped permissions for GITHUB_TOKEN
