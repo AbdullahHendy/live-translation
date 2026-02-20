@@ -83,8 +83,8 @@ install:
 	@echo "🔧 Installing package"
 	$(PYTHON) -m $(PIP) install --upgrade $(PIP)
 	if [ "$(EDITABLE)" = "true" ]; then \
-		$(PYTHON) -m $(PIP) install -e .[$(INSTALL_EXTRAS)]; \
+		$(PYTHON) -m $(PIP) install --no-cache-dir -e .[$(INSTALL_EXTRAS)]; \
 	else \
-		$(PYTHON) -m $(PIP) install    .[$(INSTALL_EXTRAS)]; \
+		$(PYTHON) -m $(PIP) install --no-cache-dir .[$(INSTALL_EXTRAS)]; \
 	fi
 	@echo "\033[0;32m✅ Installation complete.\033[0m"
