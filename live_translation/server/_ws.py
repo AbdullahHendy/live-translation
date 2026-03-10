@@ -59,8 +59,17 @@ class WebSocketIO(threading.Thread):
                                 audio = np.frombuffer(message, dtype=np.int16)
 
                             self._audio_queue.put(audio)
+
+                    # If async for loop exits, it's most likely that client disconnected
+                    raise ClientDisconnected(
+                        "Client disconnected during audio reception"
+                    )
+
                 except Exception as e:
                     print(f"🚨 WebSocketIO: receive_audio() error: {e}")
+                    raise ClientDisconnected(
+                        "Client disconnected during audio reception"
+                    )
 
             async def send_output():
                 try:
@@ -78,7 +87,9 @@ class WebSocketIO(threading.Thread):
                                     "🚨 WebSocketIO: Trying to send output on "
                                     "a closed connection"
                                 )
-                                break
+                                raise ClientDisconnected(
+                                    "Client disconnected during output sending"
+                                )
                         await asyncio.sleep(0.01)
                 except Exception as e:
                     print(f"🚨 WebSocketIO: send_output() error: {e}")
@@ -111,11 +122,11 @@ class WebSocketIO(threading.Thread):
                         tg.create_task(send_output())
                         tg.create_task(heartbeat())
 
-                except* ClientDisconnected:
-                    print("🔌 WebSocketIO: Client disconnected during operation.")
+                except* ClientDisconnected as eg:
+                    print(f"🔌 WebSocketIO: Client disconnected: {eg.exceptions[0]}")
 
-                except* Exception as e:
-                    print(f"🚨 WebSocketIO handler error: {e}")
+                except* Exception as eg:
+                    print(f"🚨 WebSocketIO handler error: {eg.exceptions[0]}")
 
                 # Cleanup: flush queues on disconnect or error
                 self._flush_queues()
