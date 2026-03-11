@@ -56,4 +56,3 @@ npm install
     ```bash
     node client.js
     ```
-> **NOTE**: Do **not** open the HTML file by double-clicking it. Browsers will block mic access and module loading when opened with ***file://***.
