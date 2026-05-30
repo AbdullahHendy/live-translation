@@ -67,7 +67,7 @@
 
 ## 👷🏼‍♂️ Architecture Overview
 
-***The diagram ommits finer details***
+***The diagram omits finer details***
 
 <img src="https://github.com/AbdullahHendy/live-translation/blob/main/doc/live-translation-pipeline.png?raw=true" alt="Architecture Diagram" />
 
@@ -94,11 +94,29 @@
 ## 📜 Prerequisites
 
 Before running the project, you need to install the following system dependencies:
-### **Debian**
-- [**PortAudio**](https://www.portaudio.com/) (for audio input handling)
-  ```bash
-  sudo apt-get install portaudio19-dev
-  ```
+### **Linux**
+> **NOTE**: The client captures audio as **16 kHz mono PCM**. On systems using raw ALSA devices, opening the audio stream may fail if the default input device does not support this format directly. Using **PulseAudio or PipeWire sound servers (including their ALSA compat-layers/plugins)** is recommended, as they provide automatic resampling and format conversion e.g. the `pipewire-alsa`, `pulseaudio-alsa` or similar distro-specific packages for **PipeWire/PulseAudio** users.
+>
+* **Debian**
+  - [**PortAudio**](https://www.portaudio.com/)
+    ```bash
+    sudo apt install portaudio19-dev
+    ```
+  - [**PipeWire/PulseAudio bridges**](https://wiki.debian.org/PipeWire) (see **NOTE:** above)
+    ```bash
+    sudo apt install pipewire-alsa # PipeWire users, Also see https://wiki.debian.org/PipeWire#Installation for older Debian versions
+    sudo apt install pulseaudio    # PulseAudio users
+    ```
+* **Arch**
+  - [**PortAudio**](https://www.portaudio.com/)
+    ```bash
+    sudo pacman -Syu portaudio 
+    ```
+  - [**PipeWire/PulseAudio bridges**](https://wiki.archlinux.org/title/PipeWire) (see **NOTE:** above)
+    ```bash
+    sudo pacman -Syu pipewire-alsa   # PipeWire users
+    sudo pacman -Syu pulseaudio-alsa # PulseAudio users
+    ```
 ### **MacOS**
 - [**PortAudio**](https://www.portaudio.com/) (for audio input handling)
   ```bash
@@ -344,7 +362,7 @@ git clone git@github.com:<your-username>/live-translation.git
 cd live-translation
 ```
 
-**Ceate** a virtual environment:
+**Create** a virtual environment:
 ```bash
 python -m venv .venv
 source .venv/bin/activate 
@@ -369,7 +387,7 @@ make test
 ```bash
 make build
 ```
-> **NOTE**: Building does ***lint*** and checks for ***formatting*** using [ruff](https://docs.astral.sh/ruff/). One can do that seprately using `make format` and `make lint`. For linting and formatting rules, see the [ruff config](https://github.com/AbdullahHendy/live-translation/blob/main/ruff.toml).
+> **NOTE**: Building does ***lint*** and checks for ***formatting*** using [ruff](https://docs.astral.sh/ruff/). One can do that separately using `make format` and `make lint`. For linting and formatting rules, see the [ruff config](https://github.com/AbdullahHendy/live-translation/blob/main/ruff.toml).
 
 > **NOTE**: Building generates a ***.whl*** file that can be ***pip*** installed in a new environment for testing
 
@@ -419,7 +437,8 @@ This project was tested and developed on the following system configuration:
 - **Logging**: Integrate detailed logging to track system activity, errors, and performance metrics using a more formal logging framework.
 - **Translation Models**: Some of the models downloaded in ***Translator*** from [OpusMT's Hugging Face](https://huggingface.co/Helsinki-NLP) are not the best performing when compared with top models in [Opus-MT's Leaderboard](https://opus.nlpl.eu/dashboard/). Find a way to automatically download best performing models using the user's input of `src_lang` and `tgt_lang` as it's currently done. 
 - **System Profiling & Resource Guidelines**: Benchmark and document CPU, memory, and GPU usage across all multiprocessing components. For example, "~35% CPU usage on 24-core **Intel i9-13900HX**", or "GPU load ~20% on **Nvidia RTX 4070** with `large-v3-turbo` Whisper model"). This will help with hardware requirements and deployment decisions.
-- **Proper Handshake Protocol**: Instead of duplicate server and clinet options (e.g. --codec), establish a handshake protocol where, for example, server advertises its capabilities and negotiate with client over what options to use.
+- **Proper Handshake Protocol**: Instead of duplicate server and client options (e.g. --codec), establish a handshake protocol where, for example, server advertises its capabilities and negotiate with client over what options to use.
+- **Configurable Input Device**: Right now, LiveTranslationClient uses the system's default input device with no other option. Make it default to the system's default but with an option to pass other devices through Config.  
 ---
 
 ## 📚 Citations

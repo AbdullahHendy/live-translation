@@ -23,17 +23,23 @@ class LiveTranslationClient:
         self._exit_requested = False
 
     async def _send_audio(self, websocket):
-        pa = pyaudio.PyAudio()
-        stream = pa.open(
-            format=pyaudio.paInt16,
-            channels=self.cfg.CHANNELS,
-            rate=self.cfg.SAMPLE_RATE,
-            input=True,
-            frames_per_buffer=self.cfg.CHUNK_SIZE,
-        )
+        stream = None
+        pa = None
 
-        print("🎤 Mic open, streaming to server...")
         try:
+            # TODO: Maybe add a config parameter to allow users to choose
+            # input device instead of using default all the time.
+            pa = pyaudio.PyAudio()
+            stream = pa.open(
+                format=pyaudio.paInt16,
+                channels=self.cfg.CHANNELS,
+                rate=self.cfg.SAMPLE_RATE,
+                input=True,
+                frames_per_buffer=self.cfg.CHUNK_SIZE,
+            )
+
+            print("🎤 Mic open, streaming to server...")
+
             while not self._exit_requested:
                 data = stream.read(self.cfg.CHUNK_SIZE, exception_on_overflow=False)
                 # If using Opus codec, encode the audio data from PCM to Opus format
@@ -46,11 +52,14 @@ class LiveTranslationClient:
                 await websocket.send(data)
                 await asyncio.sleep(0.01)
         except Exception as e:
-            print(f"🚨 Audio send error: {e}")
+            print(f"🚨 Audio streaming error: {e}")
+            raise AudioCaptureError(f"Audio streaming error: {e}")
         finally:
-            stream.stop_stream()
-            stream.close()
-            pa.terminate()
+            if stream:
+                stream.stop_stream()
+                stream.close()
+            if pa:
+                pa.terminate()
             print("🛑 Audio streaming stopped.")
 
     async def _receive_output(
@@ -74,6 +83,7 @@ class LiveTranslationClient:
                     print(f"❌ Failed to parse server message: {e}")
         except websockets.ConnectionClosed as e:
             print(f"🔌 WebSocket closed: {e}")
+            raise ServerDisconnected("WebSocket connection closed by server.")
 
     def run(self, callback, callback_args=(), callback_kwargs=None, blocking=True):
         async def _connect_loop():
@@ -87,12 +97,39 @@ class LiveTranslationClient:
                         await websocket.ping()
 
                         print("✅ Connected to server.")
-                        await asyncio.gather(
-                            self._send_audio(websocket),
-                            self._receive_output(
-                                websocket, callback, callback_args, callback_kwargs
-                            ),
-                        )
+                        # Use asyncio.TaskGroup instead of asyncio.gather
+                        # for better error handling and cancellation. See:
+                        # https://docs.python.org/3/library/asyncio-task.html#running-tasks-concurrently # noqa: E501
+                        try:
+                            async with asyncio.TaskGroup() as tg:
+                                tg.create_task(self._send_audio(websocket))
+                                tg.create_task(
+                                    self._receive_output(
+                                        websocket,
+                                        callback,
+                                        callback_args,
+                                        callback_kwargs,
+                                    )
+                                )
+
+                        # Exit client on audio capture errors and unexpected errors
+                        except* ServerDisconnected as eg:
+                            print(
+                                f"🔌 Disconnected from server during streaming: "
+                                f"{eg.exceptions[0]}"
+                            )
+                        except* AudioCaptureError as eg:
+                            print(
+                                f"🚨 Audio capture error during streaming: "
+                                f"{eg.exceptions[0]}"
+                            )
+                            self.stop()
+                        except* Exception as eg:
+                            print(
+                                f"🚨 Unexpected error during streaming: "
+                                f"{eg.exceptions[0]}"
+                            )
+                            self.stop()
 
                 except websockets.ConnectionClosedError as e:
                     print(f"🔌 Connection failed: {e.rcvd}.")
@@ -123,3 +160,17 @@ class LiveTranslationClient:
         # where a new client connects while the server is still flushing old queues.
         time.sleep(2)
         self._exit_requested = True
+
+
+class ServerDisconnected(Exception):
+    """Raised when the WebSocket is closed by the server side."""
+
+    # See: https://docs.python.org/3/library/asyncio-task.html#terminating-a-task-group
+    pass
+
+
+class AudioCaptureError(Exception):
+    """Raised when the mic stream fails from client side."""
+
+    # See: https://docs.python.org/3/library/asyncio-task.html#terminating-a-task-group
+    pass

@@ -13,7 +13,7 @@ from live_translation.server.config import Config
 
 @pytest.mark.asyncio
 async def test_websocketio_end_to_end_pcm():
-    port = 8877
+    port = 58870
     stop_event = mp.Event()
     audio_queue = mp.Queue()
     output_queue = mp.Queue()
@@ -74,7 +74,7 @@ async def test_websocketio_end_to_end_pcm():
 
 @pytest.mark.asyncio
 async def test_websocketio_opus_decode_success():
-    port = 8881
+    port = 58871
     stop_event = mp.Event()
     audio_queue = mp.Queue()
     output_queue = mp.Queue()
@@ -112,7 +112,7 @@ async def test_websocketio_opus_decode_success():
 
 @pytest.mark.asyncio
 async def test_websocketio_opus_decode_error(capfd):
-    port = 8882
+    port = 58872
     stop_event = mp.Event()
     audio_queue = mp.Queue()
     output_queue = mp.Queue()
@@ -148,7 +148,7 @@ async def test_websocketio_opus_decode_error(capfd):
 
 @pytest.mark.asyncio
 async def test_websocketio_reject_extra_clients():
-    port = 8898
+    port = 58873
     stop_event = mp.Event()
     audio_queue = mp.Queue()
     output_queue = mp.Queue()
@@ -183,7 +183,7 @@ async def test_websocketio_reject_extra_clients():
 
 @pytest.mark.asyncio
 async def test_websocketio_logger_called(capsys):
-    port = 8879
+    port = 58874
     stop_event = mp.Event()
     audio_queue = mp.Queue()
     output_queue = mp.Queue()
@@ -218,7 +218,7 @@ async def test_websocketio_logger_called(capsys):
 
 @pytest.mark.asyncio
 async def test_websocketio_client_disconnected(capfd):
-    port = 8896
+    port = 58875
     stop_event = mp.Event()
     audio_queue = mp.Queue()
     output_queue = mp.Queue()
@@ -262,7 +262,7 @@ async def test_websocketio_client_disconnected(capfd):
 
 
 def test_websocketio_flush_queues(capsys):
-    port = 89891
+    port = 58876
     stop_event = mp.Event()
     audio_queue = mp.Queue()
     output_queue = mp.Queue()
