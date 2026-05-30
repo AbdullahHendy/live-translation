@@ -27,6 +27,8 @@ class LiveTranslationClient:
         pa = None
 
         try:
+            # TODO: Maybe add a config parameter to allow users to choose
+            # input device instead of using default all the time.
             pa = pyaudio.PyAudio()
             stream = pa.open(
                 format=pyaudio.paInt16,
